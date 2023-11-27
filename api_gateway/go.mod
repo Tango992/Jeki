@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/go-playground/validator/v10 v10.16.0
+	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.3
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0

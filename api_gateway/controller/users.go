@@ -4,18 +4,19 @@ import (
 	"api-gateway/dto"
 	"api-gateway/models"
 	"api-gateway/pb"
+	"api-gateway/utils"
 	"context"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
 )
-type RegisterController struct {
+type UserController struct {
 	Client pb.UserClient
 }
 
-func NewRegisterController(client pb.UserClient) RegisterController {
-	return RegisterController{
+func NewUserController(client pb.UserClient) UserController {
+	return UserController{
 		Client: client,
 	}
 }
@@ -27,14 +28,14 @@ func NewRegisterController(client pb.UserClient) RegisterController {
 	Admin = 3
 */
 
-func (r RegisterController) RegisterUser(c echo.Context) error {
+func (u UserController) RegisterUser(c echo.Context) error {
 	register := new(dto.UserRegister)
 	if err := c.Bind(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Request Register")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
 	if err := c.Validate(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid validate")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 	
 	registerData := &pb.RegisterRequest{
@@ -49,9 +50,9 @@ func (r RegisterController) RegisterUser(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 	
-	responseGrpc, err := r.Client.Register(ctx, registerData)
+	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error - failed user register")
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
     }
 
 	responseData := models.User{
@@ -66,7 +67,7 @@ func (r RegisterController) RegisterUser(c echo.Context) error {
 	}
 
 	response := dto.Response{
-        Message: "User Berhasil register",
+        Message: "Registered succesfully",
         Data:    responseData,
     }
 
@@ -74,14 +75,14 @@ func (r RegisterController) RegisterUser(c echo.Context) error {
 }
 
 
-func (r RegisterController) RegisterDriver(c echo.Context) error{
+func (u UserController) RegisterDriver(c echo.Context) error{
 	register := new(dto.UserRegister)
 	if err := c.Bind(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Request Register")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
 	if err := c.Validate(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid validate")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 	registerData := &pb.RegisterRequest{
 		FirstName: register.FirstName,
@@ -95,9 +96,9 @@ func (r RegisterController) RegisterDriver(c echo.Context) error{
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 	
-	responseGrpc, err := r.Client.Register(ctx, registerData)
+	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error - failed user register")
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
     }
 
 	responseData := models.User{
@@ -112,21 +113,21 @@ func (r RegisterController) RegisterDriver(c echo.Context) error{
 	}
 
 	response := dto.Response{
-        Message: "User Berhasil register",
+        Message: "Registered succesfully",
         Data:    responseData,
     }
 
     return c.JSON(http.StatusCreated, response)
 }
 
-func (r RegisterController) RegisterAdmin(c echo.Context) error {
+func (u UserController) RegisterAdmin(c echo.Context) error {
 	register := new(dto.UserRegister)
 	if err := c.Bind(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Request Register")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
 	if err := c.Validate(register); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid validate")
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
 	registerData := &pb.RegisterRequest{
@@ -141,9 +142,9 @@ func (r RegisterController) RegisterAdmin(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	defer cancel()
 	
-	responseGrpc, err := r.Client.Register(ctx, registerData)
+	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, "Internal server error - failed user register")
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
     }
 
 	responseData := models.User{
@@ -158,7 +159,7 @@ func (r RegisterController) RegisterAdmin(c echo.Context) error {
 	}
 
 	response := dto.Response{
-        Message: "Admin Berhasil register",
+        Message: "Registered succesfully",
         Data:    responseData,
     }
     return c.JSON(http.StatusCreated, response)
