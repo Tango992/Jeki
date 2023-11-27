@@ -14,17 +14,16 @@ import (
 
 func main() {
 	e := echo.New()
+	e.Validator = &helpers.CustomValidator{NewValidator: validator.New()}
 	e.Pre(middleware.RemoveTrailingSlash())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	conn, userClient := config.InitGrpc()
 	defer conn.Close()
 
 	userController := controller.NewUserController(userClient)
 	
-	e.Validator = &helpers.CustomValidator{NewValidator: validator.New()}
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
 	routes.Routes(e, userController)
 
 	e.Logger.Fatal(e.Start(":8080"))

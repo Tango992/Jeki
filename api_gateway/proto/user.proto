@@ -2,11 +2,36 @@ syntax = "proto3";
 
 package user;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "./pb";
 
 service User {
     rpc Register(RegisterRequest) returns (RegisterResponse);
     rpc GetUserData(EmailRequest) returns (UserData);
+    rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
+    rpc FindRestaurantById(RestaurantId) returns (Restaurant);
+}
+
+message RestaurantId {
+    uint32 id = 1;
+}
+
+message Restaurants {
+    repeated Restaurant restaurants = 1;
+}
+
+message Restaurant {
+    string name = 1;
+    string address = 2;
+    repeated Menu menus = 3;
+}
+
+message Menu {
+    uint32 id = 1;
+    string name = 2;
+    string category = 3;
+    float price = 4;
 }
 
 message EmailRequest {
@@ -14,12 +39,13 @@ message EmailRequest {
 }
 
 message UserData {
-    string first_name = 1;
-    string last_name = 2;
-    string email = 3;
-    string password = 4;
-    string birth_date = 5;
-    string role = 6;
+    uint32 id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    string password = 5;
+    string birth_date = 6;
+    string role = 7;
 }
 
 message RegisterRequest {

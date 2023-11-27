@@ -11,7 +11,9 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
+
 type UserController struct {
 	Client pb.UserClient
 }
@@ -22,7 +24,7 @@ func NewUserController(client pb.UserClient) UserController {
 	}
 }
 
-/* 
+/*
 	ROLE ID
 	Customer/user = 1
 	Driver = 2
@@ -42,45 +44,49 @@ func (u UserController) RegisterUser(c echo.Context) error {
 	if err := helpers.DateValidator(register.BirthDate); err != nil {
 		return err
 	}
-	
-	registerData := &pb.RegisterRequest{
-		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
-		BirthDate: register.BirthDate,
-		RoleId: 1,
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	registerData := &pb.RegisterRequest{
+		FirstName: register.FirstName,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  string(hashedPassword),
+		BirthDate: register.BirthDate,
+		RoleId:    1,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-    }
+	}
 
 	responseData := models.User{
-		ID: responseGrpc.UserId,
+		ID:        responseGrpc.UserId,
 		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  "-",
 		BirthDate: register.BirthDate,
-		Role: "user",
+		Role:      "user",
 		CreatedAt: responseGrpc.CreatedAt,
 	}
 
 	response := dto.Response{
-        Message: "Registered succesfully",
-        Data:    responseData,
-    }
+		Message: "Registered succesfully",
+		Data:    responseData,
+	}
 
-    return c.JSON(http.StatusCreated, response)
+	return c.JSON(http.StatusCreated, response)
 }
 
-
-func (u UserController) RegisterDriver(c echo.Context) error{
+func (u UserController) RegisterDriver(c echo.Context) error {
 	register := new(dto.UserRegister)
 	if err := c.Bind(register); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
@@ -94,40 +100,45 @@ func (u UserController) RegisterDriver(c echo.Context) error{
 		return err
 	}
 
-	registerData := &pb.RegisterRequest{
-		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
-		BirthDate: register.BirthDate,
-		RoleId: 2,
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	registerData := &pb.RegisterRequest{
+		FirstName: register.FirstName,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  string(hashedPassword),
+		BirthDate: register.BirthDate,
+		RoleId:    2,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-    }
+	}
 
 	responseData := models.User{
-		ID: responseGrpc.UserId,
+		ID:        responseGrpc.UserId,
 		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  "-",
 		BirthDate: register.BirthDate,
-		Role: "driver",
+		Role:      "driver",
 		CreatedAt: responseGrpc.CreatedAt,
 	}
 
 	response := dto.Response{
-        Message: "Registered succesfully",
-        Data:    responseData,
-    }
+		Message: "Registered succesfully",
+		Data:    responseData,
+	}
 
-    return c.JSON(http.StatusCreated, response)
+	return c.JSON(http.StatusCreated, response)
 }
 
 func (u UserController) RegisterAdmin(c echo.Context) error {
@@ -143,40 +154,98 @@ func (u UserController) RegisterAdmin(c echo.Context) error {
 	if err := helpers.DateValidator(register.BirthDate); err != nil {
 		return err
 	}
-	
-	registerData := &pb.RegisterRequest{
-		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
-		BirthDate: register.BirthDate,
-		RoleId: 3,
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	registerData := &pb.RegisterRequest{
+		FirstName: register.FirstName,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  string(hashedPassword),
+		BirthDate: register.BirthDate,
+		RoleId:    3,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-    }
+	}
 
 	responseData := models.User{
-		ID: responseGrpc.UserId,
+		ID:        responseGrpc.UserId,
 		FirstName: register.FirstName,
-		LastName: register.LastName,
-		Email: register.Email,
-		Password: register.Password,
+		LastName:  register.LastName,
+		Email:     register.Email,
+		Password:  "-",
 		BirthDate: register.BirthDate,
-		Role: "admin",
+		Role:      "admin",
 		CreatedAt: responseGrpc.CreatedAt,
 	}
 
 	response := dto.Response{
-        Message: "Registered succesfully",
-        Data:    responseData,
-    }
-    return c.JSON(http.StatusCreated, response)
+		Message: "Registered succesfully",
+		Data:    responseData,
+	}
+	return c.JSON(http.StatusCreated, response)
 }
 
 // Login
+func (u UserController) LoginUser(c echo.Context) error {
+	loginReq := new(dto.UserLogin)
+	if err := c.Bind(loginReq); err != nil {
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
+	}
+
+	if err := c.Validate(loginReq); err != nil {
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
+	}
+
+	emailRequest := &pb.EmailRequest{
+		Email: loginReq.Email,
+	}
+	
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userDataTmp, err := u.Client.GetUserData(ctx, emailRequest)
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
+	userData := models.User{
+		ID: userDataTmp.Id,
+		FirstName: userDataTmp.FirstName,
+		LastName: userDataTmp.LastName,
+		Email: userDataTmp.Email,
+		Password: userDataTmp.Password,
+		BirthDate: userDataTmp.BirthDate,
+		Role: userDataTmp.Role,
+	}
+
+	// check hashpassword
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(loginReq.Password))
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
+	// jika password match, kirim token
+	
+
+	// handle jwt dan error, get generate token
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
+	response := dto.Response{
+		Message: "Login succesfully",
+		Data:   token,
+	}
+	return c.JSON(http.StatusOK, response)
+
+}

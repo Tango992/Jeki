@@ -6,29 +6,9 @@
 
 - users/register/user [POST]
 
-{
-    "name": "John Doe",
-    "password": "secret"
-    "role": "customer"
-}
-
-
 - users/register/driver [POST]
 
-{
-    "name": "John Doe",
-    "password": "secret"
-    "role": "driver"
-}
-
-
 - users/register/admin [POST]
-
-{
-    "name": "John Doe",
-    "password": "secret"
-    "role": "admin"
-}
 
 ### Log in
 
@@ -52,11 +32,11 @@
 
 ### View Restaurants and Menus as Customer
 
-- restaurants [GET] (Requires auth with user role)
+- restaurants [GET] 
 
-- restaurants/:resto_id [GET] (Requires auth with user role)
+- restaurants/:resto_id [GET] 
 
-- restaurants/:resto_id/menu/:menu_id [GET] (Requires auth with user role)
+- restaurants/menu/:menu_id [GET] 
 
 
 ## ORDER_SERVICE ENDPOINT
