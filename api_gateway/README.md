@@ -1,6 +1,6 @@
 # User Service
 
-## Endpoint
+## USER_SERVICE ENDPOINT
 
 ### Registration
 
@@ -37,3 +37,8 @@
 - restaurants/:resto_id [GET] (Requires auth with user role)
 
 - restaurants/:resto_id/menu/:menu_id [GET] (Requires auth with user role)
+
+
+## ORDER_SERVICE ENDPOINT
+
+-
