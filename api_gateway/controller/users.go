@@ -2,6 +2,7 @@ package controller
 
 import (
 	"api-gateway/dto"
+	"api-gateway/helpers"
 	"api-gateway/models"
 	"api-gateway/pb"
 	"api-gateway/utils"
@@ -36,6 +37,10 @@ func (u UserController) RegisterUser(c echo.Context) error {
 
 	if err := c.Validate(register); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
+	}
+
+	if err := helpers.DateValidator(register.BirthDate); err != nil {
+		return err
 	}
 	
 	registerData := &pb.RegisterRequest{
@@ -84,6 +89,11 @@ func (u UserController) RegisterDriver(c echo.Context) error{
 	if err := c.Validate(register); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
+
+	if err := helpers.DateValidator(register.BirthDate); err != nil {
+		return err
+	}
+
 	registerData := &pb.RegisterRequest{
 		FirstName: register.FirstName,
 		LastName: register.LastName,
@@ -130,6 +140,10 @@ func (u UserController) RegisterAdmin(c echo.Context) error {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
+	if err := helpers.DateValidator(register.BirthDate); err != nil {
+		return err
+	}
+	
 	registerData := &pb.RegisterRequest{
 		FirstName: register.FirstName,
 		LastName: register.LastName,
