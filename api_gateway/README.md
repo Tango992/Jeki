@@ -6,9 +6,29 @@
 
 - users/register/user [POST]
 
+{
+    "name": "John Doe",
+    "password": "secret"
+    "role": "customer"
+}
+
+
 - users/register/driver [POST]
 
+{
+    "name": "John Doe",
+    "password": "secret"
+    "role": "driver"
+}
+
+
 - users/register/admin [POST]
+
+{
+    "name": "John Doe",
+    "password": "secret"
+    "role": "admin"
+}
 
 ### Log in
 
