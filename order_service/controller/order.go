@@ -3,15 +3,17 @@ package controller
 import (
 	"context"
 	"order-service/pb"
+	"order-service/repository"
 )
 
 type OrderController struct {
 	pb.UnimplementedOrderServiceServer
+	Repository repository.Order
 }
 
-func NewOrderController() OrderController {
+func NewOrderController(r repository.Order) OrderController {
 	return OrderController{
-
+		Repository: r,
 	}
 }
 
