@@ -8,6 +8,7 @@ import (
 	"net"
 	"time"
 	"user-service/dto"
+	"user-service/config"
 	"user-service/models"
 	"user-service/pb"
 
@@ -15,7 +16,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -24,20 +24,15 @@ type Server struct {
 	db *gorm.DB
 }
 
-func NewServer() (*Server, error) {
-	dsn := "user=postgres dbname=deploy host=localhost password=secret port=5432 sslmode=disable"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %v", err)
-	}
 
+func NewServer(db *gorm.DB) *Server {
 	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{}); err != nil {
 		log.Fatal(err)
 	}
 
 	return &Server{
 		db: db,
-	}, nil
+	}
 }
 
 
@@ -101,18 +96,24 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 }
 
 func main() {
-	server, err := NewServer()
+	db, err := config.InitDB()
 	if err != nil {
-		log.Fatalf("Failed to create server: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Create a new gRPC server
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get underlying DB: %v", err)
+	}
+
+	defer sqlDB.Close()
+
+	server := NewServer(db)
+
 	grpcServer := grpc.NewServer()
 
-	// Register the UserServer with the gRPC server
 	pb.RegisterUserServer(grpcServer, server)
 
-	// Set up a listener on a TCP port
 	port := 50051
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -121,7 +122,6 @@ func main() {
 
 	log.Printf("Server listening on port %d", port)
 
-	// Start the gRPC server
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
