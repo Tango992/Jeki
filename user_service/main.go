@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 	"time"
+	"user-service/dto"
 	"user-service/config"
 	"user-service/models"
 	"user-service/pb"
@@ -22,6 +24,7 @@ type Server struct {
 	db *gorm.DB
 }
 
+
 func NewServer(db *gorm.DB) *Server {
 	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{}); err != nil {
 		log.Fatal(err)
@@ -32,7 +35,8 @@ func NewServer(db *gorm.DB) *Server {
 	}
 }
 
-func convertUserToUserData(user models.User) *pb.UserData {
+
+func convertUserToUserData(user dto.UserJoinedData) *pb.UserData {
 	return &pb.UserData{
 		Id:        uint32(user.ID),
 		FirstName: user.FirstName,
@@ -40,15 +44,23 @@ func convertUserToUserData(user models.User) *pb.UserData {
 		Email:     user.Email,
 		Password:  user.Password,
 		BirthDate: user.BirthDate,
-		// Role:      user.Role,
+		Role:      user.Role,
 	}
 }
 
 func (s *Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.UserData, error) {
-	var user models.User
-	result := s.db.First(&user, "email = ?", data.Email)
-	if result.Error != nil {
-		return nil, result.Error
+	var user dto.UserJoinedData
+
+	result := s.db.Table("users u").
+		Select("u.id, u.first_name, u.last_name, u.email, u.password, u.birth_date, u.created_at, r.name AS role").
+		Where("u.email = ?", data.Email).
+		Joins("JOIN roles r on u.role_id = r.id").
+		Take(&user)
+	if err := result.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal,err.Error())
 	}
 
 	userData := convertUserToUserData(user)
