@@ -70,9 +70,10 @@ message Address {
 
 message Restaurant {
     uint32 id = 1;
-    string name = 2;
-    Address address = 3;
-    string status = 4;
+    uint32 admin_id = 2;
+    string name = 3;
+    Address address = 4;
+    string status = 5;
 }
 
 message Menu {
