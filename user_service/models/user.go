@@ -10,7 +10,6 @@ type User struct {
 	RoleID       uint32 `json:"role_id" gorm:"not null"`
 	CreatedAt    string `json:"created_at" gorm:"not null"`
 	Verification Verification
-	Roles        []Role
 }
 
 type Verification struct {
@@ -20,6 +19,7 @@ type Verification struct {
 }
 
 type Role struct {
-	ID   uint   `json:"id" gorm:"primaryKey"`
-	Name string `json:"name" gorm:"not null"`
+	ID    uint   `json:"id" gorm:"primaryKey"`
+	Name  string `json:"name" gorm:"not null"`
+	Users []User
 }

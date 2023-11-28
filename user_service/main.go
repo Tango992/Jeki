@@ -25,10 +25,10 @@ func NewServer() (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
-	/*
-		ROLE_ID (Foreign Key) -> ID(primary key) yang ada di models.Roles
-	*/
-	db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{})
+
+	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{}); err != nil {
+		log.Fatal(err)
+	}
 
 	return &Server{
 		db: db,
