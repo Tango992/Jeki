@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"user-service/models"
 	"user-service/pb"
 
 	"google.golang.org/grpc"
@@ -24,8 +25,10 @@ func NewServer() (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
-
-	db.AutoMigrate(&pb.UserData{})
+	/*
+		ROLE_ID (Foreign Key) -> ID(primary key) yang ada di models.Roles
+	*/
+	db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{})
 
 	return &Server{
 		db: db,
@@ -42,9 +45,13 @@ func (s *Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.Us
 }
 
 func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	newUser := pb.UserData{
-		Email:    data.Email,
-		Password: data.Password,
+	newUser := models.User{
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Email:     data.Email,
+		Password:  data.Password,
+		BirthDate: data.BirthDate,
+		RoleID:    data.RoleId,
 	}
 
 	result := s.db.Create(&newUser)
