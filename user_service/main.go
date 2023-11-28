@@ -10,6 +10,8 @@ import (
 	"user-service/pb"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -77,8 +79,11 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 	}
 
 	result := s.db.Create(&newUser)
-	if result.Error != nil {
-		return nil, result.Error
+	if err := result.Error; err != nil {
+		if err.Error() == `ERROR: duplicate key value violates unique constraint "users_email_key" (SQLSTATE 23505)` {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		}
+		return nil, status.Error(codes.Internal,err.Error())
 	}
 
 	response := &pb.RegisterResponse{
@@ -87,7 +92,6 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 	}
 
 	return response, nil
-
 }
 
 func main() {
