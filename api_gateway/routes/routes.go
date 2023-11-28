@@ -12,8 +12,6 @@ func Routes(e *echo.Echo, uc controller.UserController) {
 		register.POST("/user", uc.RegisterUser)
 		register.POST("/driver", uc.RegisterDriver)
 		register.POST("/admin", uc.RegisterAdmin)
-		register.POST("/login", uc.LoginUser)
+		register.POST("/login", uc.Login)
 	}
-
-	
 }

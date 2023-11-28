@@ -1,6 +1,6 @@
-# User Service
+# Api Gateway
 
-## USER_SERVICE ENDPOINT
+## User Service Endpoints
 
 ### Registration
 
@@ -13,6 +13,8 @@
 ### Log in
 
 - users/login [POST]
+
+## Merchant Services Endpoints
 
 ### Create Restaurant and Menu
 
@@ -36,9 +38,36 @@
 
 - restaurants/:resto_id [GET] 
 
-- restaurants/menu/:menu_id [GET] 
+- restaurants/menu/:menu_id [GET]
 
+## Order Service Endpoints
 
-## ORDER_SERVICE ENDPOINT
+### Make & view order(s) as a Customer
 
--
+- users/orders [POST] (Requires auth with user role)
+
+- users/orders [GET] (Requires auth with user role)
+
+- users/orders/:id [GET] (Requires auth with user role)
+
+### As a Merchant
+
+- merchant/orders [GET] (Requires auth with admin role)
+
+- merchant/orders/ongoing [GET] (Requires auth with admin role)
+
+- merchant/orders/:id [GET] (Requires auth with admin role)
+
+- merchant/orders/:id [PUT] (Requires auth with admin role)
+
+> [PUT] updates the order status such as (done, cancelled)
+
+### As a Driver
+
+- driver/orders [GET] (Requires auth with driver role)
+
+- driver/orders/ongoing [GET] (Requires auth with driver role)
+
+- driver/orders/:id [PUT] (Requires auth with driver role)
+
+> [PUT] updates the order status such as (delivary, done)

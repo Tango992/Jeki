@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func SignNewJWT(c echo.Context, user models.User) *utils.ErrResponse {
+func SignNewJWT(c echo.Context, user models.User) error{
 	claims := jwt.MapClaims{
 		"exp": time.Now().Add(4 * time.Hour).Unix(),
 		"id": user.ID,
@@ -24,7 +24,7 @@ func SignNewJWT(c echo.Context, user models.User) *utils.ErrResponse {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
-		return utils.ErrInternalServer.New(err.Error())
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
 	cookie := new(http.Cookie)

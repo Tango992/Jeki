@@ -32,116 +32,18 @@ func NewUserController(client pb.UserClient) UserController {
 */
 
 func (u UserController) RegisterUser(c echo.Context) error {
-	register := new(dto.UserRegister)
-	if err := c.Bind(register); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-
-	if err := c.Validate(register); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-
-	if err := helpers.DateValidator(register.BirthDate); err != nil {
-		return err
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-	}
-
-	registerData := &pb.RegisterRequest{
-		FirstName: register.FirstName,
-		LastName:  register.LastName,
-		Email:     register.Email,
-		Password:  string(hashedPassword),
-		BirthDate: register.BirthDate,
-		RoleId:    1,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	responseGrpc, err := u.Client.Register(ctx, registerData)
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-	}
-
-	responseData := models.User{
-		ID:        responseGrpc.UserId,
-		FirstName: register.FirstName,
-		LastName:  register.LastName,
-		Email:     register.Email,
-		Password:  "-",
-		BirthDate: register.BirthDate,
-		Role:      "user",
-		CreatedAt: responseGrpc.CreatedAt,
-	}
-
-	response := dto.Response{
-		Message: "Registered succesfully",
-		Data:    responseData,
-	}
-
-	return c.JSON(http.StatusCreated, response)
+	return u.Register(c, 1, "user")
 }
 
 func (u UserController) RegisterDriver(c echo.Context) error {
-	register := new(dto.UserRegister)
-	if err := c.Bind(register); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-
-	if err := c.Validate(register); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-
-	if err := helpers.DateValidator(register.BirthDate); err != nil {
-		return err
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-	}
-
-	registerData := &pb.RegisterRequest{
-		FirstName: register.FirstName,
-		LastName:  register.LastName,
-		Email:     register.Email,
-		Password:  string(hashedPassword),
-		BirthDate: register.BirthDate,
-		RoleId:    2,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	responseGrpc, err := u.Client.Register(ctx, registerData)
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
-	}
-
-	responseData := models.User{
-		ID:        responseGrpc.UserId,
-		FirstName: register.FirstName,
-		LastName:  register.LastName,
-		Email:     register.Email,
-		Password:  "-",
-		BirthDate: register.BirthDate,
-		Role:      "driver",
-		CreatedAt: responseGrpc.CreatedAt,
-	}
-
-	response := dto.Response{
-		Message: "Registered succesfully",
-		Data:    responseData,
-	}
-
-	return c.JSON(http.StatusCreated, response)
+	return u.Register(c, 2, "driver")
 }
 
 func (u UserController) RegisterAdmin(c echo.Context) error {
+	return u.Register(c, 3, "admin")
+}
+
+func (u UserController) Register(c echo.Context, roleId uint, roleName string) error {
 	register := new(dto.UserRegister)
 	if err := c.Bind(register); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
@@ -166,7 +68,7 @@ func (u UserController) RegisterAdmin(c echo.Context) error {
 		Email:     register.Email,
 		Password:  string(hashedPassword),
 		BirthDate: register.BirthDate,
-		RoleId:    3,
+		RoleId:    uint32(roleId),
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -182,21 +84,18 @@ func (u UserController) RegisterAdmin(c echo.Context) error {
 		FirstName: register.FirstName,
 		LastName:  register.LastName,
 		Email:     register.Email,
-		Password:  "-",
 		BirthDate: register.BirthDate,
-		Role:      "admin",
+		Role:      roleName,
 		CreatedAt: responseGrpc.CreatedAt,
 	}
 
-	response := dto.Response{
+	return c.JSON(http.StatusCreated, dto.Response{
 		Message: "Registered succesfully",
 		Data:    responseData,
-	}
-	return c.JSON(http.StatusCreated, response)
+	})
 }
 
-// Login
-func (u UserController) LoginUser(c echo.Context) error {
+func (u UserController) Login(c echo.Context) error {
 	loginReq := new(dto.UserLogin)
 	if err := c.Bind(loginReq); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
@@ -209,7 +108,7 @@ func (u UserController) LoginUser(c echo.Context) error {
 	emailRequest := &pb.EmailRequest{
 		Email: loginReq.Email,
 	}
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -219,33 +118,25 @@ func (u UserController) LoginUser(c echo.Context) error {
 	}
 
 	userData := models.User{
-		ID: userDataTmp.Id,
+		ID:        userDataTmp.Id,
 		FirstName: userDataTmp.FirstName,
-		LastName: userDataTmp.LastName,
-		Email: userDataTmp.Email,
-		Password: userDataTmp.Password,
+		LastName:  userDataTmp.LastName,
+		Email:     userDataTmp.Email,
+		Password:  userDataTmp.Password,
 		BirthDate: userDataTmp.BirthDate,
-		Role: userDataTmp.Role,
+		Role:      userDataTmp.Role,
 	}
 
-	// check hashpassword
-	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(loginReq.Password))
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	if err := bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(loginReq.Password)); err != nil {
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
 	}
 
-	// jika password match, kirim token
-	
-
-	// handle jwt dan error, get generate token
-	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	if err := helpers.SignNewJWT(c, userData); err != nil {
+		return err
 	}
 
-	response := dto.Response{
+	return c.JSON(http.StatusOK, dto.Response{
 		Message: "Login succesfully",
-		Data:   token,
-	}
-	return c.JSON(http.StatusOK, response)
-
+		Data:    "Authorization is stored in cookie",
+	})
 }
