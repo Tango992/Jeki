@@ -28,7 +28,7 @@ func ListenAndServeGrpc(controller controller.OrderController) {
 		),
 	)
 
-	pb.OrderServiceServer(grpcServer, controller)
+	pb.RegisterOrderServiceServer(grpcServer, controller)
 
 	log.Println("\033[36mGRPC server is running on port:", port, "\033[0m")
 	if err := grpcServer.Serve(lis); err != nil {
