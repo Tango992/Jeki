@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package merchant;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./pb";
+
+service Merchant {
+    rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
+    rpc FindRestaurantByID(IdRestaurant) returns (RestaurantID);
+    rpc FindMenuID(MenuId) returns (Menu);
+}
+
+message IdRestaurant {
+  int32 id = 1;
+}
+
+message MenuId {
+  int32 id = 1;
+}
+
+message Restaurants {
+  repeated RestaurantAll restaurants = 1;
+}
+
+message RestaurantAll {
+  int32 id = 1;
+  int32 admin_id = 2;
+  string name = 3;
+  string address = 4;
+  double latitude = 5;
+  double longitude = 6;
+}
+
+message RestaurantID {
+  int32 id = 1;
+  int32 admin_id = 2;
+  string name = 3;
+  string address = 4;
+  double latitude = 5;
+  double longitude = 6;
+  repeated Menu menus = 7;
+}
+
+message Menu {
+  int32 id = 1;
+  int32 restaurant_id = 2;
+  string name = 3;
+  int32 category_id = 4;
+  double harga = 5;
+}
+
+message Category {
+  int32 id = 1;
+  string category_name = 2;
+}

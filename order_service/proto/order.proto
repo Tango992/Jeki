@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./pb";
+
+
+service OrderService{
+    rpc PostOrder(RequestOrderData) returns (Order);
+    rpc GetRestaurantOrders(RestaurantId) returns (Orders);
+    rpc GetUserOrders(UserId) returns (Orders);
+    rpc GetDriverOrder(DriverId) returns (Order);
+    rpc GetOrderById(OrderId) returns (Order);
+}
+
+message RequestOrderData {
+    uint32 user_id = 1;
+    Address address = 2;
+    repeated OrderItem order_items = 3;
+}
+
+message OrderItem {
+    string menu_id = 1;
+    uint32 qty = 2;
+}
+
+message RestaurantId {
+    uint32 id = 1;
+}
+
+message DriverId {
+    uint32 id = 1;
+}
+
+message UserId {
+    uint32 id = 1;
+}
+
+message OrderId {
+    uint32 id = 1;
+}
+
+message Orders {
+    repeated Order orders = 1;
+}
+
+message Order {
+    Restaurant restaurant = 1;
+    OrderDetail order_detail = 2;
+    User user = 3;
+    Driver driver = 4;
+    Payment payment = 5;
+}
+
+message Driver {
+    uint32 id = 1;
+    string name = 2;
+}
+
+message User {
+    uint32 id = 1;
+    string name = 2;
+    Address address = 3;
+}
+
+message Address {
+    float latitude = 1;
+    float longitude = 2;
+}
+
+message Restaurant {
+    uint32 id = 1;
+    string name = 2;
+    Address address = 3;
+    string status = 4;
+}
+
+message Menu {
+    uint32 id = 1;
+    uint32 quantity = 2;
+    float subtotal = 3;
+}
+
+message OrderDetail {
+    repeated Menu menu = 1;
+    float total = 2;
+}
+
+message Payment {
+    uint32 id = 1;
+    string invoice_id = 2;
+    float total = 3;
+    string method = 4;
+    string status = 5;
+}
