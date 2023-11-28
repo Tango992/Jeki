@@ -45,11 +45,12 @@ message Orders {
 }
 
 message Order {
-    Restaurant restaurant = 1;
-    OrderDetail order_detail = 2;
-    User user = 3;
-    Driver driver = 4;
-    Payment payment = 5;
+    string object_id = 1;
+    Restaurant restaurant = 2;
+    OrderDetail order_detail = 3;
+    User user = 4;
+    Driver driver = 5;
+    Payment payment = 6;
 }
 
 message Driver {
