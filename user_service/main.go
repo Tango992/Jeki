@@ -21,7 +21,7 @@ type Server struct {
 }
 
 func NewServer() (*Server, error) {
-	dsn := "user=postgres dbname=deploy host=localhost password=secret port=5432 sslmode=disable"
+	dsn := "user=postgres dbname=deploy host=localhost port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
@@ -41,13 +41,28 @@ func NewServer() (*Server, error) {
 	"password": "secret"
 */
 
+func convertUserToUserData(user models.User) *pb.UserData {
+	return &pb.UserData{
+		Id:        uint32(user.ID),
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Password:  user.Password,
+		BirthDate: user.BirthDate,
+		// Role:      user.Role,
+	}
+}
+
 func (s *Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.UserData, error) {
-	var userData pb.UserData
-	result := s.db.First(&userData, "email = ?", data.Email)
+	var user models.User
+	result := s.db.First(&user, "email = ?", data.Email)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &userData, nil
+
+	userData := convertUserToUserData(user)
+
+	return userData, nil
 }
 
 func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.RegisterResponse, error) {
@@ -65,7 +80,6 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 
 	response := &pb.RegisterResponse{
 		UserId:    uint32(newUser.ID),
