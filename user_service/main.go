@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 	"user-service/models"
 	"user-service/pb"
 
@@ -20,7 +21,7 @@ type Server struct {
 }
 
 func NewServer() (*Server, error) {
-	dsn := "user=postgres dbname=deploy host=localhost port=5432 sslmode=disable"
+	dsn := "user=postgres dbname=deploy host=localhost password=secret port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
@@ -34,6 +35,11 @@ func NewServer() (*Server, error) {
 		db: db,
 	}, nil
 }
+
+/*
+	"email": "john@mail.com",
+	"password": "secret"
+*/
 
 func (s *Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.UserData, error) {
 	var userData pb.UserData
@@ -52,6 +58,7 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 		Password:  data.Password,
 		BirthDate: data.BirthDate,
 		RoleID:    data.RoleId,
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	result := s.db.Create(&newUser)
@@ -59,12 +66,10 @@ func (s *Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Re
 		return nil, result.Error
 	}
 
-	userID := uint32(1)
-	createdAt := "2023-11-28T12:00:00"
 
 	response := &pb.RegisterResponse{
-		UserId:    userID,
-		CreatedAt: createdAt,
+		UserId:    uint32(newUser.ID),
+		CreatedAt: newUser.CreatedAt,
 	}
 
 	return response, nil
