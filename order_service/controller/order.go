@@ -20,20 +20,53 @@ func NewOrderController(r repository.Order) OrderController {
 	}
 }
 
-func (o OrderController) GetDriverOrder(ctx context.Context, driverId *pb.DriverId) (*pb.Order, error) {
-	return nil, nil
+func (o OrderController) GetDriverAllOrders(ctx context.Context, driverId *pb.DriverId) (*pb.Orders, error) {
+	ordersTmp, err := o.Repository.FindDriverAllOrders(ctx, uint(driverId.Id))
+	if err != nil {
+		return nil, err
+	}
+	orders := helpers.AssertOrdersToPb(ordersTmp)
+	return &pb.Orders{Orders: orders}, nil
+}
+
+func (o OrderController) GetDriverCurrentOrder(ctx context.Context, driverId *pb.DriverId) (*pb.Order, error) {
+	orderTmp, err := o.Repository.FindDriverCurrentOrder(ctx, uint(driverId.Id))
+	if err != nil {
+		return nil, err
+	}
+	order := helpers.AssertOrderToPb(orderTmp)
+	return order, nil
 }
 
 func (o OrderController) GetOrderById(ctx context.Context, orderId *pb.OrderId) (*pb.Order, error) {
-	return nil, nil
+	orderTmp, err := o.Repository.FindById(ctx, orderId.Id)
+	if err != nil {
+		return nil, err
+	}
+	order := helpers.AssertOrderToPb(orderTmp)
+	return order, nil
 }
 
-func (o OrderController) GetRestaurantOrders(ctx context.Context, restaurantId *pb.RestaurantId) (*pb.Orders, error) {	
-	return nil, nil
+func (o OrderController) GetRestaurantAllOrders(ctx context.Context, adminId *pb.AdminId) (*pb.Orders, error) {	
+	ordersTmp, err := o.Repository.FindRestaurantAllOrders(ctx, uint(adminId.Id))
+	if err != nil {
+		return nil, err
+	}
+	orders := helpers.AssertOrdersToPb(ordersTmp)
+	return &pb.Orders{Orders: orders}, nil
+}
+
+func (o OrderController) GetRestaurantCurrentOrders(ctx context.Context, adminId *pb.AdminId) (*pb.Orders, error) {	
+	ordersTmp, err := o.Repository.FindRestaurantCurrentOrders(ctx, uint(adminId.Id))
+	if err != nil {
+		return nil, err
+	}
+	orders := helpers.AssertOrdersToPb(ordersTmp)
+	return &pb.Orders{Orders: orders}, nil
 }
 
 func (o OrderController) GetUserCurrentOrders(ctx context.Context, userData *pb.UserId) (*pb.Orders, error) {
-	ordersTmp, err := o.Repository.FindCurrentUserOrders(ctx, uint(userData.Id))
+	ordersTmp, err := o.Repository.FindUserCurrentOrders(ctx, uint(userData.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +75,12 @@ func (o OrderController) GetUserCurrentOrders(ctx context.Context, userData *pb.
 }
 
 func (o OrderController) GetUserAllOrders(ctx context.Context, userData *pb.UserId) (*pb.Orders, error) {
-	return nil, nil
+	ordersTmp, err := o.Repository.FindUserAllOrders(ctx, uint(userData.Id))
+	if err != nil {
+		return nil, err
+	}
+	orders := helpers.AssertOrdersToPb(ordersTmp)
+	return &pb.Orders{Orders: orders}, nil
 }
 
 func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderData) (*pb.PostOrderResponse, error){ 

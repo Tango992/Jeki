@@ -53,7 +53,88 @@ func (o OrderRepository) FindById(ctx context.Context, orderId string) (model.Or
 	return order, nil
 }
 
-func (o OrderRepository) FindCurrentUserOrders(ctx context.Context, userId uint) ([]model.Order, error) {
+func (o OrderRepository) FindDriverCurrentOrder(ctx context.Context, driverId uint) (model.Order, error) {
+	filter := bson.D{
+		{Key: "$and", Value:
+			bson.A{
+				bson.D{{Key: "driver.id", Value: driverId}},
+				bson.D{{Key: "driver.status", Value: "process"}},
+			},
+		},
+	}
+
+	res := o.Collection.FindOne(ctx, filter)
+	if err := res.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Order{}, status.Error(codes.NotFound, err.Error())
+		}
+		return model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+
+	var order model.Order
+	if err := res.Decode(&order); err != nil {
+		return model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return order, nil
+}
+
+func (o OrderRepository) FindDriverAllOrders(ctx context.Context, driverId uint) ([]model.Order, error) {
+	filter := bson.D{{
+		Key: "driver.id", 
+		Value: driverId,
+	}}
+
+	orders, err := o.FindWithFilter(ctx, filter)
+	if err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
+}
+
+func (o OrderRepository) FindRestaurantAllOrders(ctx context.Context, adminId uint) ([]model.Order, error) {
+	filter := bson.D{{
+		Key: "restaurant.admin_id", 
+		Value: adminId,
+	}}
+
+	orders, err := o.FindWithFilter(ctx, filter)
+	if err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
+}
+
+func (o OrderRepository) FindUserAllOrders(ctx context.Context, userId uint) ([]model.Order, error) {
+	filter := bson.D{{
+		Key: "user.id", 
+		Value: userId,
+	}}
+
+	orders, err := o.FindWithFilter(ctx, filter)
+	if err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
+}
+
+func (o OrderRepository) FindRestaurantCurrentOrders(ctx context.Context, adminId uint) ([]model.Order, error) {
+	filter := bson.D{
+		{Key: "$and", Value:
+			bson.A{
+				bson.D{{Key: "restaurant.admin_id", Value: adminId}},
+				bson.D{{Key: "restaurant.status", Value: "process"}},
+			},
+		},
+	}
+
+	orders, err := o.FindWithFilter(ctx, filter)
+	if err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
+}
+
+func (o OrderRepository) FindUserCurrentOrders(ctx context.Context, userId uint) ([]model.Order, error) {
 	filter := bson.D{
 		{Key: "$and", Value:
 			bson.A{

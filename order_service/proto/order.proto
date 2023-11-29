@@ -7,10 +7,12 @@ option go_package = "./pb";
 
 service OrderService{
     rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
-    rpc GetRestaurantOrders(RestaurantId) returns (Orders);
+    rpc GetRestaurantCurrentOrders(AdminId) returns (Orders);
+    rpc GetRestaurantAllOrders(AdminId) returns (Orders);
     rpc GetUserCurrentOrders(UserId) returns (Orders);
     rpc GetUserAllOrders(UserId) returns (Orders);
-    rpc GetDriverOrder(DriverId) returns (Order);
+    rpc GetDriverAllOrders(DriverId) returns (Orders);
+    rpc GetDriverCurrentOrder(DriverId) returns (Order);
     rpc GetOrderById(OrderId) returns (Order);
 }
 
@@ -31,7 +33,7 @@ message OrderItem {
     uint32 qty = 2;
 }
 
-message RestaurantId {
+message AdminId {
     uint32 id = 1;
 }
 
@@ -44,7 +46,7 @@ message UserId {
 }
 
 message OrderId {
-    uint32 id = 1;
+    string id = 1;
 }
 
 message Orders {

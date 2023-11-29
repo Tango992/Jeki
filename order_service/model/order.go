@@ -13,7 +13,7 @@ type Order struct {
 
 type Restaurant struct {
 	Id      uint    `bson:"id" json:"id"`
-	AdminId uint    `json:"admin_id" json:"admin_id"`
+	AdminId uint    `bson:"admin_id" json:"admin_id"`
 	Name    string  `bson:"name" json:"name"`
 	Address Address `bson:"address" json:"address"`
 	Status  string  `bson:"status" json:"status"`
