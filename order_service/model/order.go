@@ -34,6 +34,7 @@ type Menu struct {
 type User struct {
 	Id      uint    `bson:"id" json:"id"`
 	Name    string  `bson:"name" json:"name"`
+	Email   string  `bson:"email" json:"email"`
 	Address Address `bson:"address" json:"address"`
 }
 
@@ -44,10 +45,11 @@ type Driver struct {
 }
 
 type Payment struct {
-	InvoiceId string  `bson:"invoice_id" json:"invoice_id"`
-	Total     float32 `bson:"total" json:"total"`
-	Method    string  `bson:"method" json:"method"`
-	Status    string  `bson:"status" json:"status"`
+	InvoiceId  string  `bson:"invoice_id" json:"invoice_id"`
+	InvoiceUrl string  `bson:"invoice_url" json:"invoice_url"`
+	Total      float32 `bson:"total" json:"total"`
+	Method     string  `bson:"method" json:"method"`
+	Status     string  `bson:"status" json:"status"`
 }
 
 type Address struct {

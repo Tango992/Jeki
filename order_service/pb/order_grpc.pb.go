@@ -24,7 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type OrderServiceClient interface {
 	PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error)
 	GetRestaurantOrders(ctx context.Context, in *RestaurantId, opts ...grpc.CallOption) (*Orders, error)
-	GetUserOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
+	GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
+	GetUserAllOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
 	GetDriverOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error)
 	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
 }
@@ -55,9 +56,18 @@ func (c *orderServiceClient) GetRestaurantOrders(ctx context.Context, in *Restau
 	return out, nil
 }
 
-func (c *orderServiceClient) GetUserOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
+func (c *orderServiceClient) GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserCurrentOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetUserAllOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
+	out := new(Orders)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserAllOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +98,8 @@ func (c *orderServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts
 type OrderServiceServer interface {
 	PostOrder(context.Context, *RequestOrderData) (*PostOrderResponse, error)
 	GetRestaurantOrders(context.Context, *RestaurantId) (*Orders, error)
-	GetUserOrders(context.Context, *UserId) (*Orders, error)
+	GetUserCurrentOrders(context.Context, *UserId) (*Orders, error)
+	GetUserAllOrders(context.Context, *UserId) (*Orders, error)
 	GetDriverOrder(context.Context, *DriverId) (*Order, error)
 	GetOrderById(context.Context, *OrderId) (*Order, error)
 	mustEmbedUnimplementedOrderServiceServer()
@@ -104,8 +115,11 @@ func (UnimplementedOrderServiceServer) PostOrder(context.Context, *RequestOrderD
 func (UnimplementedOrderServiceServer) GetRestaurantOrders(context.Context, *RestaurantId) (*Orders, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantOrders not implemented")
 }
-func (UnimplementedOrderServiceServer) GetUserOrders(context.Context, *UserId) (*Orders, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserOrders not implemented")
+func (UnimplementedOrderServiceServer) GetUserCurrentOrders(context.Context, *UserId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCurrentOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetUserAllOrders(context.Context, *UserId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAllOrders not implemented")
 }
 func (UnimplementedOrderServiceServer) GetDriverOrder(context.Context, *DriverId) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDriverOrder not implemented")
@@ -162,20 +176,38 @@ func _OrderService_GetRestaurantOrders_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetUserOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetUserCurrentOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetUserOrders(ctx, in)
+		return srv.(OrderServiceServer).GetUserCurrentOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetUserOrders",
+		FullMethod: "/user.OrderService/GetUserCurrentOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetUserOrders(ctx, req.(*UserId))
+		return srv.(OrderServiceServer).GetUserCurrentOrders(ctx, req.(*UserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetUserAllOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetUserAllOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/GetUserAllOrders",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetUserAllOrders(ctx, req.(*UserId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,8 +264,12 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_GetRestaurantOrders_Handler,
 		},
 		{
-			MethodName: "GetUserOrders",
-			Handler:    _OrderService_GetUserOrders_Handler,
+			MethodName: "GetUserCurrentOrders",
+			Handler:    _OrderService_GetUserCurrentOrders_Handler,
+		},
+		{
+			MethodName: "GetUserAllOrders",
+			Handler:    _OrderService_GetUserAllOrders_Handler,
 		},
 		{
 			MethodName: "GetDriverOrder",

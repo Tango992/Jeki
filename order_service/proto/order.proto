@@ -8,7 +8,8 @@ option go_package = "./pb";
 service OrderService{
     rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
     rpc GetRestaurantOrders(RestaurantId) returns (Orders);
-    rpc GetUserOrders(UserId) returns (Orders);
+    rpc GetUserCurrentOrders(UserId) returns (Orders);
+    rpc GetUserAllOrders(UserId) returns (Orders);
     rpc GetDriverOrder(DriverId) returns (Order);
     rpc GetOrderById(OrderId) returns (Order);
 }
@@ -19,8 +20,10 @@ message PostOrderResponse {
 
 message RequestOrderData {
     uint32 user_id = 1;
-    Address address = 2;
-    repeated OrderItem order_items = 3;
+    string name = 2;
+    string email = 3;
+    Address address = 4;
+    repeated OrderItem order_items = 5;
 }
 
 message OrderItem {
@@ -60,12 +63,14 @@ message Order {
 message Driver {
     uint32 id = 1;
     string name = 2;
+    string status = 3;
 }
 
 message User {
-    uint32 id = 1;
+    uint32 user_id = 1;
     string name = 2;
-    Address address = 3;
+    string email = 3;
+    Address address = 4;
 }
 
 message Address {
@@ -83,8 +88,9 @@ message Restaurant {
 
 message Menu {
     uint32 id = 1;
-    uint32 quantity = 2;
-    float subtotal = 3;
+    string name = 2;
+    uint32 quantity = 3;
+    float subtotal = 4;
 }
 
 message OrderDetail {
@@ -93,8 +99,8 @@ message OrderDetail {
 }
 
 message Payment {
-    uint32 id = 1;
-    string invoice_id = 2;
+    string invoice_id = 1;
+    string invoice_url = 2;
     float total = 3;
     string method = 4;
     string status = 5;

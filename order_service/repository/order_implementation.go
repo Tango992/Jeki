@@ -22,8 +22,8 @@ func NewOrderRepository(collection *mongo.Collection) OrderRepository {
 	}
 }
 
-func (o OrderRepository) Create(data *model.Order) error {
-	res, err := o.Collection.InsertOne(context.TODO(), data)
+func (o OrderRepository) Create(ctx context.Context,  data *model.Order) error {
+	res, err := o.Collection.InsertOne(ctx, data)
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
@@ -32,14 +32,60 @@ func (o OrderRepository) Create(data *model.Order) error {
 	return nil
 }
 
-func (o OrderRepository) FindById(orderId string) (model.Order, error) {
-	return model.Order{}, nil
+func (o OrderRepository) FindById(ctx context.Context, orderId string) (model.Order, error) {
+	objectId, err := primitive.ObjectIDFromHex(orderId)
+	if err != nil {
+		return model.Order{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+	
+	res := o.Collection.FindOne(ctx, bson.M{"_id": objectId})
+	if err := res.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Order{}, status.Error(codes.NotFound, err.Error())
+		}
+		return model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	
+	var order model.Order
+	if err := res.Decode(&order); err != nil {
+		return model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return order, nil
 }
 
-func (o OrderRepository) FindWithFilter(filter bson.M) ([]model.Order, error) {
-	return nil, nil
+func (o OrderRepository) FindCurrentUserOrders(ctx context.Context, userId uint) ([]model.Order, error) {
+	filter := bson.D{
+		{Key: "$and", Value:
+			bson.A{
+				bson.D{{Key: "user.id", Value: userId}},
+				bson.D{{Key: "driver.status", Value: "process"}},
+			},
+		},
+	}
+
+	orders, err := o.FindWithFilter(ctx, filter)
+	if err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
 }
 
-func (o OrderRepository) Update(orderId string, updateData bson.M) error {
+func (o OrderRepository) FindWithFilter(ctx context.Context, filter bson.D) ([]model.Order, error) {
+	res, err := o.Collection.Find(ctx, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return []model.Order{}, status.Error(codes.NotFound, err.Error())
+		}
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+
+	orders := []model.Order{}
+	if err := res.All(ctx, &orders); err != nil {
+		return []model.Order{}, status.Error(codes.Internal, err.Error())
+	}
+	return orders, nil
+}
+
+func (o OrderRepository) Update(ctx context.Context, orderId string, updateData bson.M) error {
 	return nil
 }
