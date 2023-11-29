@@ -10,6 +10,7 @@ type User struct {
 	RoleID       uint32 `json:"role_id" gorm:"not null"`
 	CreatedAt    string `json:"created_at" gorm:"not null;type:timestamp"`
 	Verification Verification
+	Driver       Driver
 }
 
 type Verification struct {
