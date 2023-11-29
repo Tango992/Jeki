@@ -44,7 +44,6 @@ type Driver struct {
 }
 
 type Payment struct {
-	Id        uint    `bson:"id" json:"id"`
 	InvoiceId string  `bson:"invoice_id" json:"invoice_id"`
 	Total     float32 `bson:"total" json:"total"`
 	Method    string  `bson:"method" json:"method"`

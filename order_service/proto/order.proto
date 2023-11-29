@@ -6,11 +6,15 @@ option go_package = "./pb";
 
 
 service OrderService{
-    rpc PostOrder(RequestOrderData) returns (Order);
+    rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
     rpc GetRestaurantOrders(RestaurantId) returns (Orders);
     rpc GetUserOrders(UserId) returns (Orders);
     rpc GetDriverOrder(DriverId) returns (Order);
     rpc GetOrderById(OrderId) returns (Order);
+}
+
+message PostOrderResponse {
+    string order_id = 1;
 }
 
 message RequestOrderData {
@@ -20,7 +24,7 @@ message RequestOrderData {
 }
 
 message OrderItem {
-    string menu_id = 1;
+    uint32 menu_id = 1;
     uint32 qty = 2;
 }
 

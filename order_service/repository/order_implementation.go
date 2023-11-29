@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"context"
 	"order-service/model"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -18,6 +23,12 @@ func NewOrderRepository(collection *mongo.Collection) OrderRepository {
 }
 
 func (o OrderRepository) Create(data *model.Order) error {
+	res, err := o.Collection.InsertOne(context.TODO(), data)
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	data.Id = res.InsertedID.(primitive.ObjectID)
 	return nil
 }
 
