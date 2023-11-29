@@ -8,4 +8,5 @@ import (
 type User interface {
 	GetUserData(string) (dto.UserJoinedData, error)
 	CreateUser(*models.User) (error)
+	AddToken(*models.Verification) error
 }
