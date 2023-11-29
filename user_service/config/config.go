@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"user-service/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -14,5 +15,9 @@ func InitDB() (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
+	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.Verification{}); err != nil {
+		return nil, err
+	}
+	
 	return db, nil
 }

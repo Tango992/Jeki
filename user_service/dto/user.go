@@ -9,4 +9,5 @@ type UserJoinedData struct {
 	BirthDate string `json:"birth_date"`
 	Role      string `json:"role_id"`
 	CreatedAt string `json:"created_at"`
+	Verified  bool   `json:"verified"`
 }

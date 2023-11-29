@@ -47,3 +47,10 @@ func (u UserRepository) CreateUser(data *models.User) (error) {
 	}
 	return nil
 }
+
+func (u UserRepository) AddToken(data *models.Verification) error {
+	if err := u.Db.Create(data).Error; err != nil {
+		return status.Error(codes.Internal,err.Error())
+	}
+	return nil
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 	"user-service/dto"
+	"user-service/helpers"
 	"user-service/models"
 	"user-service/pb"
 	"user-service/repository"
@@ -55,6 +56,15 @@ func (s Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Reg
 	}
 
 	if err := s.Repository.CreateUser(&newUser); err != nil {
+		return nil, err
+	}
+	
+	verificationData := models.Verification{
+		UserID: newUser.ID,
+		Token: helpers.GenerateVerificationToken(),
+	}
+	
+	if err := s.Repository.AddToken(&verificationData); err != nil {
 		return nil, err
 	}
 
