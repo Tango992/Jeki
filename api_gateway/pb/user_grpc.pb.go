@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -25,8 +24,6 @@ const _ = grpc.SupportPackageIsVersion7
 type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	GetUserData(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserData, error)
-	FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error)
-	FindRestaurantById(ctx context.Context, in *RestaurantId, opts ...grpc.CallOption) (*Restaurant, error)
 }
 
 type userClient struct {
@@ -55,32 +52,12 @@ func (c *userClient) GetUserData(ctx context.Context, in *EmailRequest, opts ...
 	return out, nil
 }
 
-func (c *userClient) FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error) {
-	out := new(Restaurants)
-	err := c.cc.Invoke(ctx, "/user.User/FindAllRestaurants", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) FindRestaurantById(ctx context.Context, in *RestaurantId, opts ...grpc.CallOption) (*Restaurant, error) {
-	out := new(Restaurant)
-	err := c.cc.Invoke(ctx, "/user.User/FindRestaurantById", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	GetUserData(context.Context, *EmailRequest) (*UserData, error)
-	FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error)
-	FindRestaurantById(context.Context, *RestaurantId) (*Restaurant, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -93,12 +70,6 @@ func (UnimplementedUserServer) Register(context.Context, *RegisterRequest) (*Reg
 }
 func (UnimplementedUserServer) GetUserData(context.Context, *EmailRequest) (*UserData, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserData not implemented")
-}
-func (UnimplementedUserServer) FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindAllRestaurants not implemented")
-}
-func (UnimplementedUserServer) FindRestaurantById(context.Context, *RestaurantId) (*Restaurant, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindRestaurantById not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -149,42 +120,6 @@ func _User_GetUserData_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_FindAllRestaurants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).FindAllRestaurants(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.User/FindAllRestaurants",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).FindAllRestaurants(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_FindRestaurantById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestaurantId)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).FindRestaurantById(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.User/FindRestaurantById",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).FindRestaurantById(ctx, req.(*RestaurantId))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -199,14 +134,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserData",
 			Handler:    _User_GetUserData_Handler,
-		},
-		{
-			MethodName: "FindAllRestaurants",
-			Handler:    _User_FindAllRestaurants_Handler,
-		},
-		{
-			MethodName: "FindRestaurantById",
-			Handler:    _User_FindRestaurantById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
