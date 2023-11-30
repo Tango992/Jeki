@@ -8,7 +8,6 @@ import (
 	"order-service/middlewares"
 	"order-service/pb"
 
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
 )
@@ -24,7 +23,6 @@ func ListenAndServeGrpc(controller controller.OrderController) {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(middlewares.NewInterceptorLogger()),
-			grpc_auth.UnaryServerInterceptor(middlewares.JWTAuth),
 		),
 	)
 

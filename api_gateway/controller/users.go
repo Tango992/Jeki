@@ -12,6 +12,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UserController struct {
@@ -76,6 +78,14 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 
 	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.AlreadyExists:
+				return echo.NewHTTPError(utils.ErrConflict.EchoFormatDetails(e.Message()))
+			case codes.Internal:
+				return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
+			}
+		}
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
@@ -114,6 +124,14 @@ func (u UserController) Login(c echo.Context) error {
 
 	userDataTmp, err := u.Client.GetUserData(ctx, emailRequest)
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
+			case codes.Internal:
+				return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
+			}
+		}
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 

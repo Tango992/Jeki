@@ -22,10 +22,13 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
-	PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*Order, error)
-	GetRestaurantOrders(ctx context.Context, in *RestaurantId, opts ...grpc.CallOption) (*Orders, error)
-	GetUserOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
-	GetDriverOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error)
+	PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error)
+	GetRestaurantCurrentOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error)
+	GetRestaurantAllOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error)
+	GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
+	GetUserAllOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
+	GetDriverAllOrders(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Orders, error)
+	GetDriverCurrentOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error)
 	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
 }
 
@@ -37,8 +40,8 @@ func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
 	return &orderServiceClient{cc}
 }
 
-func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*Order, error) {
-	out := new(Order)
+func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error) {
+	out := new(PostOrderResponse)
 	err := c.cc.Invoke(ctx, "/user.OrderService/PostOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,27 +49,54 @@ func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData
 	return out, nil
 }
 
-func (c *orderServiceClient) GetRestaurantOrders(ctx context.Context, in *RestaurantId, opts ...grpc.CallOption) (*Orders, error) {
+func (c *orderServiceClient) GetRestaurantCurrentOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetRestaurantOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetRestaurantCurrentOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) GetUserOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
+func (c *orderServiceClient) GetRestaurantAllOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetRestaurantAllOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) GetDriverOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error) {
+func (c *orderServiceClient) GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
+	out := new(Orders)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserCurrentOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetUserAllOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
+	out := new(Orders)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserAllOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetDriverAllOrders(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Orders, error) {
+	out := new(Orders)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetDriverAllOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) GetDriverCurrentOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error) {
 	out := new(Order)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetDriverOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.OrderService/GetDriverCurrentOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +116,13 @@ func (c *orderServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
 type OrderServiceServer interface {
-	PostOrder(context.Context, *RequestOrderData) (*Order, error)
-	GetRestaurantOrders(context.Context, *RestaurantId) (*Orders, error)
-	GetUserOrders(context.Context, *UserId) (*Orders, error)
-	GetDriverOrder(context.Context, *DriverId) (*Order, error)
+	PostOrder(context.Context, *RequestOrderData) (*PostOrderResponse, error)
+	GetRestaurantCurrentOrders(context.Context, *AdminId) (*Orders, error)
+	GetRestaurantAllOrders(context.Context, *AdminId) (*Orders, error)
+	GetUserCurrentOrders(context.Context, *UserId) (*Orders, error)
+	GetUserAllOrders(context.Context, *UserId) (*Orders, error)
+	GetDriverAllOrders(context.Context, *DriverId) (*Orders, error)
+	GetDriverCurrentOrder(context.Context, *DriverId) (*Order, error)
 	GetOrderById(context.Context, *OrderId) (*Order, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
@@ -98,17 +131,26 @@ type OrderServiceServer interface {
 type UnimplementedOrderServiceServer struct {
 }
 
-func (UnimplementedOrderServiceServer) PostOrder(context.Context, *RequestOrderData) (*Order, error) {
+func (UnimplementedOrderServiceServer) PostOrder(context.Context, *RequestOrderData) (*PostOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetRestaurantOrders(context.Context, *RestaurantId) (*Orders, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantOrders not implemented")
+func (UnimplementedOrderServiceServer) GetRestaurantCurrentOrders(context.Context, *AdminId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantCurrentOrders not implemented")
 }
-func (UnimplementedOrderServiceServer) GetUserOrders(context.Context, *UserId) (*Orders, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserOrders not implemented")
+func (UnimplementedOrderServiceServer) GetRestaurantAllOrders(context.Context, *AdminId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRestaurantAllOrders not implemented")
 }
-func (UnimplementedOrderServiceServer) GetDriverOrder(context.Context, *DriverId) (*Order, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDriverOrder not implemented")
+func (UnimplementedOrderServiceServer) GetUserCurrentOrders(context.Context, *UserId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCurrentOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetUserAllOrders(context.Context, *UserId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserAllOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetDriverAllOrders(context.Context, *DriverId) (*Orders, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDriverAllOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetDriverCurrentOrder(context.Context, *DriverId) (*Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDriverCurrentOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) GetOrderById(context.Context, *OrderId) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
@@ -144,56 +186,110 @@ func _OrderService_PostOrder_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetRestaurantOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestaurantId)
+func _OrderService_GetRestaurantCurrentOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetRestaurantOrders(ctx, in)
+		return srv.(OrderServiceServer).GetRestaurantCurrentOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetRestaurantOrders",
+		FullMethod: "/user.OrderService/GetRestaurantCurrentOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetRestaurantOrders(ctx, req.(*RestaurantId))
+		return srv.(OrderServiceServer).GetRestaurantCurrentOrders(ctx, req.(*AdminId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetUserOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetRestaurantAllOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetRestaurantAllOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/GetRestaurantAllOrders",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetRestaurantAllOrders(ctx, req.(*AdminId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetUserCurrentOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetUserOrders(ctx, in)
+		return srv.(OrderServiceServer).GetUserCurrentOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetUserOrders",
+		FullMethod: "/user.OrderService/GetUserCurrentOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetUserOrders(ctx, req.(*UserId))
+		return srv.(OrderServiceServer).GetUserCurrentOrders(ctx, req.(*UserId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetDriverOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetUserAllOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetUserAllOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/GetUserAllOrders",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetUserAllOrders(ctx, req.(*UserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetDriverAllOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DriverId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetDriverOrder(ctx, in)
+		return srv.(OrderServiceServer).GetDriverAllOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetDriverOrder",
+		FullMethod: "/user.OrderService/GetDriverAllOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetDriverOrder(ctx, req.(*DriverId))
+		return srv.(OrderServiceServer).GetDriverAllOrders(ctx, req.(*DriverId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_GetDriverCurrentOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetDriverCurrentOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/GetDriverCurrentOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetDriverCurrentOrder(ctx, req.(*DriverId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,16 +324,28 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_PostOrder_Handler,
 		},
 		{
-			MethodName: "GetRestaurantOrders",
-			Handler:    _OrderService_GetRestaurantOrders_Handler,
+			MethodName: "GetRestaurantCurrentOrders",
+			Handler:    _OrderService_GetRestaurantCurrentOrders_Handler,
 		},
 		{
-			MethodName: "GetUserOrders",
-			Handler:    _OrderService_GetUserOrders_Handler,
+			MethodName: "GetRestaurantAllOrders",
+			Handler:    _OrderService_GetRestaurantAllOrders_Handler,
 		},
 		{
-			MethodName: "GetDriverOrder",
-			Handler:    _OrderService_GetDriverOrder_Handler,
+			MethodName: "GetUserCurrentOrders",
+			Handler:    _OrderService_GetUserCurrentOrders_Handler,
+		},
+		{
+			MethodName: "GetUserAllOrders",
+			Handler:    _OrderService_GetUserAllOrders_Handler,
+		},
+		{
+			MethodName: "GetDriverAllOrders",
+			Handler:    _OrderService_GetDriverAllOrders_Handler,
+		},
+		{
+			MethodName: "GetDriverCurrentOrder",
+			Handler:    _OrderService_GetDriverCurrentOrder_Handler,
 		},
 		{
 			MethodName: "GetOrderById",

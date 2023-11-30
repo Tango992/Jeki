@@ -4,6 +4,7 @@ import (
 	"order-service/config"
 	"order-service/controller"
 	"order-service/repository"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
