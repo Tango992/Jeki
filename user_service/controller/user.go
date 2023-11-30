@@ -68,6 +68,21 @@ func (s Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Reg
 		return nil, err
 	}
 
+	dataJsonRequest := dto.UserMessageBroker{
+		Id: newUser.ID,
+		Email: newUser.Email,
+		Token: verificationData.Token
+	}
+
+	dataJson, err := json.Marshal(dataJsonRequest)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	var jsonString = string(dataJson)
+	fmt.Println(jsonString)	
+
 	response := &pb.RegisterResponse{
 		UserId:    uint32(newUser.ID),
 		CreatedAt: newUser.CreatedAt,
