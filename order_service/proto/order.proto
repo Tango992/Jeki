@@ -4,7 +4,6 @@ package user;
 
 option go_package = "./pb";
 
-
 service OrderService{
     rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
     rpc GetRestaurantCurrentOrders(AdminId) returns (Orders);
@@ -14,6 +13,7 @@ service OrderService{
     rpc GetDriverAllOrders(DriverId) returns (Orders);
     rpc GetDriverCurrentOrder(DriverId) returns (Order);
     rpc GetOrderById(OrderId) returns (Order);
+    rpc UpdateRestaurantOrder() returns ()
 }
 
 message PostOrderResponse {

@@ -167,6 +167,43 @@ func (o OrderRepository) FindWithFilter(ctx context.Context, filter bson.D) ([]m
 	return orders, nil
 }
 
-func (o OrderRepository) Update(ctx context.Context, orderId string, updateData bson.M) error {
+func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
+	filter := bson.M{"_id": orderId}
+	updateData := bson.M{"$set": bson.M{"restaurant.status": status}}
+
+	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
+	filter := bson.M{"_id": orderId}
+	updateData := bson.M{"$set": bson.M{"driver.status": status}}
+
+	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
+	filter := bson.M{"_id": orderId}
+	updateData := bson.M{"$set": bson.M{"payment.status": status}}
+
+	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OrderRepository) UpdateWithFilter(ctx context.Context, field bson.M, data bson.M) error {
+	res := o.Collection.FindOneAndUpdate(ctx, field, data)
+	if err := res.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return status.Error(codes.NotFound, err.Error())
+		}
+		return status.Error(codes.Internal, err.Error())
+	}
 	return nil
 }
