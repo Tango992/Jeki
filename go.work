@@ -2,7 +2,8 @@ go 1.21.4
 
 use (
 	./api_gateway
-	./user_service
+	./email_service
 	./merchant_service
 	./order_service
+	./user_service
 )
