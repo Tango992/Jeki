@@ -9,6 +9,7 @@ import (
 	"user-service/middlewares"
 	"user-service/pb"
 	"user-service/repository"
+	"user-service/service"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	_ "github.com/joho/godotenv/autoload"
@@ -21,14 +22,18 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	conn, mbChan := config.InitMessageBroker()
+	defer conn.Close()
+
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(middlewares.NewInterceptorLogger()),
 		),
 	)
-	
+
+	messageBrokerService := service.NewMessageBroker(mbChan)
 	userRepository := repository.NewUserRepository(db)
-	userController := controller.NewUserController(userRepository)
+	userController := controller.NewUserController(userRepository, messageBrokerService)
 	
 	pb.RegisterUserServer(grpcServer, userController)
 

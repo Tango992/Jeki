@@ -2,22 +2,29 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 	"user-service/dto"
 	"user-service/helpers"
 	"user-service/models"
 	"user-service/pb"
 	"user-service/repository"
+	"user-service/service"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
 	pb.UnimplementedUserServer
 	Repository repository.User
+	Mb service.MessageBroker
 }
 
-func NewUserController(r repository.User) Server {
+func NewUserController(r repository.User, mb service.MessageBroker) Server {
 	return Server{
 		Repository: r,
+		Mb: mb,
 	}
 }
 
@@ -69,19 +76,20 @@ func (s Server) Register(ctx context.Context, data *pb.RegisterRequest) (*pb.Reg
 	}
 
 	dataJsonRequest := dto.UserMessageBroker{
-		Id: newUser.ID,
+		ID: newUser.ID,
+		Name: newUser.FirstName,
 		Email: newUser.Email,
-		Token: verificationData.Token
+		Token: verificationData.Token,
 	}
 
 	dataJson, err := json.Marshal(dataJsonRequest)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var jsonString = string(dataJson)
-	fmt.Println(jsonString)	
+	if err := s.Mb.PublishMessage(dataJson); err != nil {
+		return nil, err
+	}
 
 	response := &pb.RegisterResponse{
 		UserId:    uint32(newUser.ID),

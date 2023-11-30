@@ -14,6 +14,10 @@
 
 - users/login [POST]
 
+### Verification
+
+- users/verify/:userId/:token
+
 ## Merchant Services Endpoints
 
 ### Create Restaurant and Menu

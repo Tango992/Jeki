@@ -1,8 +1,8 @@
 package model
 
 type UserCredential struct {
-	Id       uint   `json:"id"`
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-	Token    string `json:"token"`
+	Id    uint   `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Token string `json:"token"`
 }

@@ -1,24 +1,26 @@
-package helpers
+package helper
 
 import (
 	"email-service/model"
 	"fmt"
+	"log"
 	"net/smtp"
 	"os"
 )
 
 // Send a verification email
 func SendVerificationEmail(data model.UserCredential) error {
+	verificationUrl := os.Getenv("VERIFICATION_URL")
 	authEmail := os.Getenv("AUTH_EMAIL")
 	authPass := os.Getenv("AUTH_PASS")
 	smptHost := os.Getenv("SMPT_HOST")
 	smptPort := os.Getenv("SMPT_PORT")
 	
-	url := fmt.Sprintf("https://carstruck-4d6b89ee5e4e.herokuapp.com/users/verify/%v/%v", data.Id, data.Token)
+	url := fmt.Sprintf("%v/%v/%v", verificationUrl, data.Id, data.Token)
 	subject := "Subject: Jeki Account Verification\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 
-	body, err := VerificationEmailBody(data.FullName, url)
+	body, err := VerificationEmailBody(data.Name, url)
 	if err != nil {
 		return err
 	}
@@ -32,6 +34,6 @@ func SendVerificationEmail(data model.UserCredential) error {
 		return err
 	}
 	
-	fmt.Printf("Verification email sent to %v\n", data.Email)
+	log.Printf("Verification email sent to %v\n", data.Email)
 	return nil
 }
