@@ -180,7 +180,6 @@ func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId pri
 func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
 	filter := bson.M{"_id": orderId}
 	updateData := bson.M{"$set": bson.M{"driver.status": status}}
-
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
 		return err
 	}

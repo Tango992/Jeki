@@ -4,13 +4,14 @@
 // - protoc             v4.25.1
 // source: order.proto
 
-package pb
+package orderpb
 
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -30,6 +31,9 @@ type OrderServiceClient interface {
 	GetDriverAllOrders(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Orders, error)
 	GetDriverCurrentOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error)
 	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
+	UpdateRestaurantOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateDriverOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type orderServiceClient struct {
@@ -112,6 +116,33 @@ func (c *orderServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts
 	return out, nil
 }
 
+func (c *orderServiceClient) UpdateRestaurantOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.OrderService/UpdateRestaurantOrderStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) UpdateDriverOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.OrderService/UpdateDriverOrderStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.OrderService/UpdatePaymentOrderStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
@@ -124,6 +155,9 @@ type OrderServiceServer interface {
 	GetDriverAllOrders(context.Context, *DriverId) (*Orders, error)
 	GetDriverCurrentOrder(context.Context, *DriverId) (*Order, error)
 	GetOrderById(context.Context, *OrderId) (*Order, error)
+	UpdateRestaurantOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
+	UpdateDriverOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
+	UpdatePaymentOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -154,6 +188,15 @@ func (UnimplementedOrderServiceServer) GetDriverCurrentOrder(context.Context, *D
 }
 func (UnimplementedOrderServiceServer) GetOrderById(context.Context, *OrderId) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
+}
+func (UnimplementedOrderServiceServer) UpdateRestaurantOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRestaurantOrderStatus not implemented")
+}
+func (UnimplementedOrderServiceServer) UpdateDriverOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverOrderStatus not implemented")
+}
+func (UnimplementedOrderServiceServer) UpdatePaymentOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePaymentOrderStatus not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -312,6 +355,60 @@ func _OrderService_GetOrderById_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_UpdateRestaurantOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUpdateData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).UpdateRestaurantOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/UpdateRestaurantOrderStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).UpdateRestaurantOrderStatus(ctx, req.(*RequestUpdateData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_UpdateDriverOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUpdateData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).UpdateDriverOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/UpdateDriverOrderStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).UpdateDriverOrderStatus(ctx, req.(*RequestUpdateData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_UpdatePaymentOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUpdateData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).UpdatePaymentOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.OrderService/UpdatePaymentOrderStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).UpdatePaymentOrderStatus(ctx, req.(*RequestUpdateData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -350,6 +447,18 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrderById",
 			Handler:    _OrderService_GetOrderById_Handler,
+		},
+		{
+			MethodName: "UpdateRestaurantOrderStatus",
+			Handler:    _OrderService_UpdateRestaurantOrderStatus_Handler,
+		},
+		{
+			MethodName: "UpdateDriverOrderStatus",
+			Handler:    _OrderService_UpdateDriverOrderStatus_Handler,
+		},
+		{
+			MethodName: "UpdatePaymentOrderStatus",
+			Handler:    _OrderService_UpdatePaymentOrderStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -4,20 +4,41 @@ package merchant;
 
 import "google/protobuf/empty.proto";
 
-option go_package = "./pb";
+option go_package = "./pb/merchantpb";
 
 service Merchant {
     rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
     rpc FindRestaurantByID(IdRestaurant) returns (RestaurantID);
     rpc FindMenuID(MenuId) returns (Menu);
+    rpc FindMenuDetailsWithSubtotal(RequestMenuDetails) returns (ResponseMenuDetails);
 }
 
 message IdRestaurant {
-  int32 id = 1;
+  uint32 id = 1;
+}
+
+message ResponseMenuDetails {
+  repeated ResponseMenuDetails response_menu_details = 1;
+}
+
+message ResponseMenuDetail {
+  uint32 id = 1;
+  string name = 2;
+  uint32 qty = 3;
+  float subtotal = 4;
+}
+
+message RequestMenuDetails {
+  repeated RequestMenuDetail request_menu_details = 1;
+}
+
+message RequestMenuDetail {
+  uint32 id = 1;
+  uint32 qty = 2;
 }
 
 message MenuId {
-  int32 id = 1;
+  uint32 id = 1;
 }
 
 message Restaurants {
@@ -25,8 +46,8 @@ message Restaurants {
 }
 
 message RestaurantAll {
-  int32 id = 1;
-  int32 admin_id = 2;
+  uint32 id = 1;
+  uint32 admin_id = 2;
   string name = 3;
   string address = 4;
   double latitude = 5;
@@ -34,8 +55,8 @@ message RestaurantAll {
 }
 
 message RestaurantID {
-  int32 id = 1;
-  int32 admin_id = 2;
+  uint32 id = 1;
+  uint32 admin_id = 2;
   string name = 3;
   string address = 4;
   double latitude = 5;
@@ -43,15 +64,19 @@ message RestaurantID {
   repeated Menu menus = 7;
 }
 
+message Menus {
+  repeated Menu menus = 1;
+}
+
 message Menu {
-  int32 id = 1;
-  int32 restaurant_id = 2;
+  uint32 id = 1;
+  uint32 restaurant_id = 2;
   string name = 3;
-  int32 category_id = 4;
-  double harga = 5;
+  uint32 category_id = 4;
+  double price = 5;
 }
 
 message Category {
-  int32 id = 1;
+  uint32 id = 1;
   string category_name = 2;
 }

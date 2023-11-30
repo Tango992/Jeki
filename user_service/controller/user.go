@@ -7,7 +7,7 @@ import (
 	"user-service/dto"
 	"user-service/helpers"
 	"user-service/models"
-	"user-service/pb"
+	pb "user-service/pb/userpb"
 	"user-service/repository"
 	"user-service/service"
 

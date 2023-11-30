@@ -4,9 +4,14 @@ import (
 	"context"
 	"order-service/helpers"
 	"order-service/model"
-	"order-service/pb"
+	pb "order-service/pb/orderpb"
 	"order-service/repository"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type OrderController struct {
@@ -83,6 +88,45 @@ func (o OrderController) GetUserAllOrders(ctx context.Context, userData *pb.User
 	return &pb.Orders{Orders: orders}, nil
 }
 
+func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.RequestUpdateData) (*emptypb.Empty, error) {
+	objectId, err := primitive.ObjectIDFromHex(data.OrderId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	
+	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.Status); err != nil {
+		return nil, err
+	}
+	
+	return &emptypb.Empty{}, nil
+}
+
+func (o OrderController) UpdatePaymentOrderStatus(ctx context.Context, data *pb.RequestUpdateData) (*emptypb.Empty, error) {
+	objectId, err := primitive.ObjectIDFromHex(data.OrderId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	
+	if err := o.Repository.UpdatePaymentStatus(ctx, objectId, data.Status); err != nil {
+		return nil, err
+	}
+	
+	return &emptypb.Empty{}, nil
+}
+
+func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *pb.RequestUpdateData) (*emptypb.Empty, error) {
+	objectId, err := primitive.ObjectIDFromHex(data.OrderId)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	
+	if err := o.Repository.UpdateRestaurantStatus(ctx, objectId, data.Status); err != nil {
+		return nil, err
+	}
+	
+	return &emptypb.Empty{}, nil
+}
+
 func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderData) (*pb.PostOrderResponse, error){ 
 	userData := model.User{
 		Id: uint(data.UserId),
@@ -99,11 +143,12 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 	*/
 	menus := []model.Menu{}
 	for _, v := range data.OrderItems {
+		// Call merchant service from this block (?)
 		menu := model.Menu{
 			Id: uint(v.MenuId),
 			Name: "Menu",							// Temporary
 			Qty: uint(v.Qty),
-			Subtotal: 100000,						// Temporary
+			Subtotal: 100000,						// Temporary - Calculate subtotal from singular price
 		}
 		menus = append(menus, menu)
 	}

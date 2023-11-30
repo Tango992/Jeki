@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "./pb";
+import "google/protobuf/empty.proto";
+
+option go_package = "./pb/orderpb";
 
 service OrderService{
     rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
@@ -13,7 +15,14 @@ service OrderService{
     rpc GetDriverAllOrders(DriverId) returns (Orders);
     rpc GetDriverCurrentOrder(DriverId) returns (Order);
     rpc GetOrderById(OrderId) returns (Order);
-    rpc UpdateRestaurantOrder() returns ()
+    rpc UpdateRestaurantOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+    rpc UpdateDriverOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+    rpc UpdatePaymentOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+}
+
+message RequestUpdateData {
+    string order_id = 1;
+    string status = 2;
 }
 
 message PostOrderResponse {

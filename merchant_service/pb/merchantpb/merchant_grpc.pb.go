@@ -4,7 +4,7 @@
 // - protoc             v4.25.1
 // source: merchant.proto
 
-package pb
+package merchantpb
 
 import (
 	context "context"
@@ -26,6 +26,7 @@ type MerchantClient interface {
 	FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error)
 	FindRestaurantByID(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantID, error)
 	FindMenuID(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error)
+	FindMenuDetailsWithSubtotal(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*ResponseMenuDetails, error)
 }
 
 type merchantClient struct {
@@ -63,6 +64,15 @@ func (c *merchantClient) FindMenuID(ctx context.Context, in *MenuId, opts ...grp
 	return out, nil
 }
 
+func (c *merchantClient) FindMenuDetailsWithSubtotal(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*ResponseMenuDetails, error) {
+	out := new(ResponseMenuDetails)
+	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindMenuDetailsWithSubtotal", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MerchantServer is the server API for Merchant service.
 // All implementations must embed UnimplementedMerchantServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type MerchantServer interface {
 	FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error)
 	FindRestaurantByID(context.Context, *IdRestaurant) (*RestaurantID, error)
 	FindMenuID(context.Context, *MenuId) (*Menu, error)
+	FindMenuDetailsWithSubtotal(context.Context, *RequestMenuDetails) (*ResponseMenuDetails, error)
 	mustEmbedUnimplementedMerchantServer()
 }
 
@@ -85,6 +96,9 @@ func (UnimplementedMerchantServer) FindRestaurantByID(context.Context, *IdRestau
 }
 func (UnimplementedMerchantServer) FindMenuID(context.Context, *MenuId) (*Menu, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMenuID not implemented")
+}
+func (UnimplementedMerchantServer) FindMenuDetailsWithSubtotal(context.Context, *RequestMenuDetails) (*ResponseMenuDetails, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMenuDetailsWithSubtotal not implemented")
 }
 func (UnimplementedMerchantServer) mustEmbedUnimplementedMerchantServer() {}
 
@@ -153,6 +167,24 @@ func _Merchant_FindMenuID_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Merchant_FindMenuDetailsWithSubtotal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestMenuDetails)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServer).FindMenuDetailsWithSubtotal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/merchant.Merchant/FindMenuDetailsWithSubtotal",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServer).FindMenuDetailsWithSubtotal(ctx, req.(*RequestMenuDetails))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Merchant_ServiceDesc is the grpc.ServiceDesc for Merchant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +203,10 @@ var Merchant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindMenuID",
 			Handler:    _Merchant_FindMenuID_Handler,
+		},
+		{
+			MethodName: "FindMenuDetailsWithSubtotal",
+			Handler:    _Merchant_FindMenuDetailsWithSubtotal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
