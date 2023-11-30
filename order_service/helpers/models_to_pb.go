@@ -2,7 +2,7 @@ package helpers
 
 import (
 	"order-service/model"
-	"order-service/pb"
+	pb "order-service/pb/orderpb"
 )
 
 func AssertOrdersToPb(ordersTmp []model.Order) []*pb.Order {

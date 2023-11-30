@@ -6,7 +6,7 @@ import (
 	"os"
 	"order-service/controller"
 	"order-service/middlewares"
-	"order-service/pb"
+	pb "order-service/pb/orderpb"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"

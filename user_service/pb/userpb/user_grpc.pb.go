@@ -4,13 +4,14 @@
 // - protoc             v4.25.1
 // source: user.proto
 
-package pb
+package userpb
 
 import (
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -24,6 +25,7 @@ const _ = grpc.SupportPackageIsVersion7
 type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	GetUserData(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserData, error)
+	GetAvailableDriver(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DriverData, error)
 }
 
 type userClient struct {
@@ -52,12 +54,22 @@ func (c *userClient) GetUserData(ctx context.Context, in *EmailRequest, opts ...
 	return out, nil
 }
 
+func (c *userClient) GetAvailableDriver(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DriverData, error) {
+	out := new(DriverData)
+	err := c.cc.Invoke(ctx, "/user.User/GetAvailableDriver", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	GetUserData(context.Context, *EmailRequest) (*UserData, error)
+	GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -70,6 +82,9 @@ func (UnimplementedUserServer) Register(context.Context, *RegisterRequest) (*Reg
 }
 func (UnimplementedUserServer) GetUserData(context.Context, *EmailRequest) (*UserData, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserData not implemented")
+}
+func (UnimplementedUserServer) GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableDriver not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -120,6 +135,24 @@ func _User_GetUserData_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetAvailableDriver_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetAvailableDriver(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/GetAvailableDriver",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetAvailableDriver(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +167,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserData",
 			Handler:    _User_GetUserData_Handler,
+		},
+		{
+			MethodName: "GetAvailableDriver",
+			Handler:    _User_GetAvailableDriver_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

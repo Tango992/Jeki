@@ -13,9 +13,9 @@ func main() {
 	defer conn.Close()
 
 	q := config.InitMbQueue(mbChannel)
-	registerMailService := service.NewRegisterMail(mbChannel)
+	mailService := service.NewMailService(mbChannel)
 	
-	go registerMailService.SendEmail(q)
+	go mailService.SendVerificationEmail(q)
 	
 	var forever chan struct{}
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")

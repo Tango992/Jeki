@@ -7,7 +7,7 @@ import (
 	"user-service/config"
 	"user-service/controller"
 	"user-service/middlewares"
-	"user-service/pb"
+	pb "user-service/pb/userpb"
 	"user-service/repository"
 	"user-service/service"
 

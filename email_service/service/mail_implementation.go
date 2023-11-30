@@ -7,18 +7,18 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type registerMail struct {
+type MailService struct {
 	channel *amqp.Channel
 }
 
-func NewRegisterMail (ch *amqp.Channel) registerMail {
-	return registerMail{
+func NewMailService(ch *amqp.Channel) Mail {
+	return MailService{
 		channel: ch,
 	}
 }
 
-func (r registerMail) SendEmail(q amqp.Queue) {
-	msgs, err := r.channel.Consume(
+func (m MailService) SendVerificationEmail(q amqp.Queue) {
+	msgs, err := m.channel.Consume(
 		q.Name, // queue
 		"",     // consumer
 		true,   // auto-ack
