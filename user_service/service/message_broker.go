@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"log"
-	"net/http"
 
-	"github.com/labstack/echo/v4"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type MessageBroker struct {
@@ -19,17 +19,17 @@ func NewMessageBroker(ch *amqp.Channel) MessageBroker {
 	}
 }
 
-func (m MessageBroker) PublishMessage(message string) error {
+func (m MessageBroker) PublishMessage(message []byte) error {
 	q, err := m.Ch.QueueDeclare(
-		"jeki", // name
-		false,  // durable
-		false,  // delete when unused
-		false,  // exclusive
-		false,  // no-wait
-		nil,    // arguments
+		"email_verification", 	// name
+		false,		// durable
+		false,		// delete when unused
+		false,		// exclusive
+		false,		// no-wait
+		nil,		// arguments
 	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		return status.Error(codes.Internal, err.Error())
 	}
 
 	ctx := context.TODO()
@@ -41,10 +41,10 @@ func (m MessageBroker) PublishMessage(message string) error {
 		false,  // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(message),
+			Body:        message,
 		})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		return status.Error(codes.Internal, err.Error())
 	}
 
 	log.Printf(" [x] Sent %s\n", message)
