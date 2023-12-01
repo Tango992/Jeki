@@ -72,3 +72,43 @@ func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
 	}
 	return driverData, nil
 }
+
+const (
+	OnlineDriverStatusID  = 1
+	ongoingDriverStatusID = 2
+	offlineDriverStatusID = 3
+)
+
+func (u UserRepository) SetDriverStatusOnline(driverID uint) error {
+	result := u.Db.Table("drivers").
+		Where("user_id = ?", driverID).
+		Update("driver_status_id", OnlineDriverStatusID)
+
+	if err := result.Error; err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	return nil
+}
+
+func (u UserRepository) SetDriverStatusOngoing(driverID uint) error {
+	result := u.Db.Table("drivers").
+		Where("user_id = ?", driverID).
+		Update("driver_status_id", ongoingDriverStatusID)
+
+	if err := result.Error; err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	return nil
+}
+
+func (u UserRepository) SetDriverStatusOffline(driverID uint) error {
+	result := u.Db.Table("drivers").
+		Where("user_id = ?", driverID).
+		Update("driver_status_id", offlineDriverStatusID)
+
+	if err := result.Error; err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	return nil
+}

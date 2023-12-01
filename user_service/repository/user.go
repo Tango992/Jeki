@@ -10,4 +10,7 @@ type User interface {
 	CreateUser(*models.User) error
 	AddToken(*models.Verification) error
 	GetAvailableDriver() (dto.DriverData, error)
+	SetDriverStatusOnline(driverID uint) error
+	SetDriverStatusOngoing(driverID uint) error
+	SetDriverStatusOffline(driverID uint) error
 }
