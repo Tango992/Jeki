@@ -29,6 +29,12 @@ func NewUserController(r repository.User, mb service.MessageBroker) Server {
 	}
 }
 
+const (
+	OnlineStatus  = "available"
+	OngoingStatus = "ongoing"
+	OfflineStatus = "offline"
+)
+
 func convertUserToUserData(user dto.UserJoinedData) *pb.UserData {
 	return &pb.UserData{
 		Id:        uint32(user.ID),
@@ -112,4 +118,31 @@ func (s Server) GetAvailableDriver(ctx context.Context, data *emptypb.Empty) (*p
 	}
 
 	return driverData, nil
+}
+
+func (s Server) SetDriverStatusOnline(ctx context.Context, data *pb.DriverId) (*emptypb.Empty, error) {
+	driverID := uint(data.Id)
+
+	if err := s.Repository.SetDriverStatusOnline(driverID); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s Server) SetDriverStatusOngoing(ctx context.Context, data *pb.DriverId) (*emptypb.Empty, error) {
+	driverID := uint(data.Id)
+
+	if err := s.Repository.SetDriverStatusOngoing(driverID); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s Server) SetDriverStatusOffline(ctx context.Context, data *pb.DriverId) (*emptypb.Empty, error) {
+	driverID := uint(data.Id)
+
+	if err := s.Repository.SetDriverStatusOffline(driverID); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
 }
