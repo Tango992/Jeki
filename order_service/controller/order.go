@@ -135,7 +135,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 	subtotalDummy := float32(100000)
 	
 	userData := model.User{
-		Id: uint(data.UserId),
+		Id: int(data.UserId),
 		Name: data.Name,
 		Email: data.Email,
 		Address: model.Address{
@@ -151,9 +151,9 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 	for _, v := range data.OrderItems {
 		// Call merchant service from this block (?)
 		menu := model.Menu{
-			Id: uint(v.MenuId),
+			Id: int(v.MenuId),
 			Name: "Menu",							// Temporary
-			Qty: uint(v.Qty),
+			Qty: int(v.Qty),
 			Subtotal: subtotalDummy,				// Temporary - Calculate subtotal from singular price
 		}
 		menus = append(menus, menu)
