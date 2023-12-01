@@ -26,6 +26,9 @@ type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	GetUserData(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserData, error)
 	GetAvailableDriver(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DriverData, error)
+	SetDriverStatusOnline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetDriverStatusOngoing(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetDriverStatusOffline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userClient struct {
@@ -63,6 +66,33 @@ func (c *userClient) GetAvailableDriver(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *userClient) SetDriverStatusOnline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.User/SetDriverStatusOnline", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetDriverStatusOngoing(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.User/SetDriverStatusOngoing", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SetDriverStatusOffline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.User/SetDriverStatusOffline", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -70,6 +100,9 @@ type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	GetUserData(context.Context, *EmailRequest) (*UserData, error)
 	GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error)
+	SetDriverStatusOnline(context.Context, *DriverId) (*emptypb.Empty, error)
+	SetDriverStatusOngoing(context.Context, *DriverId) (*emptypb.Empty, error)
+	SetDriverStatusOffline(context.Context, *DriverId) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -85,6 +118,15 @@ func (UnimplementedUserServer) GetUserData(context.Context, *EmailRequest) (*Use
 }
 func (UnimplementedUserServer) GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableDriver not implemented")
+}
+func (UnimplementedUserServer) SetDriverStatusOnline(context.Context, *DriverId) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDriverStatusOnline not implemented")
+}
+func (UnimplementedUserServer) SetDriverStatusOngoing(context.Context, *DriverId) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDriverStatusOngoing not implemented")
+}
+func (UnimplementedUserServer) SetDriverStatusOffline(context.Context, *DriverId) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDriverStatusOffline not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -153,6 +195,60 @@ func _User_GetAvailableDriver_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_SetDriverStatusOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetDriverStatusOnline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/SetDriverStatusOnline",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetDriverStatusOnline(ctx, req.(*DriverId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetDriverStatusOngoing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetDriverStatusOngoing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/SetDriverStatusOngoing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetDriverStatusOngoing(ctx, req.(*DriverId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SetDriverStatusOffline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SetDriverStatusOffline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/SetDriverStatusOffline",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SetDriverStatusOffline(ctx, req.(*DriverId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +267,18 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAvailableDriver",
 			Handler:    _User_GetAvailableDriver_Handler,
+		},
+		{
+			MethodName: "SetDriverStatusOnline",
+			Handler:    _User_SetDriverStatusOnline_Handler,
+		},
+		{
+			MethodName: "SetDriverStatusOngoing",
+			Handler:    _User_SetDriverStatusOngoing_Handler,
+		},
+		{
+			MethodName: "SetDriverStatusOffline",
+			Handler:    _User_SetDriverStatusOffline_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -56,12 +56,13 @@ func (u UserRepository) AddToken(data *models.Verification) error {
 }
 
 func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
+	var driverData dto.DriverData
 	result := u.Db.Table("drivers d").
 		Select("d.user_id AS id, u.first_name || ' ' || u.last_name AS name").
 		Joins("JOIN users u on d.user_id = u.id").
 		Joins("JOIN driver_statuses ds on d.driver_status_id = ds.id").
 		Where("ds.status = ?", "available").
-		Take(new(dto.DriverData))
+		Take(&driverData)
 
 	if err := result.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -69,8 +70,5 @@ func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
 		}
 		return dto.DriverData{}, status.Error(codes.Internal, err.Error())
 	}
-
-	var driverData dto.DriverData
-	result.Scan(&driverData)
 	return driverData, nil
 }

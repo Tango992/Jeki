@@ -9,7 +9,14 @@ option go_package = "./pb/userpb";
 service User {
     rpc Register(RegisterRequest) returns (RegisterResponse);
     rpc GetUserData(EmailRequest) returns (UserData);
-    rpc GetAvailableDriver(google.protobuf.Empty) returns (DriverData); 
+    rpc GetAvailableDriver(google.protobuf.Empty) returns (DriverData);
+    rpc SetDriverStatusOnline(DriverId) returns (google.protobuf.Empty);
+    rpc SetDriverStatusOngoing(DriverId) returns (google.protobuf.Empty);
+    rpc SetDriverStatusOffline(DriverId) returns (google.protobuf.Empty);
+}
+
+message DriverId {
+    uint32 id = 1;
 }
 
 message DriverData {
