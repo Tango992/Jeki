@@ -59,6 +59,7 @@ func (o OrderRepository) FindDriverCurrentOrder(ctx context.Context, driverId ui
 			bson.A{
 				bson.D{{Key: "driver.id", Value: driverId}},
 				bson.D{{Key: "driver.status", Value: "process"}},
+				bson.D{{Key: "payment.status", Value: "PAID"}},
 			},
 		},
 	}
@@ -123,6 +124,7 @@ func (o OrderRepository) FindRestaurantCurrentOrders(ctx context.Context, adminI
 			bson.A{
 				bson.D{{Key: "restaurant.admin_id", Value: adminId}},
 				bson.D{{Key: "restaurant.status", Value: "process"}},
+				bson.D{{Key: "payment.status", Value: "PAID"}},
 			},
 		},
 	}

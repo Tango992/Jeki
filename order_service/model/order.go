@@ -12,8 +12,8 @@ type Order struct {
 }
 
 type Restaurant struct {
-	Id      uint    `bson:"id" json:"id"`
-	AdminId uint    `bson:"admin_id" json:"admin_id"`
+	Id      int     `bson:"id" json:"id"`
+	AdminId int     `bson:"admin_id" json:"admin_id"`
 	Name    string  `bson:"name" json:"name"`
 	Address Address `bson:"address" json:"address"`
 	Status  string  `bson:"status" json:"status"`
@@ -25,21 +25,21 @@ type OrderDetail struct {
 }
 
 type Menu struct {
-	Id       uint    `bson:"id" json:"id"`
+	Id       int     `bson:"id" json:"id"`
 	Name     string  `bson:"name" json:"name"`
-	Qty      uint    `bson:"qty" json:"qty"`
+	Qty      int     `bson:"qty" json:"qty"`
 	Subtotal float32 `bson:"subtotal" json:"subtotal"`
 }
 
 type User struct {
-	Id      uint    `bson:"id" json:"id"`
+	Id      int     `bson:"id" json:"id"`
 	Name    string  `bson:"name" json:"name"`
 	Email   string  `bson:"email" json:"email"`
 	Address Address `bson:"address" json:"address"`
 }
 
 type Driver struct {
-	Id     uint   `bson:"id" json:"id"`
+	Id     int    `bson:"id" json:"id"`
 	Name   string `bson:"name" json:"name"`
 	Status string `bson:"status" json:"status"`
 }
