@@ -88,6 +88,9 @@ func (u UserRepository) SetDriverStatusOnline(driverID uint) error {
 		return status.Error(codes.Internal, err.Error())
 	}
 
+	if result.RowsAffected == 0 {
+		return status.Error(codes.InvalidArgument, "Invalid driver ID")
+	}
 	return nil
 }
 
@@ -99,6 +102,10 @@ func (u UserRepository) SetDriverStatusOngoing(driverID uint) error {
 	if err := result.Error; err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
+
+	if result.RowsAffected == 0 {
+		return status.Error(codes.InvalidArgument, "Invalid driver ID")
+	}
 	return nil
 }
 
@@ -109,6 +116,10 @@ func (u UserRepository) SetDriverStatusOffline(driverID uint) error {
 
 	if err := result.Error; err != nil {
 		return status.Error(codes.Internal, err.Error())
+	}
+
+	if result.RowsAffected == 0 {
+		return status.Error(codes.InvalidArgument, "Invalid driver ID")
 	}
 	return nil
 }
