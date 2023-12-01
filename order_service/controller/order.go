@@ -6,6 +6,7 @@ import (
 	"order-service/model"
 	pb "order-service/pb/orderpb"
 	"order-service/repository"
+	"order-service/service"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,11 +18,13 @@ import (
 type OrderController struct {
 	pb.UnimplementedOrderServiceServer
 	Repository repository.Order
+	PaymentService service.PaymentService
 }
 
-func NewOrderController(r repository.Order) OrderController {
+func NewOrderController(r repository.Order, p service.PaymentService) OrderController {
 	return OrderController{
 		Repository: r,
+		PaymentService: p,
 	}
 }
 
@@ -128,6 +131,9 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 }
 
 func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderData) (*pb.PostOrderResponse, error){ 
+	newObjectId := primitive.NewObjectID()
+	subtotalDummy := float32(100000)
+	
 	userData := model.User{
 		Id: uint(data.UserId),
 		Name: data.Name,
@@ -148,7 +154,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 			Id: uint(v.MenuId),
 			Name: "Menu",							// Temporary
 			Qty: uint(v.Qty),
-			Subtotal: 100000,						// Temporary - Calculate subtotal from singular price
+			Subtotal: subtotalDummy,				// Temporary - Calculate subtotal from singular price
 		}
 		menus = append(menus, menu)
 	}
@@ -183,18 +189,13 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		Status: "process",
 	}
 
-	/*
-		Get data from Xendit
-	*/
-	paymentData := model.Payment{
-		InvoiceId: "someinvoiceid",					// Temporary
-		InvoiceUrl: "https://www.google.com",		// Temporary
-		Total: totalTemporary,						// Temporary
-		Method: "ovo",								// Temporary
-		Status: "pending",							// Temporary
+	paymentData, err := o.PaymentService.MakeInvoice(newObjectId, subtotalDummy)
+	if err != nil {
+		return nil, err
 	}
 
 	orderData := model.Order{
+		Id: newObjectId,
 		Restaurant: restaurantData,
 		OrderDetail: orderDetailData,
 		User: userData,

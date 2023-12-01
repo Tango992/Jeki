@@ -1,7 +1,7 @@
 package config
 
 import (
-	"api-gateway/pb"
+	pb "api-gateway/pb/userpb"
 	"log"
 	"os"
 
