@@ -2,11 +2,19 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "./pb";
+import "google/protobuf/empty.proto";
+
+option go_package = "./pb/userpb";
 
 service User {
     rpc Register(RegisterRequest) returns (RegisterResponse);
     rpc GetUserData(EmailRequest) returns (UserData);
+    rpc GetAvailableDriver(google.protobuf.Empty) returns (DriverData); 
+}
+
+message DriverData {
+    uint32 id = 1;
+    string name = 2;
 }
 
 message EmailRequest {

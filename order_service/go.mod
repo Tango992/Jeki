@@ -7,6 +7,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rs/zerolog v1.31.0
+	github.com/xendit/xendit-go/v3 v3.7.0
 	go.mongodb.org/mongo-driver v1.13.0
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0

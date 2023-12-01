@@ -4,7 +4,7 @@ import (
 	"api-gateway/dto"
 	"api-gateway/helpers"
 	"api-gateway/models"
-	"api-gateway/pb"
+	userpb "api-gateway/pb/userpb"
 	"api-gateway/utils"
 	"context"
 	"net/http"
@@ -17,10 +17,10 @@ import (
 )
 
 type UserController struct {
-	Client pb.UserClient
+	Client userpb.UserClient
 }
 
-func NewUserController(client pb.UserClient) UserController {
+func NewUserController(client userpb.UserClient) UserController {
 	return UserController{
 		Client: client,
 	}
@@ -64,7 +64,7 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
-	registerData := &pb.RegisterRequest{
+	registerData := &userpb.RegisterRequest{
 		FirstName: register.FirstName,
 		LastName:  register.LastName,
 		Email:     register.Email,
@@ -115,7 +115,7 @@ func (u UserController) Login(c echo.Context) error {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
-	emailRequest := &pb.EmailRequest{
+	emailRequest := &userpb.EmailRequest{
 		Email: loginReq.Email,
 	}
 
