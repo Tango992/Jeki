@@ -57,6 +57,7 @@ message MenuCompact {
 }
 
 message UpdateRestaurantData {
+  uint32 id = 1;
   string name = 2;
   string address = 3;
   float latitude = 5;
