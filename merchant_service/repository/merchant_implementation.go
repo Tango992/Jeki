@@ -28,7 +28,7 @@ func (m MerchantRepository) FindAllRestaurants() ([]model.Restaurant, error) {
 	return restaurants, nil
 }
 
-func (m MerchantRepository) FindRestaurantById(id uint32) (model.Restaurant, error) {
+func (m MerchantRepository) FindRestaurantByID(id uint32) (model.Restaurant, error) {
     var restaurant model.Restaurant
     if err := m.Db.First(&restaurant, id).Error; err != nil {
         return model.Restaurant{}, err
