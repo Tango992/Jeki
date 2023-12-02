@@ -7,10 +7,68 @@ import "google/protobuf/empty.proto";
 option go_package = "./pb/merchantpb";
 
 service Merchant {
-    rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
-    rpc FindRestaurantByID(IdRestaurant) returns (RestaurantID);
-    rpc FindMenuID(MenuId) returns (Menu);
-    rpc FindMenuDetailsWithSubtotal(RequestMenuDetails) returns (ResponseMenuDetails);
+  // For customer (order service)
+  rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
+  rpc FindRestaurantByID(IdRestaurant) returns (RestaurantDetailed);
+  rpc FindMenuID(MenuId) returns (Menu);
+  rpc FindMenuDetailsWithSubtotal(RequestMenuDetails) returns (ResponseMenuDetails);
+  // For admin
+  rpc CreateRestaurant(NewRestaurantData) returns (IdRestaurant);
+  rpc UpdateRestaurant(UpdateRestaurantData) returns (google.protobuf.Empty);
+  rpc CreateMenu(NewMenuData) returns (MenuId);
+  rpc UpdateMenu(UpdateMenuData) returns (google.protobuf.Empty);
+  rpc DeleteMenu(AdminIdMenuId) returns (google.protobuf.Empty);
+  rpc FindRestaurantByAdminId(AdminId) returns (RestaurantData);
+  rpc FindMenusByAdminId(AdminId) returns (MenuCompactRepeated);
+  rpc FindOneMenuByAdminId(AdminIdMenuId) returns (MenuCompact);
+}
+
+message UpdateMenuData {
+  uint32 menu_id = 1;
+  string name = 2;
+  uint32 category_id = 3;
+  float price = 4;
+}
+
+message NewMenuData {
+  uint32 admin_id = 1;
+  string name = 2;
+  uint32 category_id = 3;
+  float price = 4;
+}
+
+message AdminIdMenuId {
+  uint32 admin_id = 1;
+  uint32 menu_id = 2;
+}
+
+message AdminId {
+  uint32 id = 1;
+}
+
+message MenuCompactRepeated {
+  repeated MenuCompact menus = 1;
+}
+
+message MenuCompact {
+  string name = 1;
+  string category = 2;
+  float price = 3;
+}
+
+message UpdateRestaurantData {
+  string name = 2;
+  string address = 3;
+  float latitude = 5;
+  float longitude = 6;
+}
+
+message NewRestaurantData {
+  uint32 admin_id = 1;
+  string name = 2;
+  string address = 3;
+  float latitude = 5;
+  float longitude = 6;
 }
 
 message IdRestaurant {
@@ -42,30 +100,26 @@ message MenuId {
 }
 
 message Restaurants {
-  repeated RestaurantAll restaurants = 1;
+  repeated RestaurantData restaurants = 1;
 }
 
-message RestaurantAll {
+message RestaurantData {
   uint32 id = 1;
   uint32 admin_id = 2;
   string name = 3;
   string address = 4;
-  double latitude = 5;
-  double longitude = 6;
+  float latitude = 5;
+  float longitude = 6;
 }
 
-message RestaurantID {
+message RestaurantDetailed {
   uint32 id = 1;
   uint32 admin_id = 2;
   string name = 3;
   string address = 4;
-  double latitude = 5;
-  double longitude = 6;
+  float latitude = 5;
+  float longitude = 6;
   repeated Menu menus = 7;
-}
-
-message Menus {
-  repeated Menu menus = 1;
 }
 
 message Menu {
@@ -73,7 +127,7 @@ message Menu {
   uint32 restaurant_id = 2;
   string name = 3;
   uint32 category_id = 4;
-  double price = 5;
+  float price = 5;
 }
 
 message Category {

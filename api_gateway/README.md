@@ -24,6 +24,8 @@
 
 ### Create Restaurant and Menu
 
+- merchant/restaurant [GET] (Requires auth with admin role)
+
 - merchant/restaurant [POST] (Requires auth with admin role)
 
 - merchant/restaurant [PUT] (Requires auth with admin role)

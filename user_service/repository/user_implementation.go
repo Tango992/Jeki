@@ -10,6 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	onlineDriverStatusID  = 1
+	ongoingDriverStatusID = 2
+	offlineDriverStatusID = 3
+)
+
 type UserRepository struct {
 	Db *gorm.DB
 }
@@ -66,23 +72,17 @@ func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
 
 	if err := result.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.DriverData{}, status.Error(codes.Canceled, err.Error())
+			return dto.DriverData{}, status.Error(codes.Canceled, "no available driver to pick up the order")
 		}
 		return dto.DriverData{}, status.Error(codes.Internal, err.Error())
 	}
 	return driverData, nil
 }
 
-const (
-	OnlineDriverStatusID  = 1
-	ongoingDriverStatusID = 2
-	offlineDriverStatusID = 3
-)
-
 func (u UserRepository) SetDriverStatusOnline(driverID uint) error {
 	result := u.Db.Table("drivers").
 		Where("user_id = ?", driverID).
-		Update("driver_status_id", OnlineDriverStatusID)
+		Update("driver_status_id", onlineDriverStatusID)
 
 	if err := result.Error; err != nil {
 		return status.Error(codes.Internal, err.Error())

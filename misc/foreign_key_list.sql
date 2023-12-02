@@ -6,5 +6,5 @@ INSERT INTO roles (name) VALUES
 INSERT INTO driver_statuses (status)  VALUES
 ('available'), ('ongoing order'), ('offline');
 
-INSERT INTO categories (category_name) VALUES
+INSERT INTO categories (name) VALUES
 ('food'), ('drink');
