@@ -30,6 +30,8 @@ func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*
     for _, r := range restaurants {
         pbRestaurant := &pb.RestaurantCompact{
             Id: uint32(r.ID),
+			Name: r.Name,
+			Address: r.Address,
 
         }
         pbRestaurantCompactRepeated = append(pbRestaurantCompactRepeated, pbRestaurant)
