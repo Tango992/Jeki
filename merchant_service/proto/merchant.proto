@@ -8,7 +8,7 @@ option go_package = "./pb/merchantpb";
 
 service Merchant {
   // For customer (order service)
-  rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
+  rpc FindAllRestaurants(google.protobuf.Empty) returns (RestaurantCompactRepeated);
   rpc FindRestaurantById(IdRestaurant) returns (RestaurantDetailed);
   rpc FindMenuById(MenuId) returns (Menu);
   rpc FindMenuDetailsWithSubtotal(RequestMenuDetails) returns (ResponseMenuDetails);
@@ -103,6 +103,16 @@ message Restaurants {
   repeated RestaurantData restaurants = 1;
 }
 
+message RestaurantCompactRepeated {
+  repeated RestaurantCompact restaurants = 1;
+}
+
+message RestaurantCompact {
+  uint32 id = 1;
+  string name = 2;
+  string address = 3;
+}
+
 message RestaurantData {
   uint32 id = 1;
   uint32 admin_id = 2;
@@ -114,20 +124,18 @@ message RestaurantData {
 
 message RestaurantDetailed {
   uint32 id = 1;
-  uint32 admin_id = 2;
-  string name = 3;
-  string address = 4;
-  float latitude = 5;
-  float longitude = 6;
-  repeated Menu menus = 7;
+  string name = 2;
+  string address = 3;
+  float latitude = 4;
+  float longitude = 5;
+  repeated Menu menus = 6;
 }
 
 message Menu {
   uint32 id = 1;
-  uint32 restaurant_id = 2;
-  string name = 3;
-  uint32 category_id = 4;
-  float price = 5;
+  string name = 2;
+  uint32 category_id = 3;
+  float price = 4;
 }
 
 message Category {
