@@ -26,23 +26,25 @@ func NewUserController(client userpb.UserClient) UserController {
 	}
 }
 
-/*
-	ROLE ID
-	Customer/user = 1
-	Driver = 2
-	Admin = 3
-*/
+const (
+	userRoleID = 1
+	driverRoleID = 2
+	adminRoleID = 3
+	userRole = "user"
+	driverRole = "driver"
+	adminRole = "admin"
+)
 
 func (u UserController) RegisterUser(c echo.Context) error {
-	return u.Register(c, 1, "user")
+	return u.Register(c, userRoleID, userRole)
 }
 
 func (u UserController) RegisterDriver(c echo.Context) error {
-	return u.Register(c, 2, "driver")
+	return u.Register(c, driverRoleID, driverRole)
 }
 
 func (u UserController) RegisterAdmin(c echo.Context) error {
-	return u.Register(c, 3, "admin")
+	return u.Register(c, adminRoleID, adminRole)
 }
 
 func (u UserController) Register(c echo.Context, roleId uint, roleName string) error {
@@ -73,7 +75,7 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 		RoleId:    uint32(roleId),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	responseGrpc, err := u.Client.Register(ctx, registerData)
@@ -119,20 +121,17 @@ func (u UserController) Login(c echo.Context) error {
 		Email: loginReq.Email,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	userDataTmp, err := u.Client.GetUserData(ctx, emailRequest)
-	if err != nil {
-		if e, ok := status.FromError(err); ok {
-			switch e.Code() {
-			case codes.NotFound:
-				return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
-			case codes.Internal:
-				return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
-			}
+	if e, ok := status.FromError(err); ok {
+		switch e.Code() {
+		case codes.NotFound:
+			return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
+		default:
+			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
 		}
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 	}
 
 	userData := models.User{
@@ -149,6 +148,15 @@ func (u UserController) Login(c echo.Context) error {
 		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
 	}
 
+	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	
+	if userData.Role == driverRole {
+		if _, err := u.Client.SetDriverStatusOnline(ctx, &userpb.DriverId{Id: userData.ID}); err != nil {
+			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		}
+	}
+
 	if err := helpers.SignNewJWT(c, userData); err != nil {
 		return err
 	}
@@ -156,5 +164,39 @@ func (u UserController) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, dto.Response{
 		Message: "Login succesfully",
 		Data:    "Authorization is stored in cookie",
+	})
+}
+
+func (u UserController) Logout(c echo.Context) error {
+	user, err := helpers.GetClaims(c)
+	if err != nil {
+		return err
+	}
+
+	userIdPb := &userpb.DriverId{
+		Id: uint32(user.ID),
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	
+	if user.Role == driverRole {
+		if _, err := u.Client.SetDriverStatusOffline(ctx, userIdPb); err != nil {
+			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		}
+	}
+	
+	cookie := new(http.Cookie)
+	cookie.Name = "Authorization"
+	cookie.HttpOnly = true
+	cookie.Path = "/"
+	cookie.Value = ""
+	cookie.SameSite = http.SameSiteLaxMode
+	cookie.MaxAge = -1
+	c.SetCookie(cookie)
+	
+	return c.JSON(http.StatusOK, dto.Response{
+		Message: "Logged out",
+		Data: "Authorization cookie has been deleted",
 	})
 }
