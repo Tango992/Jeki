@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package user;
+package order;
 
 import "google/protobuf/empty.proto";
 
@@ -106,7 +106,8 @@ message Menu {
 
 message OrderDetail {
     repeated Menu menu = 1;
-    float total = 2;
+    float delivery_cost = 2;
+    float total = 3;
 }
 
 message Payment {

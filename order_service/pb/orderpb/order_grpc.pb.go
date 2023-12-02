@@ -46,7 +46,7 @@ func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
 
 func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error) {
 	out := new(PostOrderResponse)
-	err := c.cc.Invoke(ctx, "/user.OrderService/PostOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/PostOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData
 
 func (c *orderServiceClient) GetRestaurantCurrentOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetRestaurantCurrentOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetRestaurantCurrentOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *orderServiceClient) GetRestaurantCurrentOrders(ctx context.Context, in 
 
 func (c *orderServiceClient) GetRestaurantAllOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetRestaurantAllOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetRestaurantAllOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *orderServiceClient) GetRestaurantAllOrders(ctx context.Context, in *Adm
 
 func (c *orderServiceClient) GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserCurrentOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetUserCurrentOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c *orderServiceClient) GetUserCurrentOrders(ctx context.Context, in *UserI
 
 func (c *orderServiceClient) GetUserAllOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetUserAllOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetUserAllOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (c *orderServiceClient) GetUserAllOrders(ctx context.Context, in *UserId, o
 
 func (c *orderServiceClient) GetDriverAllOrders(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Orders, error) {
 	out := new(Orders)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetDriverAllOrders", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetDriverAllOrders", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (c *orderServiceClient) GetDriverAllOrders(ctx context.Context, in *DriverI
 
 func (c *orderServiceClient) GetDriverCurrentOrder(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*Order, error) {
 	out := new(Order)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetDriverCurrentOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetDriverCurrentOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (c *orderServiceClient) GetDriverCurrentOrder(ctx context.Context, in *Driv
 
 func (c *orderServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error) {
 	out := new(Order)
-	err := c.cc.Invoke(ctx, "/user.OrderService/GetOrderById", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/GetOrderById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (c *orderServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts
 
 func (c *orderServiceClient) UpdateRestaurantOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.OrderService/UpdateRestaurantOrderStatus", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/UpdateRestaurantOrderStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *orderServiceClient) UpdateRestaurantOrderStatus(ctx context.Context, in
 
 func (c *orderServiceClient) UpdateDriverOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.OrderService/UpdateDriverOrderStatus", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/UpdateDriverOrderStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (c *orderServiceClient) UpdateDriverOrderStatus(ctx context.Context, in *Re
 
 func (c *orderServiceClient) UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/user.OrderService/UpdatePaymentOrderStatus", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order.OrderService/UpdatePaymentOrderStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func _OrderService_PostOrder_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/PostOrder",
+		FullMethod: "/order.OrderService/PostOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).PostOrder(ctx, req.(*RequestOrderData))
@@ -239,7 +239,7 @@ func _OrderService_GetRestaurantCurrentOrders_Handler(srv interface{}, ctx conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetRestaurantCurrentOrders",
+		FullMethod: "/order.OrderService/GetRestaurantCurrentOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetRestaurantCurrentOrders(ctx, req.(*AdminId))
@@ -257,7 +257,7 @@ func _OrderService_GetRestaurantAllOrders_Handler(srv interface{}, ctx context.C
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetRestaurantAllOrders",
+		FullMethod: "/order.OrderService/GetRestaurantAllOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetRestaurantAllOrders(ctx, req.(*AdminId))
@@ -275,7 +275,7 @@ func _OrderService_GetUserCurrentOrders_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetUserCurrentOrders",
+		FullMethod: "/order.OrderService/GetUserCurrentOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetUserCurrentOrders(ctx, req.(*UserId))
@@ -293,7 +293,7 @@ func _OrderService_GetUserAllOrders_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetUserAllOrders",
+		FullMethod: "/order.OrderService/GetUserAllOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetUserAllOrders(ctx, req.(*UserId))
@@ -311,7 +311,7 @@ func _OrderService_GetDriverAllOrders_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetDriverAllOrders",
+		FullMethod: "/order.OrderService/GetDriverAllOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetDriverAllOrders(ctx, req.(*DriverId))
@@ -329,7 +329,7 @@ func _OrderService_GetDriverCurrentOrder_Handler(srv interface{}, ctx context.Co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetDriverCurrentOrder",
+		FullMethod: "/order.OrderService/GetDriverCurrentOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetDriverCurrentOrder(ctx, req.(*DriverId))
@@ -347,7 +347,7 @@ func _OrderService_GetOrderById_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/GetOrderById",
+		FullMethod: "/order.OrderService/GetOrderById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).GetOrderById(ctx, req.(*OrderId))
@@ -365,7 +365,7 @@ func _OrderService_UpdateRestaurantOrderStatus_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/UpdateRestaurantOrderStatus",
+		FullMethod: "/order.OrderService/UpdateRestaurantOrderStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).UpdateRestaurantOrderStatus(ctx, req.(*RequestUpdateData))
@@ -383,7 +383,7 @@ func _OrderService_UpdateDriverOrderStatus_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/UpdateDriverOrderStatus",
+		FullMethod: "/order.OrderService/UpdateDriverOrderStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).UpdateDriverOrderStatus(ctx, req.(*RequestUpdateData))
@@ -401,7 +401,7 @@ func _OrderService_UpdatePaymentOrderStatus_Handler(srv interface{}, ctx context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.OrderService/UpdatePaymentOrderStatus",
+		FullMethod: "/order.OrderService/UpdatePaymentOrderStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).UpdatePaymentOrderStatus(ctx, req.(*RequestUpdateData))
@@ -413,7 +413,7 @@ func _OrderService_UpdatePaymentOrderStatus_Handler(srv interface{}, ctx context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var OrderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user.OrderService",
+	ServiceName: "order.OrderService",
 	HandlerType: (*OrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

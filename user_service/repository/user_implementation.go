@@ -66,7 +66,7 @@ func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
 
 	if err := result.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.DriverData{}, status.Error(codes.NotFound, err.Error())
+			return dto.DriverData{}, status.Error(codes.Canceled, err.Error())
 		}
 		return dto.DriverData{}, status.Error(codes.Internal, err.Error())
 	}
