@@ -70,7 +70,7 @@ func (m MerchantRepository) DeleteMenu(restoId, menuId uint) error {
 func (m MerchantRepository) FindMultipleMenuDetails(menuIds []int) ([]dto.MenuTmp, error) {
 	var menus []dto.MenuTmp
 
-	res := m.Db.Table("menus").Select("id, name, price").Where("id IN ?", menuIds).Scan(&menus)
+	res := m.Db.Table("menus").Select("id, name, price").Where("id IN ?", menuIds).Order("id").Scan(&menus)
 	if err := res.Error; err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

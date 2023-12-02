@@ -74,11 +74,11 @@ func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, er
 	return nil, nil
 }
 
-func (s Server) FindMenusByAdminId(ctx context.Context, data *pb.AdminId) (*pb.MenuCompactRepeated, error) {
+func (s Server) UpdateMenu(context.Context, *pb.UpdateMenuData) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
-func (s Server) FindOneMenuByAdminId(ctx context.Context, data *pb.AdminIdMenuId) (*pb.MenuCompact, error) {
+func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantData) (*emptypb.Empty, error) {
 	return nil, nil
 }
 
@@ -88,19 +88,38 @@ func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.Reques
 		menuIds = append(menuIds, int(val.Id))
 	}
 	
-	_, err := s.Repository.FindMultipleMenuDetails(menuIds)
+	menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
 	if err != nil {
 		return nil, err
 	}
 
-	// var responseDatas []*pb.ResponseMenuDetails
-	// for _, menu := range menuDatas {
-	// 	menuData := &pb.ResponseMenuDetail{
-	// 		Id: ,
-	// 	}
-	// }
+	var responseDatas []*pb.ResponseMenuDetail
+	for i, menu := range menuDatas {
+		quantity := data.RequestMenuDetails[i].Qty
+		subtotal := menu.Price * float32(quantity)
+
+		menuData := &pb.ResponseMenuDetail{
+			Id: uint32(menu.ID),
+			Name: menu.Name,
+			Qty: quantity,
+			Subtotal: subtotal,
+		}
+		responseDatas = append(responseDatas, menuData)
+	}
+
+	pbResponseData := &pb.ResponseMenuDetails{
+		ResponseMenuDetails: responseDatas,
+	}
 	
-	return &pb.ResponseMenuDetails{}, nil
+	return pbResponseData, nil
+}
+
+func (s Server) FindMenusByAdminId(ctx context.Context, data *pb.AdminId) (*pb.MenuCompactRepeated, error) {
+	return nil, nil
+}
+
+func (s Server) FindOneMenuByAdminId(ctx context.Context, data *pb.AdminIdMenuId) (*pb.MenuCompact, error) {
+	return nil, nil
 }
 
 func (s Server) FindRestaurantByAdminId(ctx context.Context, data *pb.AdminId) (*pb.RestaurantData, error) {
@@ -108,13 +127,5 @@ func (s Server) FindRestaurantByAdminId(ctx context.Context, data *pb.AdminId) (
 }
 
 func (s Server) FindRestaurantById(context.Context, *pb.IdRestaurant) (*pb.RestaurantDetailed, error) {
-	return nil, nil
-}
-
-func (s Server) UpdateMenu(context.Context, *pb.UpdateMenuData) (*emptypb.Empty, error) {
-	return nil, nil
-}
-
-func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantData) (*emptypb.Empty, error) {
 	return nil, nil
 }
