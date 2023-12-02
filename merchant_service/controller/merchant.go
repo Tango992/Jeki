@@ -21,6 +21,66 @@ func NewUserController(r repository.Merchant) Server {
 	}
 }
 
+func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*pb.RestaurantCompactRepeated, error) {
+    restaurants, err := s.Repository.FindAllRestaurants()
+    if err != nil {
+        return nil, err
+    }
+
+    var pbRestaurantCompactRepeated []*pb.RestaurantCompact
+    for _, r := range restaurants {
+        pbRestaurant := &pb.RestaurantCompact{
+            Id: uint32(r.ID),
+			Name: r.Name,
+			Address: r.Address,
+
+        }
+        pbRestaurantCompactRepeated = append(pbRestaurantCompactRepeated, pbRestaurant)
+    }
+
+    return &pb.RestaurantCompactRepeated{
+        Restaurants: pbRestaurantCompactRepeated,
+    }, nil
+}
+
+func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) (*pb.RestaurantDetailed, error) {
+    restaurantID := idReq.GetId()
+
+    restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
+    if err != nil {
+        return nil, err
+    }
+
+    pbRestaurantDetailed := convertToRestaurantDetailedProtoBuf(*restaurant)
+
+    return pbRestaurantDetailed, nil
+}
+
+func convertToRestaurantDetailedProtoBuf(restaurant model.Restaurant) *pb.RestaurantDetailed {
+    var pbMenus []*pb.Menu
+    for _, menu := range restaurant.Menus {
+        pbMenu := &pb.Menu{
+            Id:           uint32(menu.ID),
+            Name:         menu.Name,
+            CategoryId:   uint32(menu.CategoryId),
+            Price:        float32(menu.Price),
+        }
+        pbMenus = append(pbMenus, pbMenu)
+    }
+
+    pbRestaurantDetailed := &pb.RestaurantDetailed{
+        Id:        uint32(restaurant.ID),
+        Name:      restaurant.Name,
+        Address:   restaurant.Address,
+        Latitude:  float32(restaurant.Latitude),
+        Longitude: float32(restaurant.Longitude),
+        Menus:     pbMenus,
+    }
+
+    return pbRestaurantDetailed
+}
+
+
 func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuId, error) {
 	restaurantId, err := s.Repository.FindRestaurantIdByAdminId(uint(data.AdminId))
 	if err != nil {
@@ -65,10 +125,6 @@ func (s Server) CreateRestaurant(ctx context.Context, data *pb.NewRestaurantData
 		return nil, err
 	}
 	return &pb.IdRestaurant{Id: uint32(restaurantData.ID)}, nil
-}
-
-func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*pb.RestaurantCompactRepeated, error) {
-	return nil, nil
 }
 
 func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, error) {
@@ -128,9 +184,5 @@ func (s Server) FindOneMenuByAdminId(ctx context.Context, data *pb.AdminIdMenuId
 }
 
 func (s Server) FindRestaurantByAdminId(ctx context.Context, data *pb.AdminId) (*pb.RestaurantData, error) {
-	return nil, nil
-}
-
-func (s Server) FindRestaurantById(context.Context, *pb.IdRestaurant) (*pb.RestaurantDetailed, error) {
 	return nil, nil
 }

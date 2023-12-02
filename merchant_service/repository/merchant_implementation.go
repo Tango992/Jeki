@@ -20,6 +20,22 @@ func NewMerchantRepository(db *gorm.DB) MerchantRepository {
 	}
 }
 
+func (m MerchantRepository) FindAllRestaurants() ([]model.Restaurant, error) {
+	var restaurants []model.Restaurant
+	if err := m.Db.Find(&restaurants).Error; err != nil {
+		return nil, err
+	}
+	return restaurants, nil
+}
+
+func (m MerchantRepository) FindRestaurantById(id uint32) (model.Restaurant, error) {
+    var restaurant model.Restaurant
+    if err := m.Db.First(&restaurant, id).Error; err != nil {
+        return model.Restaurant{}, err
+    }
+    return restaurant, nil
+}
+
 func (m MerchantRepository) CreateRestaurant(data *model.Restaurant) error {
 	if err := m.Db.Create(data).Error; err != nil {
 		if err.Error() == `ERROR: duplicate key value violates unique constraint "idx_restaurants_admin_id" (SQLSTATE 23505)` {

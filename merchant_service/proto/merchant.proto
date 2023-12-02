@@ -124,20 +124,18 @@ message RestaurantData {
 
 message RestaurantDetailed {
   uint32 id = 1;
-  uint32 admin_id = 2;
-  string name = 3;
-  string address = 4;
-  float latitude = 5;
-  float longitude = 6;
-  repeated Menu menus = 7;
+  string name = 2;
+  string address = 3;
+  float latitude = 4;
+  float longitude = 5;
+  repeated Menu menus = 6;
 }
 
 message Menu {
   uint32 id = 1;
-  uint32 restaurant_id = 2;
-  string name = 3;
-  uint32 category_id = 4;
-  float price = 5;
+  string name = 2;
+  uint32 category_id = 3;
+  float price = 4;
 }
 
 message Category {
