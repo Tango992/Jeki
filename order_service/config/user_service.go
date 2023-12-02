@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func InitUserService() (*grpc.ClientConn, userpb.UserClient) {
+func InitUserServiceClient() (*grpc.ClientConn, userpb.UserClient) {
 	// creds := credentials.NewTLS(&tls.Config{
 	// 	InsecureSkipVerify: true,
 	// })
