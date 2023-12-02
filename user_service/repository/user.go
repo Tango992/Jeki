@@ -13,4 +13,5 @@ type User interface {
 	SetDriverStatusOnline(driverID uint) error
 	SetDriverStatusOngoing(driverID uint) error
 	SetDriverStatusOffline(driverID uint) error
+	VerifyNewUser(id uint32, token string) error
 }
