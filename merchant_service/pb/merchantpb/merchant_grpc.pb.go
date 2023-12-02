@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MerchantClient interface {
 	// For customer (order service)
-	FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error)
+	FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RestaurantCompactRepeated, error)
 	FindRestaurantById(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error)
 	FindMenuById(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error)
 	FindMenuDetailsWithSubtotal(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*ResponseMenuDetails, error)
@@ -47,8 +47,8 @@ func NewMerchantClient(cc grpc.ClientConnInterface) MerchantClient {
 	return &merchantClient{cc}
 }
 
-func (c *merchantClient) FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error) {
-	out := new(Restaurants)
+func (c *merchantClient) FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RestaurantCompactRepeated, error) {
+	out := new(RestaurantCompactRepeated)
 	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindAllRestaurants", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func (c *merchantClient) FindOneMenuByAdminId(ctx context.Context, in *AdminIdMe
 // for forward compatibility
 type MerchantServer interface {
 	// For customer (order service)
-	FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error)
+	FindAllRestaurants(context.Context, *emptypb.Empty) (*RestaurantCompactRepeated, error)
 	FindRestaurantById(context.Context, *IdRestaurant) (*RestaurantDetailed, error)
 	FindMenuById(context.Context, *MenuId) (*Menu, error)
 	FindMenuDetailsWithSubtotal(context.Context, *RequestMenuDetails) (*ResponseMenuDetails, error)
@@ -180,7 +180,7 @@ type MerchantServer interface {
 type UnimplementedMerchantServer struct {
 }
 
-func (UnimplementedMerchantServer) FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error) {
+func (UnimplementedMerchantServer) FindAllRestaurants(context.Context, *emptypb.Empty) (*RestaurantCompactRepeated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllRestaurants not implemented")
 }
 func (UnimplementedMerchantServer) FindRestaurantById(context.Context, *IdRestaurant) (*RestaurantDetailed, error) {
