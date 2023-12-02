@@ -146,3 +146,7 @@ func (s Server) SetDriverStatusOffline(ctx context.Context, data *pb.DriverId) (
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s Server) VerifyNewUser(ctx context.Context, data *pb.UserCredential) (*emptypb.Empty, error) {
+	return nil, nil
+}

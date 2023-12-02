@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"merchant-service/model"
 	pb "merchant-service/pb/merchantpb"
 	"merchant-service/repository"
@@ -126,8 +127,6 @@ func (s Server) CreateRestaurant(ctx context.Context, data *pb.NewRestaurantData
 	return &pb.IdRestaurant{Id: uint32(restaurantData.ID)}, nil
 }
 
-
-
 func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, error) {
 	return nil, nil
 }
@@ -141,35 +140,39 @@ func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantD
 }
 
 func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.RequestMenuDetails) (*pb.ResponseMenuDetails, error) {
-	var menuIds []int
+	var  (
+		menuIds []int
+		menuIdWithQty = map[int]int{}
+	)
+
 	for _, val := range data.RequestMenuDetails {
+		menuIdWithQty[int(val.Id)] = int(val.Qty)
 		menuIds = append(menuIds, int(val.Id))
 	}
+	fmt.Println("MAPPPPPPPP", menuIdWithQty)
 	
 	menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
 	if err != nil {
 		return nil, err
 	}
 
-	var responseDatas []*pb.ResponseMenuDetail
-	for i, menu := range menuDatas {
-		quantity := data.RequestMenuDetails[i].Qty
+	responseDatas := []*pb.ResponseMenuDetail{}
+	for _, menu := range menuDatas {
+		quantity := menuIdWithQty[int(menu.ID)]
 		subtotal := menu.Price * float32(quantity)
 
 		menuData := &pb.ResponseMenuDetail{
 			Id: uint32(menu.ID),
 			Name: menu.Name,
-			Qty: quantity,
+			Qty: uint32(quantity),
 			Subtotal: subtotal,
 		}
 		responseDatas = append(responseDatas, menuData)
 	}
-
-	pbResponseData := &pb.ResponseMenuDetails{
-		ResponseMenuDetails: responseDatas,
-	}
 	
-	return pbResponseData, nil
+	return &pb.ResponseMenuDetails{
+		ResponseMenuDetails: responseDatas,
+	}, nil
 }
 
 func (s Server) FindMenusByAdminId(ctx context.Context, data *pb.AdminId) (*pb.MenuCompactRepeated, error) {
