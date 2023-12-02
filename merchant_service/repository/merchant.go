@@ -7,7 +7,7 @@ import (
 
 type Merchant interface{
 	FindAllRestaurants() ([]model.Restaurant, error)
-	FindRestaurantByID(id uint32) (*model.Restaurant, error)
+	FindRestaurantByID(uint32) (model.Restaurant, error)
 	FindMultipleMenuDetails([]int) ([]dto.MenuTmp, error)
 	FindRestaurantIdByAdminId(uint) (uint, error)
 	DeleteMenu(uint, uint) error
