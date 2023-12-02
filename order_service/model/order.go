@@ -20,8 +20,9 @@ type Restaurant struct {
 }
 
 type OrderDetail struct {
-	Menus []Menu  `bson:"menus" json:"menus"`
-	Total float32 `bson:"total" json:"total"`
+	Menus        []Menu  `bson:"menus" json:"menus"`
+	DeliveryCost float32 `bson:"delivery_cost" json:"delivery_cost"`
+	Total        float32 `bson:"total" json:"total"`
 }
 
 type Menu struct {

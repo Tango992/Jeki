@@ -10,9 +10,11 @@
 
 - users/register/admin [POST]
 
-### Log in
+### Log in / out
 
 - users/login [POST]
+
+- users/logout [GET]
 
 ### Verification
 
