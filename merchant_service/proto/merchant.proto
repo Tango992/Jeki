@@ -9,8 +9,8 @@ option go_package = "./pb/merchantpb";
 service Merchant {
   // For customer (order service)
   rpc FindAllRestaurants(google.protobuf.Empty) returns (Restaurants);
-  rpc FindRestaurantByID(IdRestaurant) returns (RestaurantDetailed);
-  rpc FindMenuID(MenuId) returns (Menu);
+  rpc FindRestaurantById(IdRestaurant) returns (RestaurantDetailed);
+  rpc FindMenuById(MenuId) returns (Menu);
   rpc FindMenuDetailsWithSubtotal(RequestMenuDetails) returns (ResponseMenuDetails);
   // For admin
   rpc CreateRestaurant(NewRestaurantData) returns (IdRestaurant);
@@ -76,7 +76,7 @@ message IdRestaurant {
 }
 
 message ResponseMenuDetails {
-  repeated ResponseMenuDetails response_menu_details = 1;
+  repeated ResponseMenuDetail response_menu_details = 1;
 }
 
 message ResponseMenuDetail {
