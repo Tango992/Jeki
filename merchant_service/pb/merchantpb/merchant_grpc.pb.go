@@ -25,8 +25,8 @@ const _ = grpc.SupportPackageIsVersion7
 type MerchantClient interface {
 	// For customer (order service)
 	FindAllRestaurants(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Restaurants, error)
-	FindRestaurantByID(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error)
-	FindMenuID(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error)
+	FindRestaurantById(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error)
+	FindMenuById(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error)
 	FindMenuDetailsWithSubtotal(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*ResponseMenuDetails, error)
 	// For admin
 	CreateRestaurant(ctx context.Context, in *NewRestaurantData, opts ...grpc.CallOption) (*IdRestaurant, error)
@@ -56,18 +56,18 @@ func (c *merchantClient) FindAllRestaurants(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *merchantClient) FindRestaurantByID(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error) {
+func (c *merchantClient) FindRestaurantById(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error) {
 	out := new(RestaurantDetailed)
-	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindRestaurantByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindRestaurantById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *merchantClient) FindMenuID(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error) {
+func (c *merchantClient) FindMenuById(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error) {
 	out := new(Menu)
-	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindMenuID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindMenuById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -161,8 +161,8 @@ func (c *merchantClient) FindOneMenuByAdminId(ctx context.Context, in *AdminIdMe
 type MerchantServer interface {
 	// For customer (order service)
 	FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error)
-	FindRestaurantByID(context.Context, *IdRestaurant) (*RestaurantDetailed, error)
-	FindMenuID(context.Context, *MenuId) (*Menu, error)
+	FindRestaurantById(context.Context, *IdRestaurant) (*RestaurantDetailed, error)
+	FindMenuById(context.Context, *MenuId) (*Menu, error)
 	FindMenuDetailsWithSubtotal(context.Context, *RequestMenuDetails) (*ResponseMenuDetails, error)
 	// For admin
 	CreateRestaurant(context.Context, *NewRestaurantData) (*IdRestaurant, error)
@@ -183,11 +183,11 @@ type UnimplementedMerchantServer struct {
 func (UnimplementedMerchantServer) FindAllRestaurants(context.Context, *emptypb.Empty) (*Restaurants, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllRestaurants not implemented")
 }
-func (UnimplementedMerchantServer) FindRestaurantByID(context.Context, *IdRestaurant) (*RestaurantDetailed, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindRestaurantByID not implemented")
+func (UnimplementedMerchantServer) FindRestaurantById(context.Context, *IdRestaurant) (*RestaurantDetailed, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindRestaurantById not implemented")
 }
-func (UnimplementedMerchantServer) FindMenuID(context.Context, *MenuId) (*Menu, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindMenuID not implemented")
+func (UnimplementedMerchantServer) FindMenuById(context.Context, *MenuId) (*Menu, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMenuById not implemented")
 }
 func (UnimplementedMerchantServer) FindMenuDetailsWithSubtotal(context.Context, *RequestMenuDetails) (*ResponseMenuDetails, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMenuDetailsWithSubtotal not implemented")
@@ -247,38 +247,38 @@ func _Merchant_FindAllRestaurants_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Merchant_FindRestaurantByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Merchant_FindRestaurantById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRestaurant)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MerchantServer).FindRestaurantByID(ctx, in)
+		return srv.(MerchantServer).FindRestaurantById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/merchant.Merchant/FindRestaurantByID",
+		FullMethod: "/merchant.Merchant/FindRestaurantById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServer).FindRestaurantByID(ctx, req.(*IdRestaurant))
+		return srv.(MerchantServer).FindRestaurantById(ctx, req.(*IdRestaurant))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Merchant_FindMenuID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Merchant_FindMenuById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MenuId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MerchantServer).FindMenuID(ctx, in)
+		return srv.(MerchantServer).FindMenuById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/merchant.Merchant/FindMenuID",
+		FullMethod: "/merchant.Merchant/FindMenuById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServer).FindMenuID(ctx, req.(*MenuId))
+		return srv.(MerchantServer).FindMenuById(ctx, req.(*MenuId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -457,12 +457,12 @@ var Merchant_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Merchant_FindAllRestaurants_Handler,
 		},
 		{
-			MethodName: "FindRestaurantByID",
-			Handler:    _Merchant_FindRestaurantByID_Handler,
+			MethodName: "FindRestaurantById",
+			Handler:    _Merchant_FindRestaurantById_Handler,
 		},
 		{
-			MethodName: "FindMenuID",
-			Handler:    _Merchant_FindMenuID_Handler,
+			MethodName: "FindMenuById",
+			Handler:    _Merchant_FindMenuById_Handler,
 		},
 		{
 			MethodName: "FindMenuDetailsWithSubtotal",
