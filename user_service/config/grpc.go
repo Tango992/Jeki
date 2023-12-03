@@ -4,16 +4,16 @@ import (
 	"log"
 	"net"
 	"os"
-	"order-service/controller"
-	"order-service/middlewares"
-	pb "order-service/pb/orderpb"
+	"user-service/controller"
+	"user-service/middlewares"
+	pb "user-service/pb/userpb"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
 )
 
-func ListenAndServeGrpc(controller controller.OrderController) {
+func ListenAndServeGrpc(controller controller.Server) {
 	port := os.Getenv("PORT")
 	
 	lis, err := net.Listen("tcp", ":" + port)
@@ -28,7 +28,7 @@ func ListenAndServeGrpc(controller controller.OrderController) {
 		),
 	)
 
-	pb.RegisterOrderServiceServer(grpcServer, controller)
+	pb.RegisterUserServer(grpcServer, controller)
 
 	log.Println("\033[36mGRPC server is running on port:", port, "\033[0m")
 	if err := grpcServer.Serve(lis); err != nil {

@@ -150,7 +150,7 @@ func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantD
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.RequestMenuDetails) (*pb.ResponseMenuDetails, error) {
+func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails) (*pb.CalculateOrderResponse, error) {
 	var (
 		menuIds       []int
 		menuIdWithQty = map[uint32]uint32{}
@@ -161,12 +161,17 @@ func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.Reques
 		menuIds = append(menuIds, int(val.Id))
 	}
 
+	restaurantData, err := s.Repository.FindRestaurantMetadataByMenuIds(menuIds)
+	if err != nil {
+		return nil, err
+	}
+
 	menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
 	if err != nil {
 		return nil, err
 	}
 
-	responseDatas := []*pb.ResponseMenuDetail{}
+	pbMenuDetails := []*pb.ResponseMenuDetail{}
 	for _, menu := range menuDatas {
 		quantity := menuIdWithQty[menu.ID]
 		subtotal := menu.Price * float32(quantity)
@@ -178,11 +183,12 @@ func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.Reques
 			Price:    menu.Price,
 			Subtotal: subtotal,
 		}
-		responseDatas = append(responseDatas, menuData)
+		pbMenuDetails = append(pbMenuDetails, menuData)
 	}
 
-	return &pb.ResponseMenuDetails{
-		ResponseMenuDetails: responseDatas,
+	return &pb.CalculateOrderResponse{
+		RestaurantData: restaurantData,
+		ResponseMenuDetails: pbMenuDetails,
 	}, nil
 }
 

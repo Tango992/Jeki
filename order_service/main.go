@@ -16,10 +16,13 @@ func main() {
 
 	conn, userServiceClient := config.InitUserServiceClient()
 	defer conn.Close()
+
+	conn, merchantServiceClient := config.InitMerchantServiceClient()
+	defer conn.Close()
 	
 	paymentService := service.NewPaymentService(os.Getenv("XENDIT_API_KEY"))
 	orderRepository := repository.NewOrderRepository(orderCollection)
-	orderController := controller.NewOrderController(orderRepository, paymentService, userServiceClient)
+	orderController := controller.NewOrderController(orderRepository, paymentService, userServiceClient, merchantServiceClient)
 
 	config.ListenAndServeGrpc(orderController)
 }

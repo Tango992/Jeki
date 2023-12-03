@@ -244,3 +244,27 @@ func (m MerchantRepository) FindAdminIdByMenuId(menuId uint32) (uint32, error) {
 	}
 	return adminId, nil
 }
+
+func (m MerchantRepository) FindRestaurantMetadataByMenuIds(menuIds []int) (*pb.RestaurantMetadata, error) {
+	var restaurantMetadata []*pb.RestaurantMetadata
+
+	res := m.Db.Raw(`
+		SELECT r.id, r.admin_id, r.name, r.latitude, r.longitude
+		FROM restaurants r
+		JOIN menus m ON m.restaurant_id = r.id
+		WHERE m.id IN ?
+		GROUP BY r.id`, menuIds).
+		Scan(&restaurantMetadata)
+	
+	if err := res.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	
+	if res.RowsAffected != 1 {
+		return nil, status.Error(codes.InvalidArgument, "menus can only be from one restaurant per order")
+	}
+	return restaurantMetadata[0], nil
+}

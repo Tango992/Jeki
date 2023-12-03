@@ -4,6 +4,7 @@ import (
 	"context"
 	"order-service/helpers"
 	"order-service/model"
+	"order-service/pb/merchantpb"
 	pb "order-service/pb/orderpb"
 	"order-service/pb/userpb"
 	"order-service/repository"
@@ -12,6 +13,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/codes"
+	grpcMetadata "google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -22,16 +24,18 @@ const (
 
 type OrderController struct {
 	pb.UnimplementedOrderServiceServer
-	Repository     repository.Order
-	PaymentService service.PaymentService
-	UserService    userpb.UserClient
+	Repository      repository.Order
+	PaymentService  service.PaymentService
+	UserService     userpb.UserClient
+	MerchantService merchantpb.MerchantClient
 }
 
-func NewOrderController(r repository.Order, p service.PaymentService, us userpb.UserClient) OrderController {
+func NewOrderController(r repository.Order, p service.PaymentService, us userpb.UserClient, ms merchantpb.MerchantClient) OrderController {
 	return OrderController{
-		Repository:     r,
-		PaymentService: p,
-		UserService:    us,
+		Repository:      r,
+		PaymentService:  p,
+		UserService:     us,
+		MerchantService: ms,
 	}
 }
 
@@ -137,9 +141,13 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 	return &emptypb.Empty{}, nil
 }
 
-func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderData) (*pb.PostOrderResponse, error) {
+func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderData) (*pb.Order, error) {
+	token, err := helpers.SignJwtForGrpc()
+	if err != nil {
+		return nil, err
+	}
+
 	newObjectId := primitive.NewObjectID()
-	subtotalDummy := float32(100000)
 
 	userData := model.User{
 		Id:    int(data.UserId),
@@ -151,47 +159,66 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		},
 	}
 
-	/*
-		Get data from Merchant Service
-	*/
-	menus := []model.Menu{}
-	for _, v := range data.OrderItems {
-		// Call merchant service from this block (?)
-		menu := model.Menu{
-			Id:       int(v.MenuId),
-			Name:     "Menu", 						// Temporary
-			Qty:      int(v.Qty),
-			Subtotal: subtotalDummy, 				// Temporary - Calculate subtotal from singular price
+	var requestMenus []*merchantpb.RequestMenuDetail
+	for _, menu := range data.OrderItems {
+		menuTmp := &merchantpb.RequestMenuDetail{
+			Id:  menu.MenuId,
+			Qty: menu.Qty,
 		}
-		menus = append(menus, menu)
+		requestMenus = append(requestMenus, menuTmp)
 	}
 
-	totalTemporary := float32(100000) 				// Implement distance calculator
-
-	orderDetailData := model.OrderDetail{
-		Menus:        menus,
-		DeliveryCost: 100000,
-		Total:        totalTemporary,
-	}
-
-	/*
-		Get data from Merchant Service
-	*/
-	restaurantData := model.Restaurant{
-		Id:      1,             					// Temporary
-		AdminId: 1,             					// Temporary
-		Name:    "Payakumbuah", 					// Temporary
-		Address: model.Address{
-			Latitude:  0.123, 						// Temporary
-			Longitude: 0.321, 						// Temporary
-		},
-		Status: statusOnProcess,
+	requestMenuDetails := &merchantpb.RequestMenuDetails{
+		RequestMenuDetails: requestMenus,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	availableDriver, err := o.UserService.GetAvailableDriver(ctx, &emptypb.Empty{})
+	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	merchantData, err := o.MerchantService.CalculateOrder(ctxWithAuth, requestMenuDetails)
+	if err != nil {
+		return nil, err
+	}
+
+	var menus []model.Menu
+	var itemsSubtotal float32
+	for _, v := range merchantData.ResponseMenuDetails {
+		itemsSubtotal += v.Subtotal
+		menu := model.Menu{
+			Id:       int(v.Id),
+			Name:     v.Name,
+			Qty:      int(v.Qty),
+			Price:    v.Price,
+			Subtotal: v.Subtotal,
+		}
+		menus = append(menus, menu)
+	}
+
+	orderDetailData := model.OrderDetail{
+		Menus:       menus,
+		DeliveryFee: 100000,
+		Total:       itemsSubtotal,
+		Status:      statusOnProcess,
+		CreatedAt:   primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	restaurantData := model.Restaurant{
+		Id:      int(merchantData.RestaurantData.Id),
+		AdminId: int(merchantData.RestaurantData.AdminId),
+		Name:    merchantData.RestaurantData.Name,
+		Address: model.Address{
+			Latitude:  merchantData.RestaurantData.Latitude,
+			Longitude: merchantData.RestaurantData.Longitude,
+		},
+		Status: statusOnProcess,
+	}
+
+	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	ctxWithAuth = grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	availableDriver, err := o.UserService.GetAvailableDriver(ctxWithAuth, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -202,10 +229,10 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		Status: statusOnProcess,
 	}
 
-	paymentData, err := o.PaymentService.MakeInvoice(newObjectId, subtotalDummy)
-	if err != nil {
-		return nil, err
-	}
+	// paymentData, err := o.PaymentService.MakeInvoice(newObjectId, 100000)		// Temporary subtotal
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	orderData := model.Order{
 		Id:          newObjectId,
@@ -213,7 +240,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		OrderDetail: orderDetailData,
 		User:        userData,
 		Driver:      driverData,
-		Payment:     paymentData,
+		Payment:     model.Payment{},
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
@@ -223,8 +250,9 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		return nil, err
 	}
 
-	response := &pb.PostOrderResponse{
-		OrderId: orderData.Id.Hex(),
-	}
-	return response, nil
+	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	responseOrderData, err := o.GetOrderById(ctx, &pb.OrderId{Id: newObjectId.Hex()})
+	return responseOrderData, nil
 }

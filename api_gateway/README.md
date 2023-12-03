@@ -68,7 +68,7 @@
 
 - merchant/orders/:id [PUT] (Requires auth with admin role)
 
-> [PUT] updates the order status such as (done, cancelled)
+> [PUT] updates the order status such as (process, done, cancelled)
 
 ### As a Driver
 
@@ -78,4 +78,4 @@
 
 - driver/orders/:id [PUT] (Requires auth with driver role)
 
-> [PUT] updates the order status such as (delivary, done)
+> [PUT] updates the order status such as (process, done)

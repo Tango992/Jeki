@@ -30,9 +30,10 @@ func (u UserRepository) GetUserData(email string) (dto.UserJoinedData, error) {
 	var userData dto.UserJoinedData
 
 	result := u.Db.Table("users u").
-		Select("u.id, u.first_name, u.last_name, u.email, u.password, u.birth_date, u.created_at, r.name AS role").
+		Select("u.id, u.first_name, u.last_name, u.email, u.password, u.birth_date, u.created_at, r.name AS role, v.validate AS verified").
 		Where("u.email = ?", email).
-		Joins("JOIN roles r on u.role_id = r.id").
+		Joins("JOIN roles r ON u.role_id = r.id").
+		Joins("JOIN verifications v ON v.user_id = u.id").
 		Take(&userData)
 	if err := result.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

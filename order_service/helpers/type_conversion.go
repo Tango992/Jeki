@@ -91,6 +91,7 @@ func AssertOrderToPb(orderTmp model.Order) *pb.Order {
 			Id: uint32(menuTmp.Id),
 			Name: menuTmp.Name,
 			Quantity: uint32(menuTmp.Qty),
+			Price: menuTmp.Price,
 			Subtotal: menuTmp.Subtotal,
 		}
 
@@ -99,7 +100,10 @@ func AssertOrderToPb(orderTmp model.Order) *pb.Order {
 	
 	orderDetailData := &pb.OrderDetail{
 		Menu: menus,
+		DeliveryFee: orderTmp.OrderDetail.DeliveryFee,
 		Total: orderTmp.OrderDetail.Total,
+		Status: orderTmp.OrderDetail.Status,
+		CreatedAt: orderTmp.OrderDetail.CreatedAt.Time().String(),
 	}
 
 	userData := &pb.User{

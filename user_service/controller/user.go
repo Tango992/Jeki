@@ -35,17 +35,6 @@ const (
 	OfflineStatus = "offline"
 )
 
-func convertUserToUserData(user dto.UserJoinedData) *pb.UserData {
-	return &pb.UserData{
-		Id:        uint32(user.ID),
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
-		Password:  user.Password,
-		BirthDate: user.BirthDate,
-		Role:      user.Role,
-	}
-}
 
 func (s Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.UserData, error) {
 	user, err := s.Repository.GetUserData(data.Email)
@@ -53,7 +42,7 @@ func (s Server) GetUserData(ctx context.Context, data *pb.EmailRequest) (*pb.Use
 		return nil, err
 	}
 
-	userData := convertUserToUserData(user)
+	userData := helpers.ConvertUserToUserData(user)
 
 	return userData, nil
 }
