@@ -13,6 +13,12 @@ service User {
     rpc SetDriverStatusOnline(DriverId) returns (google.protobuf.Empty);
     rpc SetDriverStatusOngoing(DriverId) returns (google.protobuf.Empty);
     rpc SetDriverStatusOffline(DriverId) returns (google.protobuf.Empty);
+    rpc VerifyNewUser(UserCredential) returns (google.protobuf.Empty);
+}
+
+message UserCredential {
+    uint32 id = 1;
+    string token = 2;
 }
 
 message DriverId {
