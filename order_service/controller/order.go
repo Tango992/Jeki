@@ -195,14 +195,6 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		menus = append(menus, menu)
 	}
 
-	orderDetailData := model.OrderDetail{
-		Menus:       menus,
-		DeliveryFee: 100000,
-		Total:       itemsSubtotal,
-		Status:      statusOnProcess,
-		CreatedAt:   primitive.NewDateTimeFromTime(time.Now()),
-	}
-
 	restaurantData := model.Restaurant{
 		Id:      int(merchantData.RestaurantData.Id),
 		AdminId: int(merchantData.RestaurantData.AdminId),
@@ -212,6 +204,18 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 			Longitude: merchantData.RestaurantData.Longitude,
 		},
 		Status: statusOnProcess,
+	}
+
+	deliveryFee := helpers.CalculateDeliveryFee(restaurantData, userData)
+	grandTotal := deliveryFee + itemsSubtotal
+	
+	orderDetailData := model.OrderDetail{
+		Menus:         menus,
+		DeliveryFee:   deliveryFee,
+		ItemsSubtotal: itemsSubtotal,
+		GrandTotal:    grandTotal,
+		Status:        statusOnProcess,
+		CreatedAt:     primitive.NewDateTimeFromTime(time.Now()),
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
@@ -229,10 +233,10 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		Status: statusOnProcess,
 	}
 
-	// paymentData, err := o.PaymentService.MakeInvoice(newObjectId, 100000)		// Temporary subtotal
-	// if err != nil {
-	// 	return nil, err
-	// }
+	paymentData, err := o.PaymentService.MakeInvoice(newObjectId, grandTotal)
+	if err != nil {
+		return nil, err
+	}
 
 	orderData := model.Order{
 		Id:          newObjectId,
@@ -240,7 +244,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		OrderDetail: orderDetailData,
 		User:        userData,
 		Driver:      driverData,
-		Payment:     model.Payment{},
+		Payment:     paymentData,
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)

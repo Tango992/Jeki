@@ -20,11 +20,12 @@ type Restaurant struct {
 }
 
 type OrderDetail struct {
-	Menus       []Menu             `bson:"menus" json:"menus"`
-	DeliveryFee float32            `bson:"delivery_fee" json:"delivery_fee"`
-	Total       float32            `bson:"total" json:"total"`
-	Status      string             `bson:"status" json:"status"`
-	CreatedAt   primitive.DateTime `bson:"created_at" json:"created_at"`
+	Menus         []Menu             `bson:"menus" json:"menus"`
+	ItemsSubtotal float32            `bson:"items_subtotal" json:"items_subtotal"`
+	DeliveryFee   float32            `bson:"delivery_fee" json:"delivery_fee"`
+	GrandTotal    float32            `bson:"grand_total" json:"grand_total"`
+	Status        string             `bson:"status" json:"status"`
+	CreatedAt     primitive.DateTime `bson:"created_at" json:"created_at"`
 }
 
 type Menu struct {

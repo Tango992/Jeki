@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package merchant;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./pb/merchantpb";
+
+service Merchant {
+  // For customer (order service)
+  rpc FindAllRestaurants(google.protobuf.Empty) returns (RestaurantCompactRepeated);
+  rpc FindRestaurantById(IdRestaurant) returns (RestaurantDetailed);
+  rpc FindMenuById(MenuId) returns (Menu);
+  rpc CalculateOrder(RequestMenuDetails) returns (CalculateOrderResponse);
+  // For admin
+  rpc CreateRestaurant(NewRestaurantData) returns (IdRestaurant);
+  rpc UpdateRestaurant(UpdateRestaurantData) returns (google.protobuf.Empty);
+  rpc CreateMenu(NewMenuData) returns (MenuId);
+  rpc UpdateMenu(UpdateMenuData) returns (google.protobuf.Empty);
+  rpc DeleteMenu(AdminIdMenuId) returns (google.protobuf.Empty);
+  rpc FindRestaurantByAdminId(AdminId) returns (RestaurantData);
+  rpc FindMenusByAdminId(AdminId) returns (MenuCompactRepeated);
+  rpc FindOneMenuByAdminId(AdminIdMenuId) returns (MenuCompact);
+}
+
+message CalculateOrderResponse {
+  RestaurantMetadata restaurant_data = 1;
+  repeated ResponseMenuDetail response_menu_details = 2;
+}
+
+message RestaurantMetadata {
+  uint32 id = 1;
+  uint32 admin_id = 2;
+  string name = 3;
+  float latitude = 5;
+  float longitude = 6;
+}
+
+message UpdateMenuData {
+  uint32 menu_id = 1;
+  uint32 admin_id = 2;
+  string name = 3;
+  uint32 category_id = 4;
+  float price = 5;
+}
+
+message NewMenuData {
+  uint32 admin_id = 1;
+  string name = 2;
+  uint32 category_id = 3;
+  float price = 4;
+}
+
+message AdminIdMenuId {
+  uint32 admin_id = 1;
+  uint32 menu_id = 2;
+}
+
+message AdminId {
+  uint32 id = 1;
+}
+
+message MenuCompactRepeated {
+  repeated MenuCompact menus = 1;
+}
+
+message MenuCompact {
+  string name = 1;
+  string category = 2;
+  float price = 3;
+}
+
+message UpdateRestaurantData {
+  uint32 admin_id = 1;
+  string name = 2;
+  string address = 3;
+  float latitude = 4;
+  float longitude = 5;
+}
+
+message NewRestaurantData {
+  uint32 admin_id = 1;
+  string name = 2;
+  string address = 3;
+  float latitude = 5;
+  float longitude = 6;
+}
+
+message IdRestaurant {
+  uint32 id = 1;
+}
+
+message ResponseMenuDetails {
+  repeated ResponseMenuDetail response_menu_details = 1;
+}
+
+message ResponseMenuDetail {
+  uint32 id = 1;
+  string name = 2;
+  uint32 qty = 3;
+  float price = 4;
+  float subtotal = 5;
+}
+
+message RequestMenuDetails {
+  repeated RequestMenuDetail request_menu_details = 1;
+}
+
+message RequestMenuDetail {
+  uint32 id = 1;
+  uint32 qty = 2;
+}
+
+message MenuId {
+  uint32 id = 1;
+}
+
+message Restaurants {
+  repeated RestaurantData restaurants = 1;
+}
+
+message RestaurantCompactRepeated {
+  repeated RestaurantCompact restaurants = 1;
+}
+
+message RestaurantCompact {
+  uint32 id = 1;
+  string name = 2;
+  string address = 3;
+}
+
+message RestaurantData {
+  uint32 id = 1;
+  uint32 admin_id = 2;
+  string name = 3;
+  string address = 4;
+  float latitude = 5;
+  float longitude = 6;
+}
+
+message RestaurantDetailed {
+  uint32 id = 1;
+  string name = 2;
+  string address = 3;
+  float latitude = 4;
+  float longitude = 5;
+  repeated Menu menus = 6;
+}
+
+message Menu {
+  uint32 id = 1;
+  string name = 2;
+  string category = 3;
+  float price = 4;
+}
+
+message Category {
+  uint32 id = 1;
+  string category_name = 2;
+}

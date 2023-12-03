@@ -19,12 +19,20 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	conn, userClient := config.InitGrpc()
+	conn, userClient := config.InitUserServiceClient()
+	defer conn.Close()
+
+	conn, merchantClient := config.InitMerchantServiceClient()
+	defer conn.Close()
+
+	conn, orderClient := config.InitOrderServiceClient()
 	defer conn.Close()
 
 	userController := controller.NewUserController(userClient)
+	merchantController := controller.NewMerchantController(merchantClient)
+	orderController := controller.NewOrderController(orderClient)
 	
-	routes.Routes(e, userController)
+	routes.Routes(e, userController, merchantController, orderController)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
