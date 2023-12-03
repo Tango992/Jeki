@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 option go_package = "./pb/orderpb";
 
 service OrderService{
-    rpc PostOrder(RequestOrderData) returns (PostOrderResponse);
+    rpc PostOrder(RequestOrderData) returns (Order);
     rpc GetRestaurantCurrentOrders(AdminId) returns (Orders);
     rpc GetRestaurantAllOrders(AdminId) returns (Orders);
     rpc GetUserCurrentOrders(UserId) returns (Orders);
@@ -101,13 +101,16 @@ message Menu {
     uint32 id = 1;
     string name = 2;
     uint32 quantity = 3;
-    float subtotal = 4;
+    float price = 4;
+    float subtotal = 5;
 }
 
 message OrderDetail {
     repeated Menu menu = 1;
-    float delivery_cost = 2;
+    float delivery_fee = 2;
     float total = 3;
+    string status = 4;
+    string created_at = 5;
 }
 
 message Payment {

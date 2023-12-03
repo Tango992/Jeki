@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
-	PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error)
+	PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*Order, error)
 	GetRestaurantCurrentOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error)
 	GetRestaurantAllOrders(ctx context.Context, in *AdminId, opts ...grpc.CallOption) (*Orders, error)
 	GetUserCurrentOrders(ctx context.Context, in *UserId, opts ...grpc.CallOption) (*Orders, error)
@@ -44,8 +44,8 @@ func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
 	return &orderServiceClient{cc}
 }
 
-func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*PostOrderResponse, error) {
-	out := new(PostOrderResponse)
+func (c *orderServiceClient) PostOrder(ctx context.Context, in *RequestOrderData, opts ...grpc.CallOption) (*Order, error) {
+	out := new(Order)
 	err := c.cc.Invoke(ctx, "/order.OrderService/PostOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func (c *orderServiceClient) UpdatePaymentOrderStatus(ctx context.Context, in *R
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
 type OrderServiceServer interface {
-	PostOrder(context.Context, *RequestOrderData) (*PostOrderResponse, error)
+	PostOrder(context.Context, *RequestOrderData) (*Order, error)
 	GetRestaurantCurrentOrders(context.Context, *AdminId) (*Orders, error)
 	GetRestaurantAllOrders(context.Context, *AdminId) (*Orders, error)
 	GetUserCurrentOrders(context.Context, *UserId) (*Orders, error)
@@ -165,7 +165,7 @@ type OrderServiceServer interface {
 type UnimplementedOrderServiceServer struct {
 }
 
-func (UnimplementedOrderServiceServer) PostOrder(context.Context, *RequestOrderData) (*PostOrderResponse, error) {
+func (UnimplementedOrderServiceServer) PostOrder(context.Context, *RequestOrderData) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) GetRestaurantCurrentOrders(context.Context, *AdminId) (*Orders, error) {
