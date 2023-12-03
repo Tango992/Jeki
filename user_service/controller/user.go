@@ -148,9 +148,8 @@ func (s Server) SetDriverStatusOffline(ctx context.Context, data *pb.DriverId) (
 }
 
 func (s Server) VerifyNewUser(ctx context.Context, data *pb.UserCredential) (*emptypb.Empty, error) {
-	err := s.Repository.VerifyNewUser(data.Id, data.Token)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "Kredensial tidak valid")
+	if err := s.Repository.VerifyNewUser(data.Id, data.Token); err != nil {
+		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }

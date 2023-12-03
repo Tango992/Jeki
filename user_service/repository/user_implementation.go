@@ -125,18 +125,20 @@ func (u UserRepository) SetDriverStatusOffline(driverID uint) error {
 }
 
 func (u UserRepository) VerifyNewUser(userID uint32, token string) error {
-	var verificationData models.Verification
-
-	result := u.Db.Where(&models.Verification{UserID: uint(userID), Token: token}).First(&verificationData)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return status.Error(codes.Unauthenticated, "Kredensial verifikasi tidak valid")
-	} else if result.Error != nil {
-		return status.Error(codes.Internal, result.Error.Error())
+	verificationData := models.Verification{
+		UserID: uint(userID),
 	}
 
-	if err := u.Db.Delete(&verificationData).Error; err != nil {
+	res := u.Db.Model(&verificationData).
+		Where("token = ?", token).
+		Update("validate", true)
+	
+	if err := res.Error; err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
 
+	if res.RowsAffected == 0 {
+		return status.Error(codes.Unauthenticated, "invalid verification credentials")
+	}
 	return nil
 }
