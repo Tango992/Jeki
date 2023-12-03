@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Routes(e *echo.Echo, uc controller.UserController) {
+func Routes(e *echo.Echo, uc controller.UserController, mc controller.MerchantController, oc controller.OrderController) {
 	register := e.Group("/users/register")
 	{
 		register.POST("/user", uc.RegisterUser)

@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
+	grpcMetadata "google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -75,10 +76,16 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 		RoleId:    uint32(roleId),
 	}
 
+	token, err := helpers.SignJwtForGrpc()
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-
-	responseGrpc, err := u.Client.Register(ctx, registerData)
+	
+	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	responseGrpc, err := u.Client.Register(ctxWithAuth, registerData)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
@@ -124,14 +131,29 @@ func (u UserController) Login(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	userDataTmp, err := u.Client.GetUserData(ctx, emailRequest)
-	if e, ok := status.FromError(err); ok {
-		switch e.Code() {
-		case codes.NotFound:
-			return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
-		default:
-			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
+	token, err := helpers.SignJwtForGrpc()
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
+	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	userDataTmp, err := u.Client.GetUserData(ctxWithAuth, emailRequest)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
+			default:
+				return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(e.Message()))
+			}
 		}
+	}
+
+	if !userDataTmp.Verified {
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Please do an email verification first"))
 	}
 
 	userData := models.User{
@@ -148,11 +170,17 @@ func (u UserController) Login(c echo.Context) error {
 		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Invalid username/password"))
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-	
 	if userData.Role == driverRole {
-		if _, err := u.Client.SetDriverStatusOnline(ctx, &userpb.DriverId{Id: userData.ID}); err != nil {
+		token, err := helpers.SignJwtForGrpc()
+		if err != nil {
+			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+
+		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+		if _, err := u.Client.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: userData.ID}); err != nil {
 			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 		}
 	}
@@ -176,12 +204,18 @@ func (u UserController) Logout(c echo.Context) error {
 	userIdPb := &userpb.DriverId{
 		Id: uint32(user.ID),
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
 	
 	if user.Role == driverRole {
-		if _, err := u.Client.SetDriverStatusOffline(ctx, userIdPb); err != nil {
+		token, err := helpers.SignJwtForGrpc()
+		if err != nil {
+			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		}
+	
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		
+		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+		if _, err := u.Client.SetDriverStatusOffline(ctxWithAuth, userIdPb); err != nil {
 			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 		}
 	}

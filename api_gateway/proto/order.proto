@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package order;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./pb/orderpb";
+
+service OrderService{
+    rpc PostOrder(RequestOrderData) returns (Order);
+    rpc GetRestaurantCurrentOrders(AdminId) returns (Orders);
+    rpc GetRestaurantAllOrders(AdminId) returns (Orders);
+    rpc GetUserCurrentOrders(UserId) returns (Orders);
+    rpc GetUserAllOrders(UserId) returns (Orders);
+    rpc GetDriverAllOrders(DriverId) returns (Orders);
+    rpc GetDriverCurrentOrder(DriverId) returns (Order);
+    rpc GetOrderById(OrderId) returns (Order);
+    rpc UpdateRestaurantOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+    rpc UpdateDriverOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+    rpc UpdatePaymentOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+}
+
+message RequestUpdateData {
+    string order_id = 1;
+    string status = 2;
+}
+
+message PostOrderResponse {
+    string order_id = 1;
+}
+
+message RequestOrderData {
+    uint32 user_id = 1;
+    string name = 2;
+    string email = 3;
+    Address address = 4;
+    repeated OrderItem order_items = 5;
+}
+
+message OrderItem {
+    uint32 menu_id = 1;
+    uint32 qty = 2;
+}
+
+message AdminId {
+    uint32 id = 1;
+}
+
+message DriverId {
+    uint32 id = 1;
+}
+
+message UserId {
+    uint32 id = 1;
+}
+
+message OrderId {
+    string id = 1;
+}
+
+message Orders {
+    repeated Order orders = 1;
+}
+
+message Order {
+    string object_id = 1;
+    Restaurant restaurant = 2;
+    OrderDetail order_detail = 3;
+    User user = 4;
+    Driver driver = 5;
+    Payment payment = 6;
+}
+
+message Driver {
+    uint32 id = 1;
+    string name = 2;
+    string status = 3;
+}
+
+message User {
+    uint32 user_id = 1;
+    string name = 2;
+    string email = 3;
+    Address address = 4;
+}
+
+message Address {
+    float latitude = 1;
+    float longitude = 2;
+}
+
+message Restaurant {
+    uint32 id = 1;
+    uint32 admin_id = 2;
+    string name = 3;
+    Address address = 4;
+    string status = 5;
+}
+
+message Menu {
+    uint32 id = 1;
+    string name = 2;
+    uint32 quantity = 3;
+    float price = 4;
+    float subtotal = 5;
+}
+
+message OrderDetail {
+    repeated Menu menu = 1;
+    float items_subtotal = 2;
+    float delivery_fee = 3;
+    float grand_total = 4;
+    string status = 5;
+    string created_at = 6;
+}
+
+message Payment {
+    string invoice_id = 1;
+    string invoice_url = 2;
+    float total = 3;
+    string method = 4;
+    string status = 5;
+}

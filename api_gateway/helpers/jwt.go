@@ -39,7 +39,9 @@ func SignNewJWT(c echo.Context, user models.User) error{
 	return nil
 }
 
-func SignJwtForGrpc(secret string) (string, error) {
+func SignJwtForGrpc() (string, error) {
+	secret := os.Getenv("SERVICES_JWT_SECRET")
+
 	claims := &jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(0, 0, 1)),
 	}
