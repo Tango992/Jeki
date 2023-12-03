@@ -25,9 +25,10 @@ service Merchant {
 
 message UpdateMenuData {
   uint32 menu_id = 1;
-  string name = 2;
-  uint32 category_id = 3;
-  float price = 4;
+  uint32 admin_id = 2;
+  string name = 3;
+  uint32 category_id = 4;
+  float price = 5;
 }
 
 message NewMenuData {
@@ -57,11 +58,11 @@ message MenuCompact {
 }
 
 message UpdateRestaurantData {
-  uint32 id = 1;
+  uint32 admin_id = 1;
   string name = 2;
   string address = 3;
-  float latitude = 5;
-  float longitude = 6;
+  float latitude = 4;
+  float longitude = 5;
 }
 
 message NewRestaurantData {
@@ -84,7 +85,8 @@ message ResponseMenuDetail {
   uint32 id = 1;
   string name = 2;
   uint32 qty = 3;
-  float subtotal = 4;
+  float price = 4;
+  float subtotal = 5;
 }
 
 message RequestMenuDetails {
@@ -135,7 +137,7 @@ message RestaurantDetailed {
 message Menu {
   uint32 id = 1;
   string name = 2;
-  uint32 category_id = 3;
+  string category = 3;
   float price = 4;
 }
 

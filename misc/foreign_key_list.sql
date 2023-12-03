@@ -7,4 +7,4 @@ INSERT INTO driver_statuses (status)  VALUES
 ('available'), ('ongoing order'), ('offline');
 
 INSERT INTO categories (name) VALUES
-('food'), ('drink');
+('Main Course'), ('Dessert'), ('Snack'), ('Beverage');
