@@ -6,6 +6,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/joho/godotenv v1.5.1
+	github.com/paulmach/orb v0.10.0
 	github.com/rs/zerolog v1.31.0
 	github.com/xendit/xendit-go/v3 v3.7.0
 	go.mongodb.org/mongo-driver v1.13.0

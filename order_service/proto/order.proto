@@ -107,10 +107,11 @@ message Menu {
 
 message OrderDetail {
     repeated Menu menu = 1;
-    float delivery_fee = 2;
-    float total = 3;
-    string status = 4;
-    string created_at = 5;
+    float items_subtotal = 2;
+    float delivery_fee = 3;
+    float grand_total = 4;
+    string status = 5;
+    string created_at = 6;
 }
 
 message Payment {
