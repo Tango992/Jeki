@@ -26,25 +26,52 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 	{
 		restaurants.GET("", mc.GetAllRestaurantsForCustomer)
 		restaurants.GET("/:id", mc.GetRestaurantById)
-		restaurants.GET("/:id", mc.GetMenuById)
 	}
+	e.GET("menu/:id", mc.GetMenuById)
 
 	merchant := e.Group("/merchant")
 	merchant.Use(middlewares.RequireAuth)
 	{
 		restaurant := merchant.Group("/restaurant")
 		{
-			restaurant.GET("", mc.GetAllRestaurants)
+			restaurant.GET("", mc.GetRestaurantByAdminId)
 			restaurant.POST("", mc.CreateRestaurant)
 			restaurant.PUT("", mc.UpdateRestaurant)
 		}
 		menu := merchant.Group("/menu")
 		{
+			menu.GET("", mc.GetMenuByAdminId)
 			menu.GET("/:id", mc.GetOneMenuByAdminId)
 			menu.POST("", mc.CreateMenu)
 			menu.PUT("/:id", mc.UpdateMenu)
 			menu.DELETE("/:id", mc.DeleteMenu)
 		}
 	}
-	e.POST("maps", mc.TestMap)
+
+	order := e.Group("")
+	order.Use(middlewares.RequireAuth)
+	{
+		users := order.Group("/users")
+		{
+			users.POST("/orders", oc.UserCreateOrder)
+			users.GET("/orders", oc.UsersGetAllOrders)
+			users.GET("/ongoing", oc.UsersGetOngoingOrder)
+			users.GET("/orders/:id", oc.GetOrderById)
+		}
+
+		merchant := order.Group("/merchant")
+		{
+			merchant.GET("/orders", oc.MerchantGetAllOrders)
+			merchant.GET("/ongoing", oc.MerchantGetOngoingOrder)
+			merchant.GET("/orders/:id", oc.GetOrderById)
+			merchant.PUT("/orders/:id", oc.MerchantUpdateOrder)
+		}
+
+		driver := order.Group("/driver")
+		{
+			driver.GET("/orders", oc.DriverGetAllOrders)
+			driver.GET("/ongoing", oc.DriverGetCurrentOrder)
+			driver.GET("/orders/:id", oc.GetOrderById)
+		}
+	}
 }

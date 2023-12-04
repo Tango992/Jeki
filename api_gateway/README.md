@@ -56,13 +56,15 @@
 
 - users/orders [GET] (Requires auth with user role)
 
+- users/ongoing [GET] (Requires auth with user role)
+
 - users/orders/:id [GET] (Requires auth with user role)
 
 ### As a Merchant
 
 - merchant/orders [GET] (Requires auth with admin role)
 
-- merchant/orders/ongoing [GET] (Requires auth with admin role)
+- merchant/ongoing [GET] (Requires auth with admin role)
 
 - merchant/orders/:id [GET] (Requires auth with admin role)
 
@@ -74,7 +76,7 @@
 
 - driver/orders [GET] (Requires auth with driver role)
 
-- driver/orders/ongoing [GET] (Requires auth with driver role)
+- driver/ongoing [GET] (Requires auth with driver role)
 
 - driver/orders/:id [PUT] (Requires auth with driver role)
 

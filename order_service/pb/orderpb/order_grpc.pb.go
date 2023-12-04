@@ -33,7 +33,7 @@ type OrderServiceClient interface {
 	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
 	UpdateRestaurantOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateDriverOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdatePayment, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type orderServiceClient struct {
@@ -134,7 +134,7 @@ func (c *orderServiceClient) UpdateDriverOrderStatus(ctx context.Context, in *Re
 	return out, nil
 }
 
-func (c *orderServiceClient) UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdateData, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderServiceClient) UpdatePaymentOrderStatus(ctx context.Context, in *RequestUpdatePayment, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/order.OrderService/UpdatePaymentOrderStatus", in, out, opts...)
 	if err != nil {
@@ -157,7 +157,7 @@ type OrderServiceServer interface {
 	GetOrderById(context.Context, *OrderId) (*Order, error)
 	UpdateRestaurantOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
 	UpdateDriverOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
-	UpdatePaymentOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error)
+	UpdatePaymentOrderStatus(context.Context, *RequestUpdatePayment) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -195,7 +195,7 @@ func (UnimplementedOrderServiceServer) UpdateRestaurantOrderStatus(context.Conte
 func (UnimplementedOrderServiceServer) UpdateDriverOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverOrderStatus not implemented")
 }
-func (UnimplementedOrderServiceServer) UpdatePaymentOrderStatus(context.Context, *RequestUpdateData) (*emptypb.Empty, error) {
+func (UnimplementedOrderServiceServer) UpdatePaymentOrderStatus(context.Context, *RequestUpdatePayment) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePaymentOrderStatus not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
@@ -392,7 +392,7 @@ func _OrderService_UpdateDriverOrderStatus_Handler(srv interface{}, ctx context.
 }
 
 func _OrderService_UpdatePaymentOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestUpdateData)
+	in := new(RequestUpdatePayment)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -404,7 +404,7 @@ func _OrderService_UpdatePaymentOrderStatus_Handler(srv interface{}, ctx context
 		FullMethod: "/order.OrderService/UpdatePaymentOrderStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).UpdatePaymentOrderStatus(ctx, req.(*RequestUpdateData))
+		return srv.(OrderServiceServer).UpdatePaymentOrderStatus(ctx, req.(*RequestUpdatePayment))
 	}
 	return interceptor(ctx, in, info, handler)
 }

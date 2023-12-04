@@ -32,7 +32,10 @@ func (m MerchantRepository) FindAllRestaurants() ([]model.Restaurant, error) {
 func (m MerchantRepository) FindRestaurantByID(id uint32) (dto.RestaurantDataCompact, error) {
     var restaurant dto.RestaurantDataCompact
     if err := m.Db.Table("restaurants").Where("id = ?", id).Take(&restaurant).Error; err != nil {
-        return dto.RestaurantDataCompact{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.RestaurantDataCompact{}, status.Error(codes.NotFound, err.Error())
+		}
+        return dto.RestaurantDataCompact{}, status.Error(codes.Internal, err.Error())
     }
     return restaurant, nil
 }

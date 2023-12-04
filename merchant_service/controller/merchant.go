@@ -70,6 +70,12 @@ func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) 
 func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuId, error) {
 	restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				return nil, status.Error(codes.FailedPrecondition, "please cerate a restaurant first before posting a menu")
+			}
+		}
 		return nil, err
 	}
 
