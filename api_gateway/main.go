@@ -4,7 +4,9 @@ import (
 	"api-gateway/config"
 	"api-gateway/controller"
 	"api-gateway/helpers"
-	"api-gateway/routes"
+	"api-gateway/router"
+	"api-gateway/service"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/joho/godotenv/autoload"
@@ -28,11 +30,12 @@ func main() {
 	conn, orderClient := config.InitOrderServiceClient()
 	defer conn.Close()
 
+	mapsService := service.NewMapsService()
 	userController := controller.NewUserController(userClient)
-	merchantController := controller.NewMerchantController(merchantClient)
+	merchantController := controller.NewMerchantController(merchantClient, mapsService)
 	orderController := controller.NewOrderController(orderClient)
 	
-	routes.Routes(e, userController, merchantController, orderController)
+	router.Echo(e, userController, merchantController, orderController)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
