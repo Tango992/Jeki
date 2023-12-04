@@ -7,3 +7,10 @@ type Menu struct {
 	CategoryId   uint    `gorm:"not null"`
 	Price        float32 `gorm:"not null"`
 }
+
+type UpdateMenu struct {
+	ID         uint    `gorm:"primaryKey"`
+	Name       string  `gorm:"not null"`
+	CategoryId uint    `gorm:"not null"`
+	Price      float32 `gorm:"not null"`
+}

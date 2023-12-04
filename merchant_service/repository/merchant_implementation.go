@@ -14,6 +14,11 @@ type MerchantRepository struct {
 	Db *gorm.DB
 }
 
+// FindRestaurantByID implements Merchant.
+func (MerchantRepository) FindRestaurantByID(id uint32) (*model.Restaurant, error) {
+	panic("unimplemented")
+}
+
 func NewMerchantRepository(db *gorm.DB) MerchantRepository {
 	return MerchantRepository{
 		Db: db,
@@ -28,13 +33,29 @@ func (m MerchantRepository) FindAllRestaurants() ([]model.Restaurant, error) {
 	return restaurants, nil
 }
 
-func (m MerchantRepository) FindRestaurantByID(id uint32) (model.Restaurant, error) {
-    var restaurant model.Restaurant
-    if err := m.Db.First(&restaurant, id).Error; err != nil {
-        return model.Restaurant{}, err
+func (m MerchantRepository) FindRestaurantById(id uint32) (model.Restaurant, error) {
+	var restaurant model.Restaurant
+	if err := m.Db.First(&restaurant, id).Error; err != nil {
+		return model.Restaurant{}, err
+	}
+	return restaurant, nil
+}
+
+func (m MerchantRepository) UpdateRestaurant(restaurant *model.Restaurant) (*model.Restaurant, error) {
+    if err := m.Db.Save(restaurant).Error; err != nil {
+        return nil, err
     }
     return restaurant, nil
 }
+
+func (m MerchantRepository) FindMenuById(id uint) (model.Menu, error) {
+	var menu model.Menu
+	if err := m.Db.First(&menu, id).Error; err != nil {
+		return model.Menu{}, err
+	}
+	return menu, nil
+}
+
 
 func (m MerchantRepository) CreateRestaurant(data *model.Restaurant) error {
 	if err := m.Db.Create(data).Error; err != nil {
@@ -51,6 +72,10 @@ func (m MerchantRepository) CreateMenu(data *model.Menu) error {
 		return status.Error(codes.Internal, err.Error())
 	}
 	return nil
+}
+
+func (m MerchantRepository) UpdateMenu(menu *model.Menu) error {
+	return m.Db.Save(menu).Error
 }
 
 func (m MerchantRepository) FindRestaurantIdByAdminId(adminId uint) (uint, error) {
@@ -90,7 +115,7 @@ func (m MerchantRepository) FindMultipleMenuDetails(menuIds []int) ([]dto.MenuTm
 	if err := res.Error; err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	
+
 	if res.RowsAffected != int64(len(menuIds)) {
 		return nil, status.Error(codes.InvalidArgument, "invalid menu id")
 	}

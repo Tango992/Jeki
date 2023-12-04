@@ -2,10 +2,14 @@ package controller
 
 import (
 	"context"
+	"log"
+	"merchant-service/dto"
 	"merchant-service/model"
 	pb "merchant-service/pb/merchantpb"
 	"merchant-service/repository"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -79,6 +83,27 @@ func convertToRestaurantDetailedProtoBuf(restaurant model.Restaurant) *pb.Restau
     return pbRestaurantDetailed
 }
 
+func (s *Server) FindMenuById(ctx context.Context, menuID *pb.MenuId) (*pb.Menu, error) {
+	id := menuID.GetId()
+
+	menu, err := s.Repository.FindMenuById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	pbMenu := convertToMenuProtoBuf(&menu)
+
+	return pbMenu, nil
+}
+
+func convertToMenuProtoBuf(menu *model.Menu) *pb.Menu {
+	return &pb.Menu{
+		Id:         uint32(menu.ID),
+		Name:       menu.Name,
+		CategoryId: uint32(menu.CategoryId),
+		Price:      menu.Price,
+	}
+}
 
 func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuId, error) {
 	restaurantId, err := s.Repository.FindRestaurantIdByAdminId(uint(data.AdminId))
@@ -97,6 +122,27 @@ func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuI
 		return nil, err
 	}
 	return &pb.MenuId{Id: uint32(menuData.ID)}, nil
+}
+
+func (s *Server) UpdateMenu(ctx context.Context, updateMenuData *pb.UpdateMenuData) (*emptypb.Empty, error) {
+	menuID := updateMenuData.GetMenuId()
+	newMenuName := updateMenuData.GetName()
+	newMenuCategoryId := updateMenuData.GetCategoryId()
+	newMenuPrice := updateMenuData.GetPrice()
+
+	updateMenu := &dto.UpdateMenu{
+		ID:         uint(menuID),
+		Name:       newMenuName,
+		CategoryId: uint(newMenuCategoryId),
+		Price:      newMenuPrice,
+	}
+
+	err := s.Repository.UpdateMenu(updateMenu)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s Server) DeleteMenu(ctx context.Context, data *pb.AdminIdMenuId) (*emptypb.Empty, error) {
@@ -126,17 +172,30 @@ func (s Server) CreateRestaurant(ctx context.Context, data *pb.NewRestaurantData
 	return &pb.IdRestaurant{Id: uint32(restaurantData.ID)}, nil
 }
 
-func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, error) {
-	return nil, nil
+func (s *Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantData) (*pb.RestaurantDetailed, error) {
+    if data.Id <= 0 {
+        return nil, status.Error(codes.InvalidArgument, "Invalid Restaurant ID")
+    }
+
+    updatedRestaurant, err := s.Repository.UpdateRestaurant(&model.Restaurant{
+        ID:        uint(data.Id),
+        Name:      data.Name,
+        Address:   data.Address,
+        Latitude:  data.Latitude,
+        Longitude: data.Longitude,
+    })
+
+    if err != nil {
+        log.Printf("Error updating restaurant: %v", err)
+        return nil, status.Error(codes.Internal, "Error updating restaurant")
+    }
+
+    pbUpdatedRestaurant := convertToRestaurantDetailedProtoBuf(*updatedRestaurant)
+
+    return pbUpdatedRestaurant, nil
 }
 
-func (s Server) UpdateMenu(context.Context, *pb.UpdateMenuData) (*emptypb.Empty, error) {
-	return nil, nil
-}
 
-func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantData) (*emptypb.Empty, error) {
-	return nil, nil
-}
 
 func (s Server) FindMenuDetailsWithSubtotal(ctx context.Context, data *pb.RequestMenuDetails) (*pb.ResponseMenuDetails, error) {
 	var  (
