@@ -27,27 +27,6 @@ func NewMerchantController(client merchantpb.MerchantClient, ms service.Maps) Me
 	}
 }
 
-func (m MerchantController) TestMap(c echo.Context) error {
-	var request struct{Address string `json:"address" validate:"required"`}
-	if err := c.Bind(&request); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-
-	if err := c.Validate(&request); err != nil {
-		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
-	}
-	
-	result, err := m.Maps.GetCoordinate(request.Address)
-	if err != nil {
-		return err
-	}
-	
-	return c.JSON(http.StatusOK, dto.Response{
-		Message: "Get Coordinate",
-		Data: result,
-	})
-}
-
 func (m MerchantController) GetAllRestaurantsForCustomer(c echo.Context) error {
 	ctx, cancel, err := helpers.NewServiceContext()
 	if err != nil {
@@ -122,7 +101,7 @@ func (m MerchantController) GetMenuById(c echo.Context) error {
 	})
 }
 
-func (m MerchantController) GetAllRestaurants(c echo.Context)error {
+func (m MerchantController) GetRestaurantByAdminId(c echo.Context)error {
 	user, err := helpers.GetClaims(c)
 	if err != nil {
 		return err
@@ -138,7 +117,7 @@ func (m MerchantController) GetAllRestaurants(c echo.Context)error {
 	}
 	defer cancel()
 
-	restaurantDatas, err := m.Client.FindAllRestaurants(ctx, &emptypb.Empty{})
+	restaurantDatas, err := m.Client.FindRestaurantByAdminId(ctx, &merchantpb.AdminId{Id: uint32(user.ID)})
 	if err != nil {
 		return helpers.AssertGrpcStatus(err)
 	}
@@ -168,12 +147,17 @@ func (m MerchantController) CreateRestaurant(c echo.Context)error{
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
+	coordinate, err := m.Maps.GetCoordinate(restaurantData.Address)
+	if err != nil {
+		return err
+	}
+
 	pbRestaurants := &merchantpb.NewRestaurantData{
 		AdminId: uint32(user.ID),
 		Name: restaurantData.Name,
 		Address: restaurantData.Address,
-		Latitude: 0.1,						// Temporary
-		Longitude: 0.1,						// Temporary
+		Latitude: coordinate.Latitude,
+		Longitude: coordinate.Longitude,
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -187,9 +171,17 @@ func (m MerchantController) CreateRestaurant(c echo.Context)error{
 		return helpers.AssertGrpcStatus(err)
 	}
 
+	response := dto.ResponseNewRestaurant{
+		ID: uint(restaurantId.Id),
+		Name: restaurantData.Name,
+		Address: restaurantData.Address,
+		Latitude: coordinate.Latitude,
+		Longitude: coordinate.Longitude,
+	}
+
 	return c.JSON(http.StatusCreated, dto.Response{
-		Message: "Restaurant successfully posted",
-		Data: restaurantId,
+		Message: "Restaurant successfully created",
+		Data: response,
 	})
 }
 
@@ -203,21 +195,26 @@ func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
 	}
 
-	var restauranUpdate dto.UpdateRestaurantData
-	if err := c.Bind(&restauranUpdate); err != nil {
+	var restaurantUpdate dto.UpdateRestaurantData
+	if err := c.Bind(&restaurantUpdate); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
-	if err := c.Validate(&restauranUpdate); err != nil {
+	if err := c.Validate(&restaurantUpdate); err != nil {
 		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
 	}
 
-	pbUpdateRestauran :=  &merchantpb.UpdateRestaurantData{
+	coordinate, err := m.Maps.GetCoordinate(restaurantUpdate.Address)
+	if err != nil {
+		return err
+	}
+
+	pbUpdateRestaurant :=  &merchantpb.UpdateRestaurantData{
 		AdminId: uint32(user.ID),
-		Name: restauranUpdate.Name,
-		Address: restauranUpdate.Address,
-		Latitude: 0.1,						// Temporary
-		Longitude: 0.1,						// Temporary
+		Name: restaurantUpdate.Name,
+		Address: restaurantUpdate.Address,
+		Latitude: coordinate.Latitude,
+		Longitude: coordinate.Longitude,
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -226,19 +223,24 @@ func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 	}
 	defer cancel()
 	
-	if _, err := m.Client.UpdateRestaurant(ctx, pbUpdateRestauran); err != nil {
+	if _, err := m.Client.UpdateRestaurant(ctx, pbUpdateRestaurant); err != nil {
 		return helpers.AssertGrpcStatus(err)
 	}
 
+	response := dto.ResponseUpdateRestaurant{
+		Name: restaurantUpdate.Name,
+		Address: restaurantUpdate.Address,
+		Latitude: coordinate.Latitude,
+		Longitude: coordinate.Longitude,
+	}
+
 	return c.JSON(http.StatusOK, dto.Response{
-		Message: "Restauran successfully updated",
-		Data: restauranUpdate,
+		Message: "Restaurant successfully updated",
+		Data: response,
 	})
-
-
 }
 
-func (m MerchantController) GetMenu(c echo.Context)error{
+func (m MerchantController) GetMenuByAdminId(c echo.Context)error{
 	user, err := helpers.GetClaims(c)
 	if err != nil {
 		return err
@@ -260,10 +262,9 @@ func (m MerchantController) GetMenu(c echo.Context)error{
 	}
 	
 	return c.JSON(http.StatusOK, dto.Response{
-		Message: "Get all menu ",
+		Message: "Get all menus",
 		Data: menu,
 	})
-
 }
 
 func (m MerchantController) GetOneMenuByAdminId(c echo.Context) error {

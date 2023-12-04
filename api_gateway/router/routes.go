@@ -26,25 +26,25 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 	{
 		restaurants.GET("", mc.GetAllRestaurantsForCustomer)
 		restaurants.GET("/:id", mc.GetRestaurantById)
-		restaurants.GET("/:id", mc.GetMenuById)
 	}
+	e.GET("menu/:id", mc.GetMenuById)
 
 	merchant := e.Group("/merchant")
 	merchant.Use(middlewares.RequireAuth)
 	{
 		restaurant := merchant.Group("/restaurant")
 		{
-			restaurant.GET("", mc.GetAllRestaurants)
+			restaurant.GET("", mc.GetRestaurantByAdminId)
 			restaurant.POST("", mc.CreateRestaurant)
 			restaurant.PUT("", mc.UpdateRestaurant)
 		}
 		menu := merchant.Group("/menu")
 		{
+			menu.GET("", mc.GetMenuByAdminId)
 			menu.GET("/:id", mc.GetOneMenuByAdminId)
 			menu.POST("", mc.CreateMenu)
 			menu.PUT("/:id", mc.UpdateMenu)
 			menu.DELETE("/:id", mc.DeleteMenu)
 		}
 	}
-	e.POST("maps", mc.TestMap)
 }
