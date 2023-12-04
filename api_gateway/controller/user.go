@@ -6,14 +6,12 @@ import (
 	"api-gateway/models"
 	userpb "api-gateway/pb/userpb"
 	"api-gateway/utils"
-	"context"
 	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
-	grpcMetadata "google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -76,16 +74,13 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 		RoleId:    uint32(roleId),
 	}
 
-	token, err := helpers.SignJwtForGrpc()
+	ctx, cancel, err := helpers.NewServiceContext()
 	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		return err
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-	
-	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
-	responseGrpc, err := u.Client.Register(ctxWithAuth, registerData)
+
+	responseGrpc, err := u.Client.Register(ctx, registerData)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
@@ -96,6 +91,18 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 			}
 		}
 		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+	}
+
+	if roleName == driverRole {
+		ctx, cancel, err := helpers.NewServiceContext()
+		if err != nil {
+			return err
+		}
+		defer cancel()
+
+		if _, err := u.Client.CreateDriverData(ctx, &userpb.DriverId{Id: responseGrpc.UserId}); err != nil {
+			return helpers.AssertGrpcStatus(err)
+		}
 	}
 
 	responseData := models.User{
@@ -128,19 +135,13 @@ func (u UserController) Login(c echo.Context) error {
 		Email: loginReq.Email,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-
-	token, err := helpers.SignJwtForGrpc()
+	ctx, cancel, err := helpers.NewServiceContext()
 	if err != nil {
-		return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+		return err
 	}
-
-	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
-	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
-	userDataTmp, err := u.Client.GetUserData(ctxWithAuth, emailRequest)
+	userDataTmp, err := u.Client.GetUserData(ctx, emailRequest)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
@@ -171,16 +172,13 @@ func (u UserController) Login(c echo.Context) error {
 	}
 
 	if userData.Role == driverRole {
-		token, err := helpers.SignJwtForGrpc()
+		ctx, cancel, err := helpers.NewServiceContext()
 		if err != nil {
-			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+			return err
 		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
-		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
-		if _, err := u.Client.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: userData.ID}); err != nil {
+		if _, err := u.Client.SetDriverStatusOnline(ctx, &userpb.DriverId{Id: userData.ID}); err != nil {
 			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 		}
 	}
@@ -206,16 +204,13 @@ func (u UserController) Logout(c echo.Context) error {
 	}
 	
 	if user.Role == driverRole {
-		token, err := helpers.SignJwtForGrpc()
+		ctx, cancel, err := helpers.NewServiceContext()
 		if err != nil {
-			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
+			return err
 		}
-	
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
-		
-		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
-		if _, err := u.Client.SetDriverStatusOffline(ctxWithAuth, userIdPb); err != nil {
+
+		if _, err := u.Client.SetDriverStatusOffline(ctx, userIdPb); err != nil {
 			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 		}
 	}
@@ -232,5 +227,34 @@ func (u UserController) Logout(c echo.Context) error {
 	return c.JSON(http.StatusOK, dto.Response{
 		Message: "Logged out",
 		Data: "Authorization cookie has been deleted",
+	})
+}
+
+func (u UserController) VerifyUser(c echo.Context) error {
+	token := c.Param("token")
+	userIdTmp := c.Param("userid")
+	userId, err := strconv.Atoi(userIdTmp)
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails("Invalid verification URL"))
+	}
+
+	pbUserData := &userpb.UserCredential{
+		Id: uint32(userId),
+		Token: token,
+	}
+
+	ctx, cancel, err := helpers.NewServiceContext()
+	if err != nil {
+		return err
+	}
+	defer cancel()
+
+	if _, err := u.Client.VerifyNewUser(ctx, pbUserData); err != nil {
+		return helpers.AssertGrpcStatus(err)
+	}
+	
+	return c.JSON(http.StatusOK, dto.Response{
+		Message: "Verified",
+		Data: "You can now enjoy Jeki services!",
 	})
 }

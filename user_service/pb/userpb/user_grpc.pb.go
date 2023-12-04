@@ -26,6 +26,7 @@ type UserClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	GetUserData(ctx context.Context, in *EmailRequest, opts ...grpc.CallOption) (*UserData, error)
 	GetAvailableDriver(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DriverData, error)
+	CreateDriverData(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetDriverStatusOnline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetDriverStatusOngoing(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SetDriverStatusOffline(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -61,6 +62,15 @@ func (c *userClient) GetUserData(ctx context.Context, in *EmailRequest, opts ...
 func (c *userClient) GetAvailableDriver(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DriverData, error) {
 	out := new(DriverData)
 	err := c.cc.Invoke(ctx, "/user.User/GetAvailableDriver", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) CreateDriverData(ctx context.Context, in *DriverId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.User/CreateDriverData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +120,7 @@ type UserServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	GetUserData(context.Context, *EmailRequest) (*UserData, error)
 	GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error)
+	CreateDriverData(context.Context, *DriverId) (*emptypb.Empty, error)
 	SetDriverStatusOnline(context.Context, *DriverId) (*emptypb.Empty, error)
 	SetDriverStatusOngoing(context.Context, *DriverId) (*emptypb.Empty, error)
 	SetDriverStatusOffline(context.Context, *DriverId) (*emptypb.Empty, error)
@@ -129,6 +140,9 @@ func (UnimplementedUserServer) GetUserData(context.Context, *EmailRequest) (*Use
 }
 func (UnimplementedUserServer) GetAvailableDriver(context.Context, *emptypb.Empty) (*DriverData, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableDriver not implemented")
+}
+func (UnimplementedUserServer) CreateDriverData(context.Context, *DriverId) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDriverData not implemented")
 }
 func (UnimplementedUserServer) SetDriverStatusOnline(context.Context, *DriverId) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDriverStatusOnline not implemented")
@@ -205,6 +219,24 @@ func _User_GetAvailableDriver_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetAvailableDriver(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_CreateDriverData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).CreateDriverData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/CreateDriverData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).CreateDriverData(ctx, req.(*DriverId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -299,6 +331,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAvailableDriver",
 			Handler:    _User_GetAvailableDriver_Handler,
+		},
+		{
+			MethodName: "CreateDriverData",
+			Handler:    _User_CreateDriverData_Handler,
 		},
 		{
 			MethodName: "SetDriverStatusOnline",

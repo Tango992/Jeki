@@ -142,3 +142,10 @@ func (s Server) VerifyNewUser(ctx context.Context, data *pb.UserCredential) (*em
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s Server) CreateDriverData(ctx context.Context, data *pb.DriverId) (*emptypb.Empty, error) {
+	if err := s.Repository.CreateDriverData(data.Id); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
