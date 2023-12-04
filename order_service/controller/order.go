@@ -20,6 +20,8 @@ import (
 
 const (
 	statusOnProcess = "process"
+	statusDone = "done"
+	statusCancel = "cancelled"
 )
 
 type OrderController struct {
@@ -108,14 +110,39 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.Status); err != nil {
+	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.UserId, data.Status); err != nil {
 		return nil, err
+	}
+
+	token, err := helpers.SignJwtForGrpc()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: data.UserId}); err != nil {
+		return nil, err
+	}
+
+	switch data.Status {
+	case statusCancel:
+		if err := o.Repository.CancelOrderStatus(ctx, objectId); err != nil {
+			return nil, err
+		}
+
+	case statusDone:
+		if err := o.Repository.CompleteOrderStatus(ctx, objectId); err != nil {
+			return nil, err
+		}
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (o OrderController) UpdatePaymentOrderStatus(ctx context.Context, data *pb.RequestUpdateData) (*emptypb.Empty, error) {
+func (o OrderController) UpdatePaymentOrderStatus(ctx context.Context, data *pb.RequestUpdatePayment) (*emptypb.Empty, error) {
 	objectId, err := primitive.ObjectIDFromHex(data.OrderId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -124,20 +151,46 @@ func (o OrderController) UpdatePaymentOrderStatus(ctx context.Context, data *pb.
 	if err := o.Repository.UpdatePaymentStatus(ctx, objectId, data.Status); err != nil {
 		return nil, err
 	}
-
 	return &emptypb.Empty{}, nil
 }
 
 func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *pb.RequestUpdateData) (*emptypb.Empty, error) {
+	token, err := helpers.SignJwtForGrpc()
+	if err != nil {
+		return nil, err
+	}
+
 	objectId, err := primitive.ObjectIDFromHex(data.OrderId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.Repository.UpdateRestaurantStatus(ctx, objectId, data.Status); err != nil {
+	if err := o.Repository.UpdateRestaurantStatus(ctx, objectId, data.UserId, data.Status); err != nil {
 		return nil, err
 	}
 
+	switch data.Status {
+	case statusCancel:
+		if err := o.Repository.CancelOrderStatus(ctx, objectId); err != nil {
+			return nil, err
+		}
+
+		orderData, _ := o.GetOrderById(ctx, &pb.OrderId{Id: data.OrderId})
+
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+
+		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+		if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: orderData.Driver.Id}); err != nil {
+			return nil, err
+		}
+
+	case statusDone:
+		if err := o.Repository.CompleteOrderStatus(ctx, objectId); err != nil {
+			return nil, err
+		}
+	}
+	
 	return &emptypb.Empty{}, nil
 }
 

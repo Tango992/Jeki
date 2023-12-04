@@ -17,12 +17,18 @@ service OrderService{
     rpc GetOrderById(OrderId) returns (Order);
     rpc UpdateRestaurantOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
     rpc UpdateDriverOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
-    rpc UpdatePaymentOrderStatus(RequestUpdateData) returns (google.protobuf.Empty);
+    rpc UpdatePaymentOrderStatus(RequestUpdatePayment) returns (google.protobuf.Empty);
+}
+
+message RequestUpdatePayment {
+    string order_id = 1;
+    string status = 2;
 }
 
 message RequestUpdateData {
-    string order_id = 1;
-    string status = 2;
+    uint32 user_id = 1;
+    string order_id = 2;
+    string status = 3;
 }
 
 message PostOrderResponse {

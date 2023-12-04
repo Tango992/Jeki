@@ -12,6 +12,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	orderStatusProcess = "process"
+	orderStatusDone = "done"
+	orderStatusCancel = "cancelled"
+)
+
 type OrderRepository struct {
 	Collection *mongo.Collection
 }
@@ -58,7 +64,8 @@ func (o OrderRepository) FindDriverCurrentOrder(ctx context.Context, driverId ui
 		{Key: "$and", Value:
 			bson.A{
 				bson.D{{Key: "driver.id", Value: driverId}},
-				bson.D{{Key: "driver.status", Value: "process"}},
+				bson.D{{Key: "driver.status", Value: orderStatusProcess}},
+				bson.D{{Key: "order_detail.status", Value: orderStatusProcess}},
 				bson.D{{Key: "payment.status", Value: "PAID"}},
 			},
 		},
@@ -123,7 +130,8 @@ func (o OrderRepository) FindRestaurantCurrentOrders(ctx context.Context, adminI
 		{Key: "$and", Value:
 			bson.A{
 				bson.D{{Key: "restaurant.admin_id", Value: adminId}},
-				bson.D{{Key: "restaurant.status", Value: "process"}},
+				bson.D{{Key: "restaurant.status", Value: orderStatusProcess}},
+				bson.D{{Key: "order_detail.status", Value: orderStatusProcess}},
 				bson.D{{Key: "payment.status", Value: "PAID"}},
 			},
 		},
@@ -141,7 +149,8 @@ func (o OrderRepository) FindUserCurrentOrders(ctx context.Context, userId uint)
 		{Key: "$and", Value:
 			bson.A{
 				bson.D{{Key: "user.id", Value: userId}},
-				bson.D{{Key: "driver.status", Value: "process"}},
+				bson.D{{Key: "driver.status", Value: orderStatusProcess}},
+				bson.D{{Key: "order_detail.status", Value: orderStatusProcess}},
 			},
 		},
 	}
@@ -169,8 +178,15 @@ func (o OrderRepository) FindWithFilter(ctx context.Context, filter bson.D) ([]m
 	return orders, nil
 }
 
-func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
-	filter := bson.M{"_id": orderId}
+func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId primitive.ObjectID, userId uint32, status string) error {
+	filter := bson.D{
+		{Key: "$and", Value:
+			bson.A{
+				bson.D{{Key: "_id", Value: orderId}},
+				bson.D{{Key: "restaurant.admin_id", Value: userId}},
+			},
+		},
+	}
 	updateData := bson.M{"$set": bson.M{"restaurant.status": status}}
 
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
@@ -179,8 +195,15 @@ func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId pri
 	return nil
 }
 
-func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
-	filter := bson.M{"_id": orderId}
+func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primitive.ObjectID, userId uint32, status string) error {
+	filter := bson.D{
+		{Key: "$and", Value:
+			bson.A{
+				bson.D{{Key: "_id", Value: orderId}},
+				bson.D{{Key: "driver.id", Value: userId}},
+			},
+		},
+	}
 	updateData := bson.M{"$set": bson.M{"driver.status": status}}
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
 		return err
@@ -189,7 +212,7 @@ func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primiti
 }
 
 func (o OrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
-	filter := bson.M{"_id": orderId}
+	filter := bson.D{{Key: "_id", Value: orderId}}
 	updateData := bson.M{"$set": bson.M{"payment.status": status}}
 
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
@@ -198,7 +221,31 @@ func (o OrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primit
 	return nil
 }
 
-func (o OrderRepository) UpdateWithFilter(ctx context.Context, field bson.M, data bson.M) error {
+func (o OrderRepository) CancelOrderStatus(ctx context.Context, orderId primitive.ObjectID) error {
+	filter := bson.D{{Key: "_id", Value: orderId}}
+	updateData := bson.M{"$set": bson.M{
+		"order_detail.status": orderStatusCancel,
+		"restaurant.status": orderStatusCancel,
+		"driver.status": orderStatusCancel,
+	}}
+
+	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OrderRepository) CompleteOrderStatus(ctx context.Context, orderId primitive.ObjectID) error {
+	filter := bson.D{{Key: "_id", Value: orderId}}
+	updateData := bson.M{"$set": bson.M{"order_detail.status": orderStatusDone}}
+
+	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o OrderRepository) UpdateWithFilter(ctx context.Context, field bson.D, data bson.M) error {
 	res := o.Collection.FindOneAndUpdate(ctx, field, data)
 	if err := res.Err(); err != nil {
 		if err == mongo.ErrNoDocuments {
