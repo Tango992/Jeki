@@ -108,7 +108,7 @@ func (m MerchantController) GetRestaurantByAdminId(c echo.Context)error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -135,7 +135,7 @@ func (m MerchantController) CreateRestaurant(c echo.Context)error{
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	var restaurantData dto.NewRestaurantData
@@ -192,7 +192,7 @@ func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	var restaurantUpdate dto.UpdateRestaurantData
@@ -247,7 +247,7 @@ func (m MerchantController) GetMenuByAdminId(c echo.Context)error{
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -280,7 +280,7 @@ func (m MerchantController) GetOneMenuByAdminId(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -312,7 +312,7 @@ func (m MerchantController) CreateMenu(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 	
 	var menuData dto.NewMenuData
@@ -362,7 +362,7 @@ func (m MerchantController) UpdateMenu(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Credential has to be admin"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	var menuData dto.UpdateMenuData

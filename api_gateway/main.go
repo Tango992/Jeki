@@ -33,7 +33,7 @@ func main() {
 	mapsService := service.NewMapsService()
 	userController := controller.NewUserController(userClient)
 	merchantController := controller.NewMerchantController(merchantClient, mapsService)
-	orderController := controller.NewOrderController(orderClient)
+	orderController := controller.NewOrderController(orderClient, mapsService)
 	
 	router.Echo(e, userController, merchantController, orderController)
 

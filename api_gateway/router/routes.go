@@ -47,4 +47,31 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 			menu.DELETE("/:id", mc.DeleteMenu)
 		}
 	}
+
+	order := e.Group("")
+	order.Use(middlewares.RequireAuth)
+	{
+		users := order.Group("/users")
+		{
+			users.POST("/orders", oc.UserCreateOrder)
+			users.GET("/orders", oc.UsersGetAllOrders)
+			users.GET("/ongoing", oc.UsersGetOngoingOrder)
+			users.GET("/orders/:id", oc.GetOrderById)
+		}
+
+		merchant := order.Group("/merchant")
+		{
+			merchant.GET("/orders", oc.MerchantGetAllOrders)
+			merchant.GET("/ongoing", oc.MerchantGetOngoingOrder)
+			merchant.GET("/orders/:id", oc.GetOrderById)
+			merchant.PUT("/orders/:id", oc.MerchantUpdateOrder)
+		}
+
+		driver := order.Group("/driver")
+		{
+			driver.GET("/orders", oc.DriverGetAllOrders)
+			driver.GET("/ongoing", oc.DriverGetCurrentOrder)
+			driver.GET("/orders/:id", oc.GetOrderById)
+		}
+	}
 }
