@@ -143,3 +143,16 @@ func (u UserRepository) VerifyNewUser(userID uint32, token string) error {
 	}
 	return nil
 }
+
+func (u UserRepository) CreateDriverData(userID uint32) error {
+	driverData := models.Driver{
+		UserID: uint(userID),
+		DriverStatusID: offlineDriverStatusID,
+	}
+	
+	res := u.Db.Create(&driverData)
+	if err := res.Error; err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	return nil
+}

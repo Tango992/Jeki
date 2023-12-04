@@ -8,6 +8,7 @@ import (
 type User interface {
 	GetUserData(string) (dto.UserJoinedData, error)
 	CreateUser(*models.User) error
+	CreateDriverData(userID uint32) error
 	AddToken(*models.Verification) error
 	GetAvailableDriver() (dto.DriverData, error)
 	SetDriverStatusOnline(driverID uint) error
