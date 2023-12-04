@@ -73,9 +73,13 @@ func (u UserRepository) GetAvailableDriver() (dto.DriverData, error) {
 
 	if err := result.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.DriverData{}, status.Error(codes.Canceled, "no available driver to pick up the order")
+			return dto.DriverData{}, status.Error(codes.Unavailable, "no available driver to pick up the order")
 		}
 		return dto.DriverData{}, status.Error(codes.Internal, err.Error())
+	}
+
+	if err := u.SetDriverStatusOngoing(uint(driverData.ID)); err != nil {
+		return dto.DriverData{}, err
 	}
 	return driverData, nil
 }
