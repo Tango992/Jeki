@@ -25,15 +25,6 @@ func NewUserController(client userpb.UserClient) UserController {
 	}
 }
 
-const (
-	userRoleID = 1
-	driverRoleID = 2
-	adminRoleID = 3
-	userRole = "user"
-	driverRole = "driver"
-	adminRole = "admin"
-)
-
 func (u UserController) RegisterUser(c echo.Context) error {
 	return u.Register(c, userRoleID, userRole)
 }

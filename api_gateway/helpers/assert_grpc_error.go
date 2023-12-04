@@ -11,6 +11,8 @@ import (
 func AssertGrpcStatus(err error) error {
 	if e, ok := status.FromError(err); ok {
 		switch e.Code() {
+		case codes.Unavailable:
+			return echo.NewHTTPError(utils.ErrUnprocessable.EchoFormatDetails(e.Message()))
 		case codes.InvalidArgument:
 			return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(e.Message()))
 		case codes.FailedPrecondition:
