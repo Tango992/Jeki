@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"user-service/models"
 
 	"gorm.io/driver/postgres"
@@ -9,7 +10,7 @@ import (
 )
 
 func InitDB() (*gorm.DB, error) {
-	dsn := "user=postgres dbname=jeki_users host=localhost password=secret port=5432 sslmode=disable"
+	dsn := os.Getenv("POSTGRES_URI")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
