@@ -17,6 +17,7 @@ func SendVerificationEmail(data model.UserCredential) error {
 	smptPort := os.Getenv("SMPT_PORT")
 	
 	url := fmt.Sprintf("%v/%v/%v", verificationUrl, data.Id, data.Token)
+	fmt.Println(url)
 	subject := "Subject: Jeki Account Verification\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 
