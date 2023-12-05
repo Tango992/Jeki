@@ -5,6 +5,8 @@ import (
 	"merchant-service/config"
 	"merchant-service/controller"
 	"merchant-service/repository"
+	"merchant-service/service"
+
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -14,8 +16,11 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	redisClient := config.InitRedisClient()
+	cachingService := service.NewCachingService(redisClient)
+
 	merchantRepository := repository.NewMerchantRepository(db)
-	merchantController := controller.NewMerchantController(merchantRepository)
+	merchantController := controller.NewMerchantController(merchantRepository, cachingService)
 
 	config.ListenAndServeGrpc(merchantController)
 }

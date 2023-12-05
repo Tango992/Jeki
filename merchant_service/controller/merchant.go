@@ -5,6 +5,7 @@ import (
 	"merchant-service/model"
 	pb "merchant-service/pb/merchantpb"
 	"merchant-service/repository"
+	"merchant-service/service"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -14,12 +15,40 @@ import (
 type Server struct {
 	pb.UnimplementedMerchantServer
 	Repository repository.Merchant
+	CachingService service.CachingService
 }
 
-func NewMerchantController(r repository.Merchant) Server {
+func NewMerchantController(r repository.Merchant, cs service.CachingService) Server {
 	return Server{
 		Repository: r,
+		CachingService: cs,
 	}
+}
+
+func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
+	restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
+	if err != nil {
+		return err
+	}
+
+	menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
+	if err != nil {
+		return err
+	}
+
+	pbRestaurantData := &pb.RestaurantDetailed{
+		Id:        restaurant.Id,
+		Name:      restaurant.Name,
+		Address:   restaurant.Address,
+		Latitude:  restaurant.Latitude,
+		Longitude: restaurant.Longitude,
+		Menus:     menus,
+	}
+
+	if err := s.CachingService.SetRestaurantDetailed(uint(restaurantID), pbRestaurantData); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*pb.RestaurantCompactRepeated, error) {
@@ -46,6 +75,15 @@ func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*
 func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) (*pb.RestaurantDetailed, error) {
 	restaurantID := idReq.GetId()
 
+	result, err := s.CachingService.GetRestaurantDetailed(uint(restaurantID))
+	if err != nil {
+		return nil, err
+	}
+
+	if result != nil {
+		return result, nil
+	}
+	
 	restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
 	if err != nil {
 		return nil, err
@@ -63,6 +101,10 @@ func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) 
 		Latitude:  restaurant.Latitude,
 		Longitude: restaurant.Longitude,
 		Menus:     menus,
+	}
+
+	if err := s.CachingService.SetRestaurantDetailed(uint(idReq.Id), pbRestaurantData); err != nil {
+		return nil, err
 	}
 	return pbRestaurantData, nil
 }
@@ -85,8 +127,12 @@ func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuI
 		CategoryId:   uint(data.CategoryId),
 		Price:        data.Price,
 	}
-
+	
 	if err := s.Repository.CreateMenu(&menuData); err != nil {
+		return nil, err
+	}
+
+	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &pb.MenuId{Id: uint32(menuData.ID)}, nil
@@ -99,6 +145,10 @@ func (s Server) DeleteMenu(ctx context.Context, data *pb.AdminIdMenuId) (*emptyp
 	}
 
 	if err := s.Repository.DeleteMenu(restaurantId, uint(data.MenuId)); err != nil {
+		return nil, err
+	}
+
+	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -116,6 +166,10 @@ func (s Server) CreateRestaurant(ctx context.Context, data *pb.NewRestaurantData
 	if err := s.Repository.CreateRestaurant(&restaurantData); err != nil {
 		return nil, err
 	}
+
+	if err := s.CacheRestaurantDetailed(uint32(restaurantData.ID)); err != nil {
+		return nil, err
+	}
 	return &pb.IdRestaurant{Id: uint32(restaurantData.ID)}, nil
 }
 
@@ -127,7 +181,7 @@ func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, er
 	return menu, nil
 }
 
-func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {
+func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {	
 	restaurantAdminId, err := s.Repository.FindAdminIdByMenuId(data.MenuId)
 	if err != nil {
 		return nil, err
@@ -140,7 +194,15 @@ func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*empty
 	if err := s.Repository.UpdateMenu(data); err != nil {
 		return nil, err
 	}
-	
+
+	restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
+		return nil, err
+	}
 	return &emptypb.Empty{}, nil
 }
 
@@ -151,6 +213,10 @@ func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantD
 	}
 
 	if err := s.Repository.UpdateRestaurant(restaurantId, data); err != nil {
+		return nil, err
+	}
+
+	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
