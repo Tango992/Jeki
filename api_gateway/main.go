@@ -14,6 +14,18 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// @title Jeki
+// @version 1.0
+// @description Food delivery app built with microservices that integrates customer, driver, and restaurant.
+
+// @contact.name Contact the developer
+// @contact.email daniel.rahmanto@gmail.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
 func main() {
 	e := echo.New()
 	e.Validator = &helpers.CustomValidator{NewValidator: validator.New()}

@@ -22,7 +22,10 @@ service OrderService{
 
 message RequestUpdatePayment {
     string order_id = 1;
-    string status = 2;
+    string invoice_id = 2;
+    string status = 3;
+    string method = 4;
+    string completed_at = 5;
 }
 
 message RequestUpdateData {

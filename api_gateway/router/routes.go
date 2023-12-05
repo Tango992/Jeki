@@ -1,13 +1,16 @@
 package router
 
 import (
+	_ "api-gateway/docs"
 	"api-gateway/controller"
 	"api-gateway/middlewares"
-
+	"github.com/swaggo/echo-swagger"
 	"github.com/labstack/echo/v4"
 )
 
 func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantController, oc controller.OrderController) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	users := e.Group("/users")
 	{
 		register := users.Group("/register")
@@ -22,7 +25,7 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 		users.GET("/logout", uc.Logout, middlewares.RequireAuth)
 	}
 
-	restaurants := e.Group("/restaurants")
+	restaurants := e.Group("/restaurant")
 	{
 		restaurants.GET("", mc.GetAllRestaurantsForCustomer)
 		restaurants.GET("/:id", mc.GetRestaurantById)
@@ -50,20 +53,20 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 
 	order := e.Group("")
 	order.Use(middlewares.RequireAuth)
-	{
+	{	
 		users := order.Group("/users")
 		{
 			users.POST("/orders", oc.UserCreateOrder)
 			users.GET("/orders", oc.UsersGetAllOrders)
 			users.GET("/ongoing", oc.UsersGetOngoingOrder)
-			users.GET("/orders/:id", oc.GetOrderById)
+			users.GET("/orders/:id", oc.UsersGetOrderById)
 		}
 
 		merchant := order.Group("/merchant")
 		{
 			merchant.GET("/orders", oc.MerchantGetAllOrders)
 			merchant.GET("/ongoing", oc.MerchantGetOngoingOrder)
-			merchant.GET("/orders/:id", oc.GetOrderById)
+			merchant.GET("/orders/:id", oc.MerchantGetOrderById)
 			merchant.PUT("/orders/:id", oc.MerchantUpdateOrder)
 		}
 
@@ -71,7 +74,13 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 		{
 			driver.GET("/orders", oc.DriverGetAllOrders)
 			driver.GET("/ongoing", oc.DriverGetCurrentOrder)
-			driver.GET("/orders/:id", oc.GetOrderById)
+			driver.GET("/orders/:id", oc.DriverGetOrderById)
+			driver.PUT("/orders/:id", oc.DriverUpdateOrder)
 		}
+	}
+	
+	payment := e.Group("/payment")
+	{
+		payment.POST("/xendit/update", oc.PaymentUpdate)
 	}
 }

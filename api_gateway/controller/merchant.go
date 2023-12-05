@@ -27,6 +27,14 @@ func NewMerchantController(client merchantpb.MerchantClient, ms service.Maps) Me
 	}
 }
 
+// Merchant      godoc
+// @Summary      Get all restaurant datas
+// @Tags         all user
+// @Produce      json
+// @Success      200  {object}  dto.SwaggerResponseGetAllRestaurant
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /restaurant [get]
 func (m MerchantController) GetAllRestaurantsForCustomer(c echo.Context) error {
 	ctx, cancel, err := helpers.NewServiceContext()
 	if err != nil {
@@ -45,6 +53,16 @@ func (m MerchantController) GetAllRestaurantsForCustomer(c echo.Context) error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Get restaurant By ID
+// @Tags         all user
+// @Produce      json
+// @Param 		 id   path      int  true  "Id"
+// @Success      200  {object}  dto.SwaggerResponseGetRestaurantByID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /restaurant/{id} [get]
 func (m MerchantController) GetRestaurantById(c echo.Context) error {
 	restaurantIdTmp := c.Param("id")
 	restaurantId, err := strconv.Atoi(restaurantIdTmp)
@@ -73,6 +91,16 @@ func (m MerchantController) GetRestaurantById(c echo.Context) error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Get menu By ID
+// @Tags         all user
+// @Produce      json
+// @Param 		 id   path      int  true  "Id"
+// @Success      200  {object}  dto.SwaggerResponseGetMenuById
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /menu/{id} [get]
 func (m MerchantController) GetMenuById(c echo.Context) error {
 	menuIdTmp := c.Param("id")
 	menuId, err := strconv.Atoi(menuIdTmp)
@@ -101,6 +129,17 @@ func (m MerchantController) GetMenuById(c echo.Context) error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Get restaurant by Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Produce      json
+// @Success      200  {object}  dto.SwaggerResponseGetRestaurantByAdminID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/restaurant [get]
 func (m MerchantController) GetRestaurantByAdminId(c echo.Context)error {
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -128,6 +167,17 @@ func (m MerchantController) GetRestaurantByAdminId(c echo.Context)error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Create Restaurant
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Produce      json
+// @param        request body dto.NewRestaurantData  true  "Create Restaurant"																				// Request Body
+// @Success      201  {object}  dto.SwaggerResponseCreateRestaurant
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/restaurant [post]
 func (m MerchantController) CreateRestaurant(c echo.Context)error{
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -185,6 +235,18 @@ func (m MerchantController) CreateRestaurant(c echo.Context)error{
 	})
 }
 
+// Merchant      godoc
+// @Summary      Update Restaurant
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Produce      json
+// @param        request body dto.UpdateRestaurantData  true  "Update Restaurant"
+// @Success      200  {object}  dto.SwaggerResponseUpdateRestaurant
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/restaurant [put]
 func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -240,6 +302,16 @@ func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 	})
 }
 
+// Merchant      godoc
+// @Summary      Get Menu By Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Produce      json
+// @Success      200  {object}  dto.SwaggerResponseGetMenuByAdminID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/menu [get]
 func (m MerchantController) GetMenuByAdminId(c echo.Context)error{
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -267,6 +339,17 @@ func (m MerchantController) GetMenuByAdminId(c echo.Context)error{
 	})
 }
 
+// Merchant      godoc
+// @Summary      Get One Menu By Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Produce      json
+// @Param 		 id   path      int  true  "Id"
+// @Success      200  {object}  dto.SwaggerResponseGetMenuIdByAdminID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/menu/{id} [get]
 func (m MerchantController) GetOneMenuByAdminId(c echo.Context) error {
 	menuIdTmp := c.Param("id")
 	menuId, err := strconv.Atoi(menuIdTmp)
@@ -305,6 +388,18 @@ func (m MerchantController) GetOneMenuByAdminId(c echo.Context) error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Create Menu By Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Accept       json
+// @Produce      json
+// @param        request body dto.SwaggerRequestMenu  true  "Create Menu"
+// @Success      201  {object}  dto.SwaggerResponseCreateMenuByAdminID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/menu [post]
 func (m MerchantController) CreateMenu(c echo.Context) error {
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -349,6 +444,20 @@ func (m MerchantController) CreateMenu(c echo.Context) error {
 	})
 }
 
+// Merchant      godoc
+// @Summary      Update Menu By Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Accept       json
+// @Produce      json
+// @Param 		 id   path      int  true  "Id"
+// @param 		request body dto.SwaggerRequestMenu  true  "Update Menu"
+// @Success      200  {object}  dto.SwaggerResponseUpdateMenuByAdminID
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/menu/{id} [put]
 func (m MerchantController) UpdateMenu(c echo.Context) error {
 	menuIdTmp := c.Param("id")
 	menuId, err := strconv.Atoi(menuIdTmp)
@@ -399,6 +508,20 @@ func (m MerchantController) UpdateMenu(c echo.Context) error {
 	})
 }
 
+
+// Merchant      godoc
+// @Summary      Delete Menu By Admin ID
+// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Tags         merchant
+// @Accept       json
+// @Produce      json
+// @Param 		 id   path      int  true  "Id"
+// @Success      200  {object}  dto.Response
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      401  {object}  utils.ErrResponse
+// @Failure      404  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /merchant/menu/{id} [delete]
 func (m MerchantController) DeleteMenu(c echo.Context) error {
 	menuIdTmp := c.Param("id")
 	menuId, err := strconv.Atoi(menuIdTmp)
@@ -409,6 +532,10 @@ func (m MerchantController) DeleteMenu(c echo.Context) error {
 	user, err := helpers.GetClaims(c)
 	if err != nil {
 		return err
+	}
+
+	if user.Role != adminRole {
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 	
 	ctx, cancel, err := helpers.NewServiceContext()
