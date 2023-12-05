@@ -30,8 +30,9 @@ func (m *MockMerchantRepository) FindMultipleMenuDetails(menuIds []int) ([]dto.M
 	return []dto.MenuTmp{}, nil
 }
 
-func (m *MockMerchantRepository) FindRestaurantIdByAdminId(restuarantId uint32) (uint, error) {
-	return uint(restuarantId), nil
+func (m *MockMerchantRepository) FindRestaurantIdByAdminId(restaurantId uint32) (uint, error) {
+	args := m.Mock.Called(restaurantId)
+	return args.Get(0).(uint), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindRestaurantMetadataByMenuIds([]int) (*pb.RestaurantMetadata, error) {
@@ -75,8 +76,9 @@ func (m *MockMerchantRepository) DeleteMenu(uint, uint) error {
 	return nil
 }
 
-func (m *MockMerchantRepository) CreateMenu(*model.Menu) error {
-	return nil
+func (m *MockMerchantRepository) CreateMenu(menu *model.Menu) error {
+	args := m.Mock.Called(menu) 
+	return args.Error(0)
 }
 
 func (m *MockMerchantRepository) CreateRestaurant(*model.Restaurant) error {
