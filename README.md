@@ -27,7 +27,7 @@
 
 ## Application Flow
 
-![Flow](./misc/flow.svg)
+![Final Flow](./misc/flow.svg)
 
 ## ERD
 
