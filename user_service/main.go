@@ -18,7 +18,7 @@ func main() {
 
 	conn, mbChan := config.InitMessageBroker()
 	defer conn.Close()
-
+	
 	messageBrokerService := service.NewMessageBroker(mbChan)
 	userRepository := repository.NewUserRepository(db)
 	userController := controller.NewUserController(userRepository, messageBrokerService)

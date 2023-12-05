@@ -16,7 +16,7 @@ type Server struct {
 	Repository repository.Merchant
 }
 
-func NewUserController(r repository.Merchant) Server {
+func NewMerchantController(r repository.Merchant) Server {
 	return Server{
 		Repository: r,
 	}

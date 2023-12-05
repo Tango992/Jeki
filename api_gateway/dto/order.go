@@ -13,3 +13,11 @@ type NewOrderItem struct {
 type UpdateOrderStatus struct {
 	Status string `json:"status" validate:"required,oneof=cancelled done"`
 }
+
+type XenditWebhook struct {
+	ExternalId    string `json:"external_id"`
+	InvoiceId     string `json:"id"`
+	Status        string `json:"status"`
+	PaymentMethod string `json:"payment_method"`
+	CompletedAt   string `json:"completed_at"`
+}

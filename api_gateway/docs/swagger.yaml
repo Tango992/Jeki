@@ -1,0 +1,1439 @@
+basePath: /
+definitions:
+  dto.NewMenuData:
+    properties:
+      category_id:
+        type: integer
+        x-order: "2"
+      id:
+        type: integer
+        x-order: "0"
+      name:
+        type: string
+        x-order: "1"
+      price:
+        type: number
+        x-order: "3"
+    required:
+    - category_id
+    - name
+    - price
+    type: object
+  dto.NewOrderItem:
+    properties:
+      menu_id:
+        type: integer
+      qty:
+        type: integer
+    required:
+    - menu_id
+    type: object
+  dto.NewOrderRequest:
+    properties:
+      address:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.NewOrderItem'
+        type: array
+    required:
+    - address
+    - items
+    type: object
+  dto.NewRestaurantData:
+    properties:
+      address:
+        type: string
+        x-order: "1"
+      name:
+        type: string
+        x-order: "0"
+    required:
+    - address
+    - name
+    type: object
+  dto.Response:
+    properties:
+      data:
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.ResponseNewRestaurant:
+    properties:
+      address:
+        type: string
+        x-order: "2"
+      id:
+        type: integer
+        x-order: "0"
+      latitude:
+        type: number
+        x-order: "3"
+      longitude:
+        type: number
+        x-order: "4"
+      name:
+        type: string
+        x-order: "1"
+    type: object
+  dto.ResponseUpdateRestaurant:
+    properties:
+      address:
+        type: string
+        x-order: "2"
+      latitude:
+        type: number
+        x-order: "3"
+      longitude:
+        type: number
+        x-order: "4"
+      name:
+        type: string
+        x-order: "1"
+    type: object
+  dto.SwaggerRequestMenu:
+    properties:
+      category_id:
+        type: integer
+        x-order: "2"
+      name:
+        type: string
+        x-order: "0"
+      price:
+        type: number
+        x-order: "1"
+    type: object
+  dto.SwaggerResponese:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/orderpb.Orders'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseCreateMenuByAdminID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/dto.NewMenuData'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseCreateRestaurant:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/dto.ResponseNewRestaurant'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseDriverGetAllOrders:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/orderpb.Orders'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseDriverGetCurrentOrder:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/orderpb.Order'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetAllRestaurant:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.RestaurantCompactRepeated'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetMenuByAdminID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.MenuCompactRepeated'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetMenuById:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.Menu'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetMenuIdByAdminID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.MenuCompact'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetRestaurantByAdminID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.RestaurantData'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseGetRestaurantByID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/merchantpb.RestaurantDetailed'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseOrder:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/orderpb.Order'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseRegister:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseUpdateMenuByAdminID:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/dto.UpdateMenuData'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseUpdateOrder:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/orderpb.RequestUpdateData'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.SwaggerResponseUpdateRestaurant:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/dto.ResponseUpdateRestaurant'
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
+  dto.UpdateMenuData:
+    properties:
+      category_id:
+        type: integer
+        x-order: "2"
+      menu_id:
+        type: integer
+        x-order: "0"
+      name:
+        type: string
+        x-order: "1"
+      price:
+        type: number
+        x-order: "3"
+    required:
+    - category_id
+    - name
+    - price
+    type: object
+  dto.UpdateOrderStatus:
+    properties:
+      status:
+        enum:
+        - cancelled
+        - done
+        type: string
+    required:
+    - status
+    type: object
+  dto.UpdateRestaurantData:
+    properties:
+      address:
+        type: string
+        x-order: "1"
+      name:
+        type: string
+        x-order: "0"
+    required:
+    - address
+    - name
+    type: object
+  dto.UserLogin:
+    properties:
+      email:
+        type: string
+        x-order: "0"
+      password:
+        type: string
+        x-order: "1"
+    required:
+    - email
+    - password
+    type: object
+  dto.UserRegister:
+    properties:
+      birth_date:
+        type: string
+        x-order: "4"
+      email:
+        type: string
+        x-order: "2"
+      first_name:
+        type: string
+        x-order: "0"
+      last_name:
+        type: string
+        x-order: "1"
+      password:
+        type: string
+        x-order: "3"
+    required:
+    - birth_date
+    - email
+    - first_name
+    - password
+    type: object
+  merchantpb.Menu:
+    properties:
+      category:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  merchantpb.MenuCompact:
+    properties:
+      category:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  merchantpb.MenuCompactRepeated:
+    properties:
+      menus:
+        items:
+          $ref: '#/definitions/merchantpb.MenuCompact'
+        type: array
+    type: object
+  merchantpb.RestaurantCompact:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  merchantpb.RestaurantCompactRepeated:
+    properties:
+      restaurants:
+        items:
+          $ref: '#/definitions/merchantpb.RestaurantCompact'
+        type: array
+    type: object
+  merchantpb.RestaurantData:
+    properties:
+      address:
+        type: string
+      admin_id:
+        type: integer
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+    type: object
+  merchantpb.RestaurantDetailed:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      menus:
+        items:
+          $ref: '#/definitions/merchantpb.Menu'
+        type: array
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      birth_date:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+  orderpb.Address:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  orderpb.Driver:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  orderpb.Menu:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      subtotal:
+        type: number
+    type: object
+  orderpb.Order:
+    properties:
+      driver:
+        $ref: '#/definitions/orderpb.Driver'
+      object_id:
+        type: string
+      order_detail:
+        $ref: '#/definitions/orderpb.OrderDetail'
+      payment:
+        $ref: '#/definitions/orderpb.Payment'
+      restaurant:
+        $ref: '#/definitions/orderpb.Restaurant'
+      user:
+        $ref: '#/definitions/orderpb.User'
+    type: object
+  orderpb.OrderDetail:
+    properties:
+      created_at:
+        type: string
+      delivery_fee:
+        type: number
+      grand_total:
+        type: number
+      items_subtotal:
+        type: number
+      menu:
+        items:
+          $ref: '#/definitions/orderpb.Menu'
+        type: array
+      status:
+        type: string
+    type: object
+  orderpb.Orders:
+    properties:
+      orders:
+        items:
+          $ref: '#/definitions/orderpb.Order'
+        type: array
+    type: object
+  orderpb.Payment:
+    properties:
+      invoice_id:
+        type: string
+      invoice_url:
+        type: string
+      method:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    type: object
+  orderpb.RequestUpdateData:
+    properties:
+      order_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  orderpb.Restaurant:
+    properties:
+      address:
+        $ref: '#/definitions/orderpb.Address'
+      admin_id:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  orderpb.User:
+    properties:
+      address:
+        $ref: '#/definitions/orderpb.Address'
+      email:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  utils.ErrResponse:
+    properties:
+      detail:
+        type: string
+        x-order: "2"
+      status:
+        type: integer
+        x-order: "0"
+      type:
+        type: string
+        x-order: "1"
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: daniel.rahmanto@gmail.com
+    name: Contact the developer
+  description: Food delivery app built with microservices that integrates customer,
+    driver, and restaurant.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Jeki
+  version: "1.0"
+paths:
+  /driver/ongoing:
+    get:
+      description: You will need an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseDriverGetCurrentOrder'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Driver Get Current Order
+      tags:
+      - driver
+  /driver/orders:
+    get:
+      description: You will need an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseDriverGetAllOrders'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Driver Get All Orders
+      tags:
+      - driver
+  /driver/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseOrder'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get order by ID
+      tags:
+      - driver
+    put:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Driver Update Order
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateOrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseUpdateOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Driver Update order
+      tags:
+      - driver
+  /menu/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetMenuById'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get menu By ID
+      tags:
+      - all user
+  /merchant/menu:
+    get:
+      description: You will need an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetMenuByAdminID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get Menu By Admin ID
+      tags:
+      - merchant
+    post:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Create Menu
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SwaggerRequestMenu'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseCreateMenuByAdminID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Create Menu By Admin ID
+      tags:
+      - merchant
+  /merchant/menu/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Delete Menu By Admin ID
+      tags:
+      - merchant
+    get:
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetMenuIdByAdminID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get One Menu By Admin ID
+      tags:
+      - merchant
+    put:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Menu
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SwaggerRequestMenu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseUpdateMenuByAdminID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Update Menu By Admin ID
+      tags:
+      - merchant
+  /merchant/ongoing:
+    get:
+      description: Get ongoing orders for the logged-in merchant (admin). You will
+        need an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponese'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get ongoing orders for a merchant
+      tags:
+      - merchant
+  /merchant/orders:
+    get:
+      description: Get all orders for the logged-in merchant (admin). You will need
+        an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponese'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get all orders for a merchant
+      tags:
+      - merchant
+  /merchant/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseOrder'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get order by ID
+      tags:
+      - merchant
+    put:
+      consumes:
+      - application/json
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Merchant Update Order
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateOrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseUpdateOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Update Order from Merchants
+      tags:
+      - merchant
+  /merchant/restaurant:
+    get:
+      description: You will need an 'Authorization' cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetRestaurantByAdminID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get restaurant by Admin ID
+      tags:
+      - merchant
+    post:
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Create Restaurant
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewRestaurantData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseCreateRestaurant'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Create Restaurant
+      tags:
+      - merchant
+    put:
+      description: You will need an 'Authorization' cookie attached with this request.
+      parameters:
+      - description: Update Restaurant
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRestaurantData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseUpdateRestaurant'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Update Restaurant
+      tags:
+      - merchant
+  /restaurant:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetAllRestaurant'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get all restaurant datas
+      tags:
+      - all user
+  /restaurant/{id}:
+    get:
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetRestaurantByID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get restaurant By ID
+      tags:
+      - all user
+  /users/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Logout the user
+      tags:
+      - all user
+  /users/ongoing:
+    get:
+      consumes:
+      - application/json
+      description: Get ongoing orders for the logged-in user. You will need an 'Authorization'
+        cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponese'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get ongoing orders for a user
+      tags:
+      - customer
+  /users/orders:
+    get:
+      consumes:
+      - application/json
+      description: Get all orders for the logged-in user. You will need an 'Authorization'
+        cookie attached with this request.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponese'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get all orders for a user
+      tags:
+      - customer
+    post:
+      consumes:
+      - application/json
+      description: Create a new order for the logged-in user. You will need an 'Authorization'
+        cookie attached with this request.
+      parameters:
+      - description: Order details
+        in: body
+        name: orderRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Create a new order by user
+      tags:
+      - customer
+  /users/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get order details by order ID. You will need an 'Authorization'
+        cookie attached with this request.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseOrder'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get order by ID
+      tags:
+      - customer
+  /users/register/admin:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the role 'Admin'
+      parameters:
+      - description: Admin registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseRegister'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Register a new admin
+      tags:
+      - merchant
+  /users/register/driver:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the role 'Driver'
+      parameters:
+      - description: Driver registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseRegister'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Register a new driver
+      tags:
+      - driver
+  /users/register/user:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the role 'User'
+      parameters:
+      - description: User registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseRegister'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Register a new user
+      tags:
+      - customer
+  /users/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate and login a user
+      parameters:
+      - description: User login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: User login
+      tags:
+      - all user
+  /users/verify/{userid}/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Verify the user registration using token sent through an email
+      parameters:
+      - description: Verification token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Verify user registration
+      tags:
+      - all user
+swagger: "2.0"

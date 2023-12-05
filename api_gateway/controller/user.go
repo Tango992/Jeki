@@ -25,14 +25,47 @@ func NewUserController(client userpb.UserClient) UserController {
 	}
 }
 
+// @Summary     Register a new user
+// @Description Register a new user with the role 'User'
+// @Tags        customer
+// @Accept      json
+// @Produce     json
+// @Param       request body dto.UserRegister true "User registration details"
+// @Success     201 {object} dto.SwaggerResponseRegister
+// @Failure     400 {object} utils.ErrResponse
+// @Failure     409 {object} utils.ErrResponse
+// @Failure     500 {object} utils.ErrResponse
+// @Router      /users/register/user [post]
 func (u UserController) RegisterUser(c echo.Context) error {
 	return u.Register(c, userRoleID, userRole)
 }
 
+// @Summary 	Register a new driver
+// @Description Register a new user with the role 'Driver'
+// @Tags		driver
+// @Accept 		json
+// @Produce 	json
+// @Param 		request body dto.UserRegister true "Driver registration details"
+// @Success 	201 {object} dto.SwaggerResponseRegister
+// @Failure 	400 {object} utils.ErrResponse
+// @Failure     409 {object} utils.ErrResponse
+// @Failure 	500 {object} utils.ErrResponse
+// @Router 		/users/register/driver [post]
 func (u UserController) RegisterDriver(c echo.Context) error {
 	return u.Register(c, driverRoleID, driverRole)
 }
 
+// @Summary 	Register a new admin
+// @Description Register a new user with the role 'Admin'
+// @Tags		merchant
+// @Accept 		json
+// @Produce 	json
+// @Param 		request body dto.UserRegister true "Admin registration details"
+// @Success 	201 {object} dto.SwaggerResponseRegister
+// @Failure 	400 {object} utils.ErrResponse
+// @Failure     409 {object} utils.ErrResponse
+// @Failure 	500 {object} utils.ErrResponse
+// @Router 		/users/register/admin [post]
 func (u UserController) RegisterAdmin(c echo.Context) error {
 	return u.Register(c, adminRoleID, adminRole)
 }
@@ -112,6 +145,17 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 	})
 }
 
+// @Summary 	User login
+// @Description Authenticate and login a user
+// @Tags        all user
+// @Accept 		json
+// @Produce 	json
+// @Param 		request body dto.UserLogin true "User login details"
+// @Success     200  {object}  dto.Response
+// @Failure     400  {object}  utils.ErrResponse
+// @Failure     401  {object}  utils.ErrResponse
+// @Failure     500  {object}  utils.ErrResponse
+// @Router      /users/users/login [post]
 func (u UserController) Login(c echo.Context) error {
 	loginReq := new(dto.UserLogin)
 	if err := c.Bind(loginReq); err != nil {
@@ -184,6 +228,14 @@ func (u UserController) Login(c echo.Context) error {
 	})
 }
 
+// @Summary 	Logout the user
+// @Description Logout the currently authenticated user
+// @Tags        all user
+// @Accept 		json
+// @Produce 	json
+// @Success 	200 {object} dto.Response
+// @Failure 	500 {object} utils.ErrResponse
+// @Router 		/users/logout [get]
 func (u UserController) Logout(c echo.Context) error {
 	user, err := helpers.GetClaims(c)
 	if err != nil {
@@ -193,7 +245,7 @@ func (u UserController) Logout(c echo.Context) error {
 	userIdPb := &userpb.DriverId{
 		Id: uint32(user.ID),
 	}
-	
+
 	if user.Role == driverRole {
 		ctx, cancel, err := helpers.NewServiceContext()
 		if err != nil {
@@ -205,7 +257,7 @@ func (u UserController) Logout(c echo.Context) error {
 			return echo.NewHTTPError(utils.ErrInternalServer.EchoFormatDetails(err.Error()))
 		}
 	}
-	
+
 	cookie := new(http.Cookie)
 	cookie.Name = "Authorization"
 	cookie.HttpOnly = true
@@ -214,13 +266,24 @@ func (u UserController) Logout(c echo.Context) error {
 	cookie.SameSite = http.SameSiteLaxMode
 	cookie.MaxAge = -1
 	c.SetCookie(cookie)
-	
+
 	return c.JSON(http.StatusOK, dto.Response{
 		Message: "Logged out",
-		Data: "Authorization cookie has been deleted",
+		Data:    "Authorization cookie has been deleted",
 	})
 }
 
+// @Summary 	Verify user registration
+// @Description Verify the user registration using token sent through an email
+// @Tags        all user
+// @Accept 		json
+// @Produce 	json
+// @Param 		token path string true "Verification token"
+// @Param 		userid path integer true "User ID"
+// @Success 	200 {object} dto.Response
+// @Failure 	400 {object} utils.ErrResponse
+// @Failure 	500 {object} utils.ErrResponse
+// @Router 		/users/verify/{userid}/{token} [get]
 func (u UserController) VerifyUser(c echo.Context) error {
 	token := c.Param("token")
 	userIdTmp := c.Param("userid")
@@ -230,7 +293,7 @@ func (u UserController) VerifyUser(c echo.Context) error {
 	}
 
 	pbUserData := &userpb.UserCredential{
-		Id: uint32(userId),
+		Id:    uint32(userId),
 		Token: token,
 	}
 
@@ -243,9 +306,9 @@ func (u UserController) VerifyUser(c echo.Context) error {
 	if _, err := u.Client.VerifyNewUser(ctx, pbUserData); err != nil {
 		return helpers.AssertGrpcStatus(err)
 	}
-	
+
 	return c.JSON(http.StatusOK, dto.Response{
 		Message: "Verified",
-		Data: "You can now enjoy Jeki services!",
+		Data:    "You can now enjoy Jeki services!",
 	})
 }

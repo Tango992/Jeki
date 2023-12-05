@@ -15,7 +15,7 @@ func main() {
 	}
 
 	merchantRepository := repository.NewMerchantRepository(db)
-	merchantController := controller.NewUserController(merchantRepository)
+	merchantController := controller.NewMerchantController(merchantRepository)
 
 	config.ListenAndServeGrpc(merchantController)
 }

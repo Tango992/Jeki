@@ -184,6 +184,7 @@ func (o OrderRepository) UpdateRestaurantStatus(ctx context.Context, orderId pri
 			bson.A{
 				bson.D{{Key: "_id", Value: orderId}},
 				bson.D{{Key: "restaurant.admin_id", Value: userId}},
+				bson.D{{Key: "order_detail.status", Value: orderStatusProcess}},
 			},
 		},
 	}
@@ -201,6 +202,7 @@ func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primiti
 			bson.A{
 				bson.D{{Key: "_id", Value: orderId}},
 				bson.D{{Key: "driver.id", Value: userId}},
+				bson.D{{Key: "order_detail.status", Value: orderStatusProcess}},
 			},
 		},
 	}
@@ -237,7 +239,11 @@ func (o OrderRepository) CancelOrderStatus(ctx context.Context, orderId primitiv
 
 func (o OrderRepository) CompleteOrderStatus(ctx context.Context, orderId primitive.ObjectID) error {
 	filter := bson.D{{Key: "_id", Value: orderId}}
-	updateData := bson.M{"$set": bson.M{"order_detail.status": orderStatusDone}}
+	updateData := bson.M{"$set": bson.M{
+		"order_detail.status": orderStatusDone,
+		"restaurant.status": orderStatusDone,
+		"driver.status": orderStatusDone,
+	}}
 
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
 		return err
