@@ -13,22 +13,6 @@ type RabbitMQ struct {
 	Ch *amqp.Channel
 }
 
-type MessageBrokerService struct {
-	Client MessageBroker
-}
-
-func NewRabbitMQClient(ch *amqp.Channel) RabbitMQ {
-	return RabbitMQ{
-		Ch: ch,
-	}
-}
-
-func NewMessageBrokerService(ch *amqp.Channel) MessageBroker {
-	return RabbitMQ{
-		Ch: ch,
-	}
-}
-
 func NewMessageBroker(ch *amqp.Channel) MessageBroker {
 	return RabbitMQ{
 		Ch: ch,

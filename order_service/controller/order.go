@@ -110,10 +110,6 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.UserId, data.Status); err != nil {
-		return nil, err
-	}
-
 	token, err := helpers.SignJwtForGrpc()
 	if err != nil {
 		return nil, err
@@ -137,6 +133,10 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 		if err := o.Repository.CompleteOrderStatus(ctx, objectId); err != nil {
 			return nil, err
 		}
+	}
+
+	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.UserId, data.Status); err != nil {
+		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
