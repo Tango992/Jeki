@@ -20,8 +20,8 @@ import (
 
 const (
 	statusOnProcess = "process"
-	statusDone = "done"
-	statusCancel = "cancelled"
+	statusDone      = "done"
+	statusCancel    = "cancelled"
 )
 
 type OrderController struct {
@@ -190,7 +190,7 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 			return nil, err
 		}
 	}
-	
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -261,7 +261,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 
 	deliveryFee := helpers.CalculateDeliveryFee(restaurantData, userData)
 	grandTotal := deliveryFee + itemsSubtotal
-	
+
 	orderDetailData := model.OrderDetail{
 		Menus:         menus,
 		DeliveryFee:   deliveryFee,
