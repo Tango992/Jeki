@@ -134,11 +134,6 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 			return nil, err
 		}
 	}
-
-	if err := o.Repository.UpdateDriverStatus(ctx, objectId, data.UserId, data.Status); err != nil {
-		return nil, err
-	}
-
 	return &emptypb.Empty{}, nil
 }
 
@@ -182,11 +177,6 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 
 		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
 		if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: orderData.Driver.Id}); err != nil {
-			return nil, err
-		}
-
-	case statusDone:
-		if err := o.Repository.CompleteOrderStatus(ctx, objectId); err != nil {
 			return nil, err
 		}
 	}
