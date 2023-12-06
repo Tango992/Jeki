@@ -213,9 +213,13 @@ func (o OrderRepository) UpdateDriverStatus(ctx context.Context, orderId primiti
 	return nil
 }
 
-func (o OrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status string) error {
+func (o OrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status, method, completedAt string) error {
 	filter := bson.D{{Key: "_id", Value: orderId}}
-	updateData := bson.M{"$set": bson.M{"payment.status": status}}
+	updateData := bson.M{"$set": bson.M{
+		"payment.status": status,
+		"payment.method": method,
+		"payment.completed_at": completedAt,
+	}}
 
 	if err := o.UpdateWithFilter(ctx, filter, updateData); err != nil {
 		return err

@@ -1,21 +1,22 @@
 package config
 
 import (
+	"crypto/tls"
 	"log"
 	"order-service/pb/userpb"
 	"os"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 func InitUserServiceClient() (*grpc.ClientConn, userpb.UserClient) {
-	// creds := credentials.NewTLS(&tls.Config{
-	// 	InsecureSkipVerify: true,
-	// })
+	creds := credentials.NewTLS(&tls.Config{
+		InsecureSkipVerify: true,
+	})
 
 	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(creds),
 	}
 
 	conn, err := grpc.Dial(os.Getenv("USER_SERVICE_URI"), opts...)
