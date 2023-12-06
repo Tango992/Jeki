@@ -143,7 +143,7 @@ func (o OrderController) UpdatePaymentOrderStatus(ctx context.Context, data *pb.
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.Repository.UpdatePaymentStatus(ctx, objectId, data.Status); err != nil {
+	if err := o.Repository.UpdatePaymentStatus(ctx, objectId, data.Status, data.Method, data.CompletedAt); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil

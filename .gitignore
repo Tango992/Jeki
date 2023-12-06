@@ -2,4 +2,3 @@
 tmp/
 .env
 .docker-compose.yaml
-Dockerfile

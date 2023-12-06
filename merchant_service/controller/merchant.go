@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"math"
 	"merchant-service/dto"
 	"merchant-service/model"
 	pb "merchant-service/pb/merchantpb"
@@ -28,15 +29,43 @@ func NewMerchantController(r repository.Merchant, cs service.CachingService) Ser
 }
 
 func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
-	restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
-	if err != nil {
-		return err
+	var wg sync.WaitGroup
+	wg.Add(2)
+	errChan := make(chan error, 2)
+	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
+	menusChan := make(chan []*pb.Menu, 1)
+
+	go func (restaurantID uint32)  {
+		defer wg.Done()
+		restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
+		if err != nil {
+			errChan <-err
+		}
+		restaurantChan <-restaurant
+	}(restaurantID)
+	
+	go func (restaurantID uint32)  {
+		defer wg.Done()
+		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
+		if err != nil {
+			errChan <-err
+		}
+		menusChan <-menus
+	}(restaurantID)
+	
+	wg.Wait()
+	close(errChan)
+	close(restaurantChan)
+	close(menusChan)
+	
+	for err := range errChan{
+		if err != nil {
+			return err
+		}
 	}
 
-	menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
-	if err != nil {
-		return err
-	}
+	restaurant := <-restaurantChan
+	menus := <-menusChan
 
 	pbRestaurantData := &pb.RestaurantDetailed{
 		Id:        restaurant.Id,
@@ -85,16 +114,44 @@ func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) 
 	if result != nil {
 		return result, nil
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	errChan := make(chan error, 2)
+	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
+	menusChan := make(chan []*pb.Menu, 1)
+
+	go func (restaurantID uint32)  {
+		defer wg.Done()
+		restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
+		if err != nil {
+			errChan <-err
+		}
+		restaurantChan <-restaurant
+	}(restaurantID)
 	
-	restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
-	if err != nil {
-		return nil, err
+	go func (restaurantID uint32)  {
+		defer wg.Done()
+		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
+		if err != nil {
+			errChan <-err
+		}
+		menusChan <-menus
+	}(restaurantID)
+	
+	wg.Wait()
+	close(errChan)
+	close(restaurantChan)
+	close(menusChan)
+	
+	for err := range errChan{
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
-	if err != nil {
-		return nil, err
-	}
+	restaurant := <-restaurantChan
+	menus := <-menusChan
 
 	pbRestaurantData := &pb.RestaurantDetailed{
 		Id:        restaurant.Id,
@@ -300,14 +357,14 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 	pbMenuDetails := []*pb.ResponseMenuDetail{}
 	for _, menu := range <-menuDatasChan {
 		quantity := menuIdWithQty[menu.ID]
-		subtotal := menu.Price * float32(quantity)
+		subtotal := math.Round((float64(menu.Price) * float64(quantity)))
 
 		menuData := &pb.ResponseMenuDetail{
 			Id:       uint32(menu.ID),
 			Name:     menu.Name,
 			Qty:      uint32(quantity),
 			Price:    menu.Price,
-			Subtotal: subtotal,
+			Subtotal: float32(subtotal),
 		}
 		pbMenuDetails = append(pbMenuDetails, menuData)
 	}

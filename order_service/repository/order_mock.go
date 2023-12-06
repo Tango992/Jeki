@@ -73,6 +73,6 @@ func (m *MockOrderRepository) UpdateDriverStatus(ctx context.Context, orderId pr
 	return nil
 }
 
-func (m *MockOrderRepository) UpdatePaymentStatus(context.Context, primitive.ObjectID, string) error {
+func (m *MockOrderRepository) UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status, method, completedAt string) error {
 	return nil
 }

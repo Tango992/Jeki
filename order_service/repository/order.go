@@ -25,5 +25,5 @@ type Order interface {
 
 	UpdateRestaurantStatus(ctx context.Context, orderId primitive.ObjectID, userId uint32, status string) error
 	UpdateDriverStatus(ctx context.Context, orderId primitive.ObjectID, userId uint32, status string) error
-	UpdatePaymentStatus(context.Context, primitive.ObjectID, string) error
+	UpdatePaymentStatus(ctx context.Context, orderId primitive.ObjectID, status, method, completedAt string) error
 }

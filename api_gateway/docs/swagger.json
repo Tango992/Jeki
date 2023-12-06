@@ -13,7 +13,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "jeki-x72poumuyq-et.a.run.app",
     "basePath": "/",
     "paths": {
         "/driver/ongoing": {
@@ -545,6 +545,7 @@
         },
         "/merchant/orders/{id}": {
             "get": {
+                "description": "Get order details by order ID. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
