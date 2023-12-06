@@ -31,4 +31,14 @@
 
 ## ERD
 
-![ERD](./misc/ERD.svg)
+### User Service (Postgres)
+
+![User service ERD](./misc/user_erd.svg)
+
+### Merchant Service (Postgres)
+
+![ERD](./misc/merchant_erd.svg)
+
+### Order Service (MongoDB)
+
+![ERD](./misc/order_erd.svg)
