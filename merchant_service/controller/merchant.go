@@ -2,10 +2,12 @@ package controller
 
 import (
 	"context"
+	"merchant-service/dto"
 	"merchant-service/model"
 	pb "merchant-service/pb/merchantpb"
 	"merchant-service/repository"
 	"merchant-service/service"
+	"sync"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -182,12 +184,43 @@ func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, er
 }
 
 func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {	
-	restaurantAdminId, err := s.Repository.FindAdminIdByMenuId(data.MenuId)
-	if err != nil {
-		return nil, err
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	errChan := make(chan error, 2)
+	restaurantAdminIdChan := make(chan uint32, 1)
+	restaurantIdChan := make(chan uint, 1)
+
+	go func ()  {
+		defer wg.Done()
+		restaurantAdminId, err := s.Repository.FindAdminIdByMenuId(data.MenuId)
+		if err != nil {
+			errChan <-err
+		}
+		restaurantAdminIdChan <-restaurantAdminId
+	}()
+
+	go func ()  {
+		defer wg.Done()
+		restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
+		if err != nil {
+			errChan <-err
+		}
+		restaurantIdChan <-restaurantId
+	}()
+	
+	wg.Wait()
+	close(restaurantAdminIdChan)
+	close(restaurantIdChan)
+	close(errChan)
+	
+	for err := range errChan{
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	if restaurantAdminId != data.AdminId {
+	if <-restaurantAdminIdChan != data.AdminId {
 		return nil, status.Error(codes.PermissionDenied, "invalid admin access to edit menu data")
 	}
 
@@ -195,12 +228,7 @@ func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*empty
 		return nil, err
 	}
 
-	restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
+	if err := s.CacheRestaurantDetailed(uint32(<-restaurantIdChan)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -233,18 +261,44 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 		menuIds = append(menuIds, int(val.Id))
 	}
 
-	restaurantData, err := s.Repository.FindRestaurantMetadataByMenuIds(menuIds)
-	if err != nil {
-		return nil, err
-	}
+	var wg sync.WaitGroup
+	errChan := make(chan error, 2)
+	restaurantDataChan := make(chan *pb.RestaurantMetadata, 1)
+	menuDatasChan := make(chan []dto.MenuTmp, 1)
 
-	menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
-	if err != nil {
-		return nil, err
+	wg.Add(2)
+
+	go func (menuIds []int)  {
+		defer wg.Done()
+		restaurantData, err := s.Repository.FindRestaurantMetadataByMenuIds(menuIds)
+		if err != nil {
+			errChan <-err
+		}
+		restaurantDataChan <-restaurantData
+	}(menuIds)
+
+	go func (menuIds []int)  {
+		defer wg.Done()
+		menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
+		if err != nil {
+			errChan <-err
+		}
+		menuDatasChan <-menuDatas
+	}(menuIds)
+
+	wg.Wait()
+	close(restaurantDataChan)
+	close(menuDatasChan)
+	close(errChan)
+
+	for err := range errChan {
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	pbMenuDetails := []*pb.ResponseMenuDetail{}
-	for _, menu := range menuDatas {
+	for _, menu := range <-menuDatasChan {
 		quantity := menuIdWithQty[menu.ID]
 		subtotal := menu.Price * float32(quantity)
 
@@ -259,7 +313,7 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 	}
 
 	return &pb.CalculateOrderResponse{
-		RestaurantData: restaurantData,
+		RestaurantData: <-restaurantDataChan,
 		ResponseMenuDetails: pbMenuDetails,
 	}, nil
 }
