@@ -27,7 +27,8 @@ func (m *MockMerchantRepository) FindRestaurantByID(id uint32) (dto.RestaurantDa
 }
 
 func (m *MockMerchantRepository) FindMultipleMenuDetails(menuIds []int) ([]dto.MenuTmp, error) {
-	return []dto.MenuTmp{}, nil
+	args := m.Mock.Called(menuIds)
+	return args.Get(0).([]dto.MenuTmp), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindRestaurantIdByAdminId(restaurantId uint32) (uint, error) {
@@ -35,12 +36,14 @@ func (m *MockMerchantRepository) FindRestaurantIdByAdminId(restaurantId uint32) 
 	return args.Get(0).(uint), args.Error(1)
 }
 
-func (m *MockMerchantRepository) FindRestaurantMetadataByMenuIds([]int) (*pb.RestaurantMetadata, error) {
-	return &pb.RestaurantMetadata{}, nil
+func (m *MockMerchantRepository) FindRestaurantMetadataByMenuIds(menuIDs []int) (*pb.RestaurantMetadata, error) {
+	args := m.Mock.Called(menuIDs)
+	return args.Get(0).(*pb.RestaurantMetadata), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindAdminIdByMenuId(adminID uint32) (uint32, error) {
-	return adminID, nil
+	args := m.Mock.Called(adminID)
+	return args.Get(0).(uint32), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindMenuByRestaurantId(restaurantId uint32) ([]*pb.Menu, error) {
@@ -49,31 +52,38 @@ func (m *MockMerchantRepository) FindMenuByRestaurantId(restaurantId uint32) ([]
 }
 
 func (m *MockMerchantRepository) FindMenuById(menuId uint32) (*pb.Menu, error) {
-	return &pb.Menu{}, nil
+	args := m.Mock.Called(menuId)
+	return args.Get(0).(*pb.Menu), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindMenusByAdminId(adminId uint32) ([]*pb.MenuCompact, error) {
-	return []*pb.MenuCompact{}, nil
+	args := m.Mock.Called(adminId)
+	return args.Get(0).([]*pb.MenuCompact), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindOneMenuByAdminId(menuID uint32, adminID uint32) (*pb.MenuCompact, error) {
-	return &pb.MenuCompact{}, nil
+	args := m.Mock.Called(menuID, adminID)
+	return args.Get(0).(*pb.MenuCompact), args.Error(1)
 }
 
 func (m *MockMerchantRepository) FindRestaurantByAdminId(adminID uint32) (*pb.RestaurantData, error) {
-	return &pb.RestaurantData{}, nil
+	args := m.Mock.Called(adminID)
+	return args.Get(0).(*pb.RestaurantData), args.Error(1)
 }
 
-func (m *MockMerchantRepository) UpdateMenu(*pb.UpdateMenuData) error {
-	return nil
+func (m *MockMerchantRepository) UpdateMenu(data *pb.UpdateMenuData) error {
+	args := m.Mock.Called(data)
+	return args.Error(0)
 }
 
 func (m *MockMerchantRepository) UpdateRestaurant(restaurantId uint, data *pb.UpdateRestaurantData) error {
-	return nil
+	args := m.Mock.Called(restaurantId, data)
+	return args.Error(0)
 }
 
-func (m *MockMerchantRepository) DeleteMenu(uint, uint) error {
-	return nil
+func (m *MockMerchantRepository) DeleteMenu(restaurantID, menuID uint) error {
+	args := m.Mock.Called(restaurantID, menuID)
+	return args.Error(0)
 }
 
 func (m *MockMerchantRepository) CreateMenu(menu *model.Menu) error {
@@ -81,6 +91,7 @@ func (m *MockMerchantRepository) CreateMenu(menu *model.Menu) error {
 	return args.Error(0)
 }
 
-func (m *MockMerchantRepository) CreateRestaurant(*model.Restaurant) error {
-	return nil
+func (m *MockMerchantRepository) CreateRestaurant(data *model.Restaurant) error {
+	args := m.Mock.Called(data)
+	return args.Error(0)
 }
