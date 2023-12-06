@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"math"
 	"order-service/model"
 
 	"github.com/paulmach/orb"
@@ -34,5 +35,5 @@ func CalculateDeliveryFee(restaurant model.Restaurant, user model.User) float32 
 	if totalFee < 10000 {
 		return 10000
 	}
-	return totalFee
+	return float32(math.Round(float64(totalFee)))
 }

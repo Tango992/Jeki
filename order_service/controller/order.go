@@ -9,6 +9,7 @@ import (
 	"order-service/pb/userpb"
 	"order-service/repository"
 	"order-service/service"
+	"sync"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -110,18 +111,25 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	token, err := helpers.SignJwtForGrpc()
-	if err != nil {
-		return nil, err
-	}
+	var wg sync.WaitGroup
+	errChan := make(chan error, 2)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
+	wg.Add(1)
+	go func (userID uint32)  {	
+		defer wg.Done()
+		token, err := helpers.SignJwtForGrpc()
+		if err != nil {
+			errChan <-err
+		}
 
-	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
-	if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: data.UserId}); err != nil {
-		return nil, err
-	}
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		
+		ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+		if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: userID}); err != nil {
+			errChan <-err
+		}
+	}(data.UserId)
 
 	switch data.Status {
 	case statusCancel:
@@ -131,6 +139,14 @@ func (o OrderController) UpdateDriverOrderStatus(ctx context.Context, data *pb.R
 
 	case statusDone:
 		if err := o.Repository.CompleteOrderStatus(ctx, objectId); err != nil {
+			return nil, err
+		}
+	}
+
+	wg.Wait()
+	close(errChan)
+	for err := range errChan {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -160,16 +176,19 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := o.Repository.UpdateRestaurantStatus(ctx, objectId, data.UserId, data.Status); err != nil {
-		return nil, err
-	}
-
 	switch data.Status {
 	case statusCancel:
-		if err := o.Repository.CancelOrderStatus(ctx, objectId); err != nil {
-			return nil, err
-		}
+		errChan := make(chan error, 1)
+		var wg sync.WaitGroup
+		wg.Add(1)
 
+		go func (ctx context.Context, objectId primitive.ObjectID) {
+			defer wg.Done()
+			if err := o.Repository.CancelOrderStatus(ctx, objectId); err != nil {
+				errChan <-err
+			}
+		}(ctx, objectId)
+		
 		orderData, _ := o.GetOrderById(ctx, &pb.OrderId{Id: data.OrderId})
 
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
@@ -179,8 +198,18 @@ func (o OrderController) UpdateRestaurantOrderStatus(ctx context.Context, data *
 		if _, err := o.UserService.SetDriverStatusOnline(ctxWithAuth, &userpb.DriverId{Id: orderData.Driver.Id}); err != nil {
 			return nil, err
 		}
-	}
 
+		wg.Wait()
+		close(errChan)
+		if err := <-errChan; err != nil {
+			return nil, err
+		}
+
+	default:
+		if err := o.Repository.UpdateRestaurantStatus(ctx, objectId, data.UserId, data.Status); err != nil {
+			return nil, err
+		}
+	}
 	return &emptypb.Empty{}, nil
 }
 
