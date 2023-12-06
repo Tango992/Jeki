@@ -24,7 +24,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
+// @host jeki-x72poumuyq-et.a.run.app
 // @BasePath /
 func main() {
 	e := echo.New()

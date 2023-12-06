@@ -561,7 +561,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: localhost:8080
+host: jeki-x72poumuyq-et.a.run.app
 info:
   contact:
     email: daniel.rahmanto@gmail.com
@@ -928,6 +928,8 @@ paths:
     get:
       consumes:
       - application/json
+      description: Get order details by order ID. You will need an 'Authorization'
+        cookie attached with this request.
       parameters:
       - description: Id
         in: path

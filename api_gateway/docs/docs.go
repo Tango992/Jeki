@@ -551,6 +551,7 @@ const docTemplate = `{
         },
         "/merchant/orders/{id}": {
             "get": {
+                "description": "Get order details by order ID. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2196,7 +2197,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "jeki-x72poumuyq-et.a.run.app",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Jeki",

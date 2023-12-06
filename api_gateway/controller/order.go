@@ -218,8 +218,8 @@ func (o OrderController) MerchantGetOrderById(c echo.Context) error {
 		return err
 	}
 
-	if user.Role != userRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only user role is allowed"))
+	if user.Role != adminRole {
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -257,8 +257,8 @@ func (o OrderController) DriverGetOrderById(c echo.Context) error {
 		return err
 	}
 
-	if user.Role != userRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only user role is allowed"))
+	if user.Role != driverRole {
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only driver role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
