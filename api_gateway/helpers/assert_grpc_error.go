@@ -19,6 +19,8 @@ func AssertGrpcStatus(err error) error {
 			return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(e.Message()))
 		case codes.NotFound:
 			return echo.NewHTTPError(utils.ErrNotFound.EchoFormatDetails(e.Message()))
+		case codes.PermissionDenied:
+			return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails(e.Message()))
 		case codes.Unauthenticated:
 			return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails(e.Message()))
 		case codes.Internal:
