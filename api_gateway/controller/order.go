@@ -293,7 +293,7 @@ func (o OrderController) MerchantGetAllOrders(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only user role is allowed"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -328,7 +328,7 @@ func (o OrderController) MerchantGetOngoingOrder(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only user role is allowed"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	ctx, cancel, err := helpers.NewServiceContext()
@@ -370,7 +370,7 @@ func (o OrderController) MerchantUpdateOrder(c echo.Context) error {
 	}
 
 	if user.Role != adminRole {
-		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only user role is allowed"))
+		return echo.NewHTTPError(utils.ErrUnauthorized.EchoFormatDetails("Only admin role is allowed"))
 	}
 
 	var statusRequest dto.UpdateOrderStatus

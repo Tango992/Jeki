@@ -6,6 +6,8 @@ import (
 	"api-gateway/helpers"
 	"api-gateway/router"
 	"api-gateway/service"
+	"html/template"
+	"io"
 	"os"
 
 	"github.com/go-playground/validator/v10"
@@ -13,6 +15,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+type Template struct {
+    templates *template.Template
+}
 
 // @title Jeki
 // @version 1.0
@@ -29,6 +35,10 @@ import (
 func main() {
 	e := echo.New()
 	e.Validator = &helpers.CustomValidator{NewValidator: validator.New()}
+	e.Renderer = &Template{
+		templates: template.Must(template.ParseGlob("./template/*.html")),
+	}
+	e.Static("/template", "template/")
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -50,4 +60,8 @@ func main() {
 	router.Echo(e, userController, merchantController, orderController)
 
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+    return t.templates.ExecuteTemplate(w, name, data)
 }

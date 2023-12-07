@@ -1410,16 +1410,16 @@ paths:
       - application/json
       description: Verify the user registration using token sent through an email
       parameters:
-      - description: Verification token
-        in: path
-        name: token
-        required: true
-        type: string
       - description: User ID
         in: path
         name: userid
         required: true
         type: integer
+      - description: Verification token
+        in: path
+        name: token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
