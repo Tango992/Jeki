@@ -95,3 +95,8 @@ func (m *MockMerchantRepository) CreateRestaurant(data *model.Restaurant) error 
 	args := m.Mock.Called(data)
 	return args.Error(0)
 }
+
+func (m *MockMerchantRepository) FindAllCategories() (*pb.Categories, error) {
+	args := m.Mock.Called()
+	return args.Get(0).(*pb.Categories), args.Error(1)
+}

@@ -145,8 +145,8 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 	})
 }
 
-// @Summary 	User login
-// @Description Authenticate and login a user
+// @Summary 	Log in
+// @Description Log users in and embeds a JWt-Auth in cookie
 // @Tags        all user
 // @Accept 		json
 // @Produce 	json
@@ -155,7 +155,7 @@ func (u UserController) Register(c echo.Context, roleId uint, roleName string) e
 // @Failure     400  {object}  utils.ErrResponse
 // @Failure     401  {object}  utils.ErrResponse
 // @Failure     500  {object}  utils.ErrResponse
-// @Router      /users/users/login [post]
+// @Router      /users/login [post]
 func (u UserController) Login(c echo.Context) error {
 	loginReq := new(dto.UserLogin)
 	if err := c.Bind(loginReq); err != nil {
@@ -229,7 +229,7 @@ func (u UserController) Login(c echo.Context) error {
 }
 
 // @Summary 	Logout the user
-// @Description Logout the currently authenticated user
+// @Description Logout the currently authenticated user and clears the authorization cookie
 // @Tags        all user
 // @Accept 		json
 // @Produce 	json
@@ -273,8 +273,8 @@ func (u UserController) Logout(c echo.Context) error {
 	})
 }
 
-// @Summary 	Verify user registration
-// @Description Verify the user registration using token sent through an email
+// @Summary 	Verify user credentials
+// @Description Verify the user registration using unique token sent to the registered email
 // @Tags        all user
 // @Accept 		json
 // @Produce 	json
@@ -307,5 +307,5 @@ func (u UserController) VerifyUser(c echo.Context) error {
 		return helpers.AssertGrpcStatus(err)
 	}
 
-	return c.Redirect(http.StatusTemporaryRedirect, "/user/verified")
+	return c.Redirect(http.StatusTemporaryRedirect, "/users/verified")
 }

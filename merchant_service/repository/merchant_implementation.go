@@ -271,3 +271,21 @@ func (m MerchantRepository) FindRestaurantMetadataByMenuIds(menuIds []int) (*pb.
 	}
 	return restaurantMetadata[0], nil
 }
+
+func (m MerchantRepository)	FindAllCategories() (*pb.Categories, error) {
+	var categories []*pb.Category
+
+	res := m.Db.Table("categories").Scan(&categories)
+
+	if err := res.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	categoriesWrapper := &pb.Categories{
+		Categories: categories,
+	}
+	return categoriesWrapper, nil
+}

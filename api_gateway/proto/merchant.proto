@@ -12,6 +12,7 @@ service Merchant {
   rpc FindRestaurantById(IdRestaurant) returns (RestaurantDetailed);
   rpc FindMenuById(MenuId) returns (Menu);
   rpc CalculateOrder(RequestMenuDetails) returns (CalculateOrderResponse);
+  rpc FindAllCategories(google.protobuf.Empty) returns (Categories);
   // For admin
   rpc CreateRestaurant(NewRestaurantData) returns (IdRestaurant);
   rpc UpdateRestaurant(UpdateRestaurantData) returns (google.protobuf.Empty);
@@ -21,6 +22,15 @@ service Merchant {
   rpc FindRestaurantByAdminId(AdminId) returns (RestaurantData);
   rpc FindMenusByAdminId(AdminId) returns (MenuCompactRepeated);
   rpc FindOneMenuByAdminId(AdminIdMenuId) returns (MenuCompact);
+}
+
+message Categories {
+  repeated Category categories = 1;
+}
+
+message Category {
+  uint32 id = 1;
+  string name = 2;
 }
 
 message CalculateOrderResponse {
@@ -152,9 +162,4 @@ message Menu {
   string name = 2;
   string category = 3;
   float price = 4;
-}
-
-message Category {
-  uint32 id = 1;
-  string category_name = 2;
 }

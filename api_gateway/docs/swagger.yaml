@@ -155,12 +155,23 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  dto.SwaggerResponseGetAllCategories:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/merchantpb.Category'
+        type: array
+        x-order: "1"
+      message:
+        type: string
+        x-order: "0"
+    type: object
   dto.SwaggerResponseGetAllRestaurant:
     properties:
       data:
         allOf:
         - $ref: '#/definitions/merchantpb.RestaurantCompactRepeated'
-        x-order: "2"
+        x-order: "1"
       message:
         type: string
         x-order: "0"
@@ -340,6 +351,13 @@ definitions:
     - email
     - first_name
     - password
+    type: object
+  merchantpb.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   merchantpb.Menu:
     properties:
@@ -574,9 +592,31 @@ info:
   title: Jeki
   version: "1.0"
 paths:
+  /categories:
+    get:
+      description: Retrieve all restaurant datas from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SwaggerResponseGetAllCategories'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Get all categories
+      tags:
+      - all user
   /driver/ongoing:
     get:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieve ongoing order related to the logged in driver. You will
+        need an 'Authorization' cookie attached with this request.
       produces:
       - application/json
       responses:
@@ -592,12 +632,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Driver Get Current Order
+      summary: Get current driver's order
       tags:
       - driver
   /driver/orders:
     get:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieve all orders related to the logged in driver. You will need
+        an 'Authorization' cookie attached with this request.
       produces:
       - application/json
       responses:
@@ -613,14 +654,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Driver Get All Orders
+      summary: Get all driver's orders
       tags:
       - driver
   /driver/orders/{id}:
     get:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieve an order by it's ID. You will need an 'Authorization'
+        cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -648,7 +690,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Updates ongoing order status related to the logged in driver. You
+        will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -680,11 +723,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Driver Update order
+      summary: Update driver's order
       tags:
       - driver
   /menu/{id}:
     get:
+      description: Retrieve specific menu data using the menu id.
       parameters:
       - description: Id
         in: path
@@ -715,7 +759,8 @@ paths:
       - all user
   /merchant/menu:
     get:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieves restaurant menus specific to the current logged in admin.
+        You will need an 'Authorization' cookie attached with this request.
       produces:
       - application/json
       responses:
@@ -735,13 +780,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get Menu By Admin ID
+      summary: Get menu for restaurant admin
       tags:
       - merchant
     post:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Creates new menu data specific to the current logged in admin.
+        You will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Create Menu
         in: body
@@ -768,14 +814,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Create Menu By Admin ID
+      summary: Create menu for restaurant admin
       tags:
       - merchant
   /merchant/menu/{id}:
     delete:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Deletes existing menu for the current logged in admin. You will
+        need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -805,11 +852,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Delete Menu By Admin ID
+      summary: Delete menu for restaurant admin
       tags:
       - merchant
     get:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieves one menu specific to the current logged in admin. You
+        will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -835,13 +883,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get One Menu By Admin ID
+      summary: Get one menu for restaurant admin
       tags:
       - merchant
     put:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Updates existing menu data specific to the current logged in admin.
+        You will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -877,12 +926,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Update Menu By Admin ID
+      summary: Update menu for restaurant admin
       tags:
       - merchant
   /merchant/ongoing:
     get:
-      description: Get ongoing orders for the logged-in merchant (admin). You will
+      description: Retrieve ongoing orders for the logged in merchant admin. You will
         need an 'Authorization' cookie attached with this request.
       produces:
       - application/json
@@ -899,13 +948,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get ongoing orders for a merchant
+      summary: Get ongoing merchant's order
       tags:
       - merchant
   /merchant/orders:
     get:
-      description: Get all orders for the logged-in merchant (admin). You will need
-        an 'Authorization' cookie attached with this request.
+      description: Retrieve all orders for the logged in merchant admin. You will
+        need an 'Authorization' cookie attached with this request.
       produces:
       - application/json
       responses:
@@ -921,14 +970,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get all orders for a merchant
+      summary: Get all merchant's order
       tags:
       - merchant
   /merchant/orders/{id}:
     get:
       consumes:
       - application/json
-      description: Get order details by order ID. You will need an 'Authorization'
+      description: Retrieve order details by it's order ID. You will need an 'Authorization'
         cookie attached with this request.
       parameters:
       - description: Id
@@ -957,7 +1006,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Updates order status to the current logged in merchant admin. You
+        will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Id
         in: path
@@ -989,12 +1039,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Update Order from Merchants
+      summary: Update merchant's order status
       tags:
       - merchant
   /merchant/restaurant:
     get:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Retrieves restaurant data specific to the current logged in admin.
+        You will need an 'Authorization' cookie attached with this request.
       produces:
       - application/json
       responses:
@@ -1018,11 +1069,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get restaurant by Admin ID
+      summary: Get restaurant for restaurant admin
       tags:
       - merchant
     post:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Creates a new restaurant data specific to the current logged in
+        admin. You will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Create Restaurant
         in: body
@@ -1049,11 +1101,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Create Restaurant
+      summary: Create restaurant for restaurant admin
       tags:
       - merchant
     put:
-      description: You will need an 'Authorization' cookie attached with this request.
+      description: Updates existing restaurant data specific to the current logged
+        in admin. You will need an 'Authorization' cookie attached with this request.
       parameters:
       - description: Update Restaurant
         in: body
@@ -1084,11 +1137,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Update Restaurant
+      summary: Update restaurant for restaurant admin
       tags:
       - merchant
   /restaurant:
     get:
+      description: Retrieve all restaurant datas from the database.
       produces:
       - application/json
       responses:
@@ -1109,6 +1163,7 @@ paths:
       - all user
   /restaurant/{id}:
     get:
+      description: Retrieve specific restaurant data using the restaurant id.
       parameters:
       - description: Id
         in: path
@@ -1134,14 +1189,49 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get restaurant By ID
+      summary: Get restaurant by ID
+      tags:
+      - all user
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Log users in and embeds a JWt-Auth in cookie
+      parameters:
+      - description: User login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrResponse'
+      summary: Log in
       tags:
       - all user
   /users/logout:
     get:
       consumes:
       - application/json
-      description: Logout the currently authenticated user
+      description: Logout the currently authenticated user and clears the authorization
+        cookie
       produces:
       - application/json
       responses:
@@ -1160,7 +1250,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get ongoing orders for the logged-in user. You will need an 'Authorization'
+      description: Get ongoing orders for the logged in user. You will need an 'Authorization'
         cookie attached with this request.
       produces:
       - application/json
@@ -1177,14 +1267,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get ongoing orders for a user
+      summary: Get ongoing user orders
       tags:
       - customer
   /users/orders:
     get:
       consumes:
       - application/json
-      description: Get all orders for the logged-in user. You will need an 'Authorization'
+      description: Retrieves all orders for the logged-in user. You will need an 'Authorization'
         cookie attached with this request.
       produces:
       - application/json
@@ -1201,13 +1291,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Get all orders for a user
+      summary: Get all user orders
       tags:
       - customer
     post:
       consumes:
       - application/json
-      description: Create a new order for the logged-in user. You will need an 'Authorization'
+      description: Create a new order for the logged in user. You will need an 'Authorization'
         cookie attached with this request.
       parameters:
       - description: Order details
@@ -1235,14 +1325,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Create a new order by user
+      summary: Create new order
       tags:
       - customer
   /users/orders/{id}:
     get:
       consumes:
       - application/json
-      description: Get order details by order ID. You will need an 'Authorization'
+      description: Get order details by it's order ID. You will need an 'Authorization'
         cookie attached with this request.
       parameters:
       - description: Order ID
@@ -1370,45 +1460,12 @@ paths:
       summary: Register a new user
       tags:
       - customer
-  /users/users/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate and login a user
-      parameters:
-      - description: User login details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserLogin'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.ErrResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/utils.ErrResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.ErrResponse'
-      summary: User login
-      tags:
-      - all user
   /users/verify/{userid}/{token}:
     get:
       consumes:
       - application/json
-      description: Verify the user registration using token sent through an email
+      description: Verify the user registration using unique token sent to the registered
+        email
       parameters:
       - description: User ID
         in: path
@@ -1435,7 +1492,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.ErrResponse'
-      summary: Verify user registration
+      summary: Verify user credentials
       tags:
       - all user
 swagger: "2.0"

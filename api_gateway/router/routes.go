@@ -11,7 +11,7 @@ import (
 )
 
 func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantController, oc controller.OrderController) {
-	e.GET("/user/verified", func(c echo.Context) error {
+	e.GET("/users/verified", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "verification.html", nil)
 	})
 	
@@ -40,6 +40,7 @@ func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantCont
 		restaurants.GET("/:id", mc.GetRestaurantById)
 	}
 	e.GET("menu/:id", mc.GetMenuById)
+	e.GET("categories", mc.GetAllCategories)
 
 	merchant := e.Group("/merchant")
 	merchant.Use(middlewares.RequireAuth)

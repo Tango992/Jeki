@@ -24,8 +24,8 @@ func NewOrderController(client orderpb.OrderServiceClient, maps service.Maps) Or
 	}
 }
 
-// @Summary 	Create a new order by user
-// @Description Create a new order for the logged-in user. You will need an 'Authorization' cookie attached with this request.
+// @Summary 	Create new order
+// @Description Create a new order for the logged in user. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		customer
 // @Accept 		json
 // @Produce 	json
@@ -88,8 +88,8 @@ func (o OrderController) UserCreateOrder(c echo.Context) error {
 	})
 }
 
-// @Summary 	Get all orders for a user
-// @Description Get all orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.
+// @Summary 	Get all user orders
+// @Description Retrieves all orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		customer
 // @Accept 		json
 // @Produce 	json
@@ -124,8 +124,8 @@ func (o OrderController) UsersGetAllOrders(c echo.Context) error {
 	})
 }
 
-// @Summary 	Get ongoing orders for a user
-// @Description Get ongoing orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.
+// @Summary 	Get ongoing user orders
+// @Description Get ongoing orders for the logged in user. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		customer
 // @Accept 		json
 // @Produce 	json
@@ -162,7 +162,7 @@ func (o OrderController) UsersGetOngoingOrder(c echo.Context) error {
 
 // Orders       godoc
 // @Summary 	Get order by ID
-// @Description Get order details by order ID. You will need an 'Authorization' cookie attached with this request.
+// @Description Get order details by it's order ID. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		customer
 // @Accept 		json
 // @Produce 	json
@@ -201,7 +201,7 @@ func (o OrderController) UsersGetOrderById(c echo.Context) error {
 }
 
 // @Summary      Get order by ID
-// @Description Get order details by order ID. You will need an 'Authorization' cookie attached with this request.
+// @Description  Retrieve order details by it's order ID. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Accept       json
 // @Produce      json
@@ -240,7 +240,7 @@ func (o OrderController) MerchantGetOrderById(c echo.Context) error {
 }
 
 // @Summary      Get order by ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Description  Retrieve an order by it's ID. You will need an 'Authorization' cookie attached with this request.
 // @Tags         driver
 // @Accept       json
 // @Produce      json
@@ -278,8 +278,8 @@ func (o OrderController) DriverGetOrderById(c echo.Context) error {
 	})
 }
 
-// @summary 	Get all orders for a merchant
-// @description Get all orders for the logged-in merchant (admin). You will need an 'Authorization' cookie attached with this request.
+// @summary 	Get all merchant's order
+// @description Retrieve all orders for the logged in merchant admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		merchant
 // @Produce 	json
 // @Success 	200 {object} dto.SwaggerResponese
@@ -313,8 +313,8 @@ func (o OrderController) MerchantGetAllOrders(c echo.Context) error {
 	})
 }
 
-// @Summary 	Get ongoing orders for a merchant
-// @Description Get ongoing orders for the logged-in merchant (admin). You will need an 'Authorization' cookie attached with this request.
+// @Summary 	Get ongoing merchant's order
+// @Description Retrieve ongoing orders for the logged in merchant admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags 		merchant
 // @Produce 	json
 // @Success 	200 {object} dto.SwaggerResponese
@@ -349,8 +349,8 @@ func (o OrderController) MerchantGetOngoingOrder(c echo.Context) error {
 }
 
 // Orders        godoc
-// @Summary      Update Order from Merchants
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Update merchant's order status
+// @Description  Updates order status to the current logged in merchant admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Accept       json
 // @Produce      json
@@ -406,8 +406,8 @@ func (o OrderController) MerchantUpdateOrder(c echo.Context) error {
 }
 
 // Orders        godoc
-// @Summary      Driver Get All Orders
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Get all driver's orders
+// @Description  Retrieve all orders related to the logged in driver. You will need an 'Authorization' cookie attached with this request.
 // @Tags         driver
 // @Produce      json
 // @Success      200  {object}  dto.SwaggerResponseDriverGetAllOrders
@@ -442,8 +442,8 @@ func (o OrderController) DriverGetAllOrders(c echo.Context) error {
 }
 
 // Orders        godoc
-// @Summary      Driver Get Current Order
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Get current driver's order
+// @Description  Retrieve ongoing order related to the logged in driver. You will need an 'Authorization' cookie attached with this request.
 // @Tags         driver
 // @Produce      json
 // @Success      200  {object}  dto.SwaggerResponseDriverGetCurrentOrder
@@ -478,8 +478,8 @@ func (o OrderController) DriverGetCurrentOrder(c echo.Context) error {
 }
 
 // Orders        godoc
-// @Summary      Driver Update order
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Update driver's order
+// @Description  Updates ongoing order status related to the logged in driver. You will need an 'Authorization' cookie attached with this request.
 // @Tags         driver
 // @Accept       json
 // @Produce      json
