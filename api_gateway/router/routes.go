@@ -1,14 +1,23 @@
 package router
 
 import (
-	_ "api-gateway/docs"
 	"api-gateway/controller"
+	_ "api-gateway/docs"
 	"api-gateway/middlewares"
-	"github.com/swaggo/echo-swagger"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"github.com/swaggo/echo-swagger"
 )
 
 func Echo(e *echo.Echo, uc controller.UserController, mc controller.MerchantController, oc controller.OrderController) {
+	e.GET("/user/verified", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "verification.html", nil)
+	})
+	
+	e.GET("", func(c echo.Context) error {
+		return c.Redirect(http.StatusTemporaryRedirect, "/swagger/index.html")
+	})
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	users := e.Group("/users")

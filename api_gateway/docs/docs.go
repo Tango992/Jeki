@@ -1287,16 +1287,16 @@ const docTemplate = `{
                 "summary": "Verify user registration",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Verification token",
-                        "name": "token",
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userid",
+                        "type": "string",
+                        "description": "Verification token",
+                        "name": "token",
                         "in": "path",
                         "required": true
                     }

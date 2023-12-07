@@ -278,8 +278,8 @@ func (u UserController) Logout(c echo.Context) error {
 // @Tags        all user
 // @Accept 		json
 // @Produce 	json
-// @Param 		token path string true "Verification token"
 // @Param 		userid path integer true "User ID"
+// @Param 		token path string true "Verification token"
 // @Success 	200 {object} dto.Response
 // @Failure 	400 {object} utils.ErrResponse
 // @Failure 	500 {object} utils.ErrResponse
@@ -307,8 +307,5 @@ func (u UserController) VerifyUser(c echo.Context) error {
 		return helpers.AssertGrpcStatus(err)
 	}
 
-	return c.JSON(http.StatusOK, dto.Response{
-		Message: "Verified",
-		Data:    "You can now enjoy Jeki services!",
-	})
+	return c.Redirect(http.StatusTemporaryRedirect, "/user/verified")
 }
