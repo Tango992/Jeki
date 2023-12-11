@@ -48,9 +48,12 @@ func (r RedisClient) GetRestaurantDetailed(restaurantId uint) (*merchantpb.Resta
 	defer cancel()
 
 	result := r.Client.JSONGet(ctx, key)
+	
+	if result.Val() == "" {
+		return nil, status.Error(codes.NotFound, "requested restaurant does not exist")
+	}
 
 	var resultByte []byte = []byte(result.Val())
-
 	var restaurantData *merchantpb.RestaurantDetailed
 	if err := json.Unmarshal(resultByte, &restaurantData); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

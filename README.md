@@ -1,8 +1,14 @@
 # Jeki
 
+[Feel free to try this API. Click to access the documentation.](https://jeki-x72poumuyq-et.a.run.app)
+
+## Description: 
+
+Food delivery application that integrates customer, driver, and restaurant services seamlessly.
+
 ## Background:
 
-> Food delivery application that integrates customer, driver, and restaurant services seamlessly.
+> Coming from curiosity, "What does it takes to develop an application like GoFood / Grab Food", we tried to reverse engineer the infrastructure and develop our own food delivery application using Go. Utilizing industry standards tech stacks, our small team with 2 weeks timeline, tons of exploration, we managed to execute this application successfully. We learned a lot about building this kind off application, and surely this is our most complex application yet that utilizes microservices.
 
 ## Highlights:
 
