@@ -401,3 +401,11 @@ func (s Server) FindRestaurantByAdminId(ctx context.Context, data *pb.AdminId) (
 	}
 	return restaurant, nil
 }
+
+func (s Server) FindAllCategories(ctx context.Context, data *emptypb.Empty) (*pb.Categories, error) {
+	categories, err := s.Repository.FindAllCategories()
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
+}

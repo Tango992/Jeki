@@ -14,9 +14,14 @@ type SwaggerResponseRegister struct {
 
 // Swagger Merchant
 // For Customers
+
+type SwaggerResponseGetAllCategories struct {
+	Message string                 `json:"message" extensions:"x-order=0"`
+	Data    []*merchantpb.Category `json:"data" extensions:"x-order=1"`
+}
 type SwaggerResponseGetAllRestaurant struct {
 	Message string                                `json:"message" extensions:"x-order=0"`
-	Data    *merchantpb.RestaurantCompactRepeated `json:"data" extensions:"x-order=2"`
+	Data    *merchantpb.RestaurantCompactRepeated `json:"data" extensions:"x-order=1"`
 }
 
 type SwaggerResponseGetRestaurantByID struct {

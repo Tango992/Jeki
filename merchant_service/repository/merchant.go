@@ -23,4 +23,5 @@ type Merchant interface{
 	DeleteMenu(uint, uint) error
 	CreateMenu(*model.Menu) error
 	CreateRestaurant(*model.Restaurant) error
+	FindAllCategories() (*pb.Categories, error)
 }

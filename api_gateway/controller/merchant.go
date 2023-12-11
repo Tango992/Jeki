@@ -28,7 +28,35 @@ func NewMerchantController(client merchantpb.MerchantClient, ms service.Maps) Me
 }
 
 // Merchant      godoc
+// @Summary      Get all categories
+// @Description  Retrieve all restaurant datas from the database.
+// @Tags         all user
+// @Produce      json
+// @Success      200  {object}  dto.SwaggerResponseGetAllCategories
+// @Failure      400  {object}  utils.ErrResponse
+// @Failure      500  {object}  utils.ErrResponse
+// @Router       /categories [get]
+func (m MerchantController) GetAllCategories(c echo.Context) error {
+	ctx, cancel, err := helpers.NewServiceContext()
+	if err != nil {
+		return echo.NewHTTPError(utils.ErrBadRequest.EchoFormatDetails(err.Error()))
+	}
+	defer cancel()
+
+	categories, err := m.Client.FindAllCategories(ctx, &emptypb.Empty{})
+	if err != nil {
+		return helpers.AssertGrpcStatus(err)
+	}
+
+	return c.JSON(http.StatusOK, dto.Response{
+		Message: "Get all categories",
+		Data: categories.Categories,
+	})
+}
+
+// Merchant      godoc
 // @Summary      Get all restaurant datas
+// @Description  Retrieve all restaurant datas from the database.
 // @Tags         all user
 // @Produce      json
 // @Success      200  {object}  dto.SwaggerResponseGetAllRestaurant
@@ -54,7 +82,8 @@ func (m MerchantController) GetAllRestaurantsForCustomer(c echo.Context) error {
 }
 
 // Merchant      godoc
-// @Summary      Get restaurant By ID
+// @Summary      Get restaurant by ID
+// @Description  Retrieve specific restaurant data using the restaurant id.
 // @Tags         all user
 // @Produce      json
 // @Param 		 id   path      int  true  "Id"
@@ -93,6 +122,7 @@ func (m MerchantController) GetRestaurantById(c echo.Context) error {
 
 // Merchant      godoc
 // @Summary      Get menu By ID
+// @Description  Retrieve specific menu data using the menu id.
 // @Tags         all user
 // @Produce      json
 // @Param 		 id   path      int  true  "Id"
@@ -130,8 +160,8 @@ func (m MerchantController) GetMenuById(c echo.Context) error {
 }
 
 // Merchant      godoc
-// @Summary      Get restaurant by Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Get restaurant for restaurant admin
+// @Description  Retrieves restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Produce      json
 // @Success      200  {object}  dto.SwaggerResponseGetRestaurantByAdminID
@@ -168,8 +198,8 @@ func (m MerchantController) GetRestaurantByAdminId(c echo.Context)error {
 }
 
 // Merchant      godoc
-// @Summary      Create Restaurant
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Create restaurant for restaurant admin
+// @Description  Creates a new restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Produce      json
 // @param        request body dto.NewRestaurantData  true  "Create Restaurant"																				// Request Body
@@ -236,8 +266,8 @@ func (m MerchantController) CreateRestaurant(c echo.Context)error{
 }
 
 // Merchant      godoc
-// @Summary      Update Restaurant
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Update restaurant for restaurant admin
+// @Description  Updates existing restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Produce      json
 // @param        request body dto.UpdateRestaurantData  true  "Update Restaurant"
@@ -303,8 +333,8 @@ func (m MerchantController) UpdateRestaurant(c echo.Context) error{
 }
 
 // Merchant      godoc
-// @Summary      Get Menu By Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Get menu for restaurant admin
+// @Description  Retrieves restaurant menus specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Produce      json
 // @Success      200  {object}  dto.SwaggerResponseGetMenuByAdminID
@@ -340,8 +370,8 @@ func (m MerchantController) GetMenuByAdminId(c echo.Context)error{
 }
 
 // Merchant      godoc
-// @Summary      Get One Menu By Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Get one menu for restaurant admin
+// @Description  Retrieves one menu specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Produce      json
 // @Param 		 id   path      int  true  "Id"
@@ -389,8 +419,8 @@ func (m MerchantController) GetOneMenuByAdminId(c echo.Context) error {
 }
 
 // Merchant      godoc
-// @Summary      Create Menu By Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Create menu for restaurant admin
+// @Description  Creates new menu data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Accept       json
 // @Produce      json
@@ -445,8 +475,8 @@ func (m MerchantController) CreateMenu(c echo.Context) error {
 }
 
 // Merchant      godoc
-// @Summary      Update Menu By Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Update menu for restaurant admin
+// @Description  Updates existing menu data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Accept       json
 // @Produce      json
@@ -510,8 +540,8 @@ func (m MerchantController) UpdateMenu(c echo.Context) error {
 
 
 // Merchant      godoc
-// @Summary      Delete Menu By Admin ID
-// @Description  You will need an 'Authorization' cookie attached with this request.
+// @Summary      Delete menu for restaurant admin
+// @Description  Deletes existing menu for the current logged in admin. You will need an 'Authorization' cookie attached with this request.
 // @Tags         merchant
 // @Accept       json
 // @Produce      json

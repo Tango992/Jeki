@@ -28,6 +28,7 @@ type MerchantClient interface {
 	FindRestaurantById(ctx context.Context, in *IdRestaurant, opts ...grpc.CallOption) (*RestaurantDetailed, error)
 	FindMenuById(ctx context.Context, in *MenuId, opts ...grpc.CallOption) (*Menu, error)
 	CalculateOrder(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*CalculateOrderResponse, error)
+	FindAllCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Categories, error)
 	// For admin
 	CreateRestaurant(ctx context.Context, in *NewRestaurantData, opts ...grpc.CallOption) (*IdRestaurant, error)
 	UpdateRestaurant(ctx context.Context, in *UpdateRestaurantData, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -77,6 +78,15 @@ func (c *merchantClient) FindMenuById(ctx context.Context, in *MenuId, opts ...g
 func (c *merchantClient) CalculateOrder(ctx context.Context, in *RequestMenuDetails, opts ...grpc.CallOption) (*CalculateOrderResponse, error) {
 	out := new(CalculateOrderResponse)
 	err := c.cc.Invoke(ctx, "/merchant.Merchant/CalculateOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *merchantClient) FindAllCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Categories, error) {
+	out := new(Categories)
+	err := c.cc.Invoke(ctx, "/merchant.Merchant/FindAllCategories", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +174,7 @@ type MerchantServer interface {
 	FindRestaurantById(context.Context, *IdRestaurant) (*RestaurantDetailed, error)
 	FindMenuById(context.Context, *MenuId) (*Menu, error)
 	CalculateOrder(context.Context, *RequestMenuDetails) (*CalculateOrderResponse, error)
+	FindAllCategories(context.Context, *emptypb.Empty) (*Categories, error)
 	// For admin
 	CreateRestaurant(context.Context, *NewRestaurantData) (*IdRestaurant, error)
 	UpdateRestaurant(context.Context, *UpdateRestaurantData) (*emptypb.Empty, error)
@@ -191,6 +202,9 @@ func (UnimplementedMerchantServer) FindMenuById(context.Context, *MenuId) (*Menu
 }
 func (UnimplementedMerchantServer) CalculateOrder(context.Context, *RequestMenuDetails) (*CalculateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CalculateOrder not implemented")
+}
+func (UnimplementedMerchantServer) FindAllCategories(context.Context, *emptypb.Empty) (*Categories, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindAllCategories not implemented")
 }
 func (UnimplementedMerchantServer) CreateRestaurant(context.Context, *NewRestaurantData) (*IdRestaurant, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRestaurant not implemented")
@@ -297,6 +311,24 @@ func _Merchant_CalculateOrder_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MerchantServer).CalculateOrder(ctx, req.(*RequestMenuDetails))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Merchant_FindAllCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServer).FindAllCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/merchant.Merchant/FindAllCategories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServer).FindAllCategories(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -467,6 +499,10 @@ var Merchant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CalculateOrder",
 			Handler:    _Merchant_CalculateOrder_Handler,
+		},
+		{
+			MethodName: "FindAllCategories",
+			Handler:    _Merchant_FindAllCategories_Handler,
 		},
 		{
 			MethodName: "CreateRestaurant",

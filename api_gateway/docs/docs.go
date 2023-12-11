@@ -22,16 +22,48 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/categories": {
+            "get": {
+                "description": "Retrieve all restaurant datas from the database.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "all user"
+                ],
+                "summary": "Get all categories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SwaggerResponseGetAllCategories"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/driver/ongoing": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve ongoing order related to the logged in driver. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "driver"
                 ],
-                "summary": "Driver Get Current Order",
+                "summary": "Get current driver's order",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -56,14 +88,14 @@ const docTemplate = `{
         },
         "/driver/orders": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve all orders related to the logged in driver. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "driver"
                 ],
-                "summary": "Driver Get All Orders",
+                "summary": "Get all driver's orders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -88,7 +120,7 @@ const docTemplate = `{
         },
         "/driver/orders/{id}": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve an order by it's ID. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -130,7 +162,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Updates ongoing order status related to the logged in driver. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -140,7 +172,7 @@ const docTemplate = `{
                 "tags": [
                     "driver"
                 ],
-                "summary": "Driver Update order",
+                "summary": "Update driver's order",
                 "parameters": [
                     {
                         "type": "integer",
@@ -189,6 +221,7 @@ const docTemplate = `{
         },
         "/menu/{id}": {
             "get": {
+                "description": "Retrieve specific menu data using the menu id.",
                 "produces": [
                     "application/json"
                 ],
@@ -235,14 +268,14 @@ const docTemplate = `{
         },
         "/merchant/menu": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieves restaurant menus specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Get Menu By Admin ID",
+                "summary": "Get menu for restaurant admin",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -271,7 +304,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Creates new menu data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -281,7 +314,7 @@ const docTemplate = `{
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Create Menu By Admin ID",
+                "summary": "Create menu for restaurant admin",
                 "parameters": [
                     {
                         "description": "Create Menu",
@@ -323,14 +356,14 @@ const docTemplate = `{
         },
         "/merchant/menu/{id}": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieves one menu specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Get One Menu By Admin ID",
+                "summary": "Get one menu for restaurant admin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -368,7 +401,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Updates existing menu data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -378,7 +411,7 @@ const docTemplate = `{
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Update Menu By Admin ID",
+                "summary": "Update menu for restaurant admin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -431,7 +464,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Deletes existing menu for the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -441,7 +474,7 @@ const docTemplate = `{
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Delete Menu By Admin ID",
+                "summary": "Delete menu for restaurant admin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -487,14 +520,14 @@ const docTemplate = `{
         },
         "/merchant/ongoing": {
             "get": {
-                "description": "Get ongoing orders for the logged-in merchant (admin). You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve ongoing orders for the logged in merchant admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Get ongoing orders for a merchant",
+                "summary": "Get ongoing merchant's order",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -519,14 +552,14 @@ const docTemplate = `{
         },
         "/merchant/orders": {
             "get": {
-                "description": "Get all orders for the logged-in merchant (admin). You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve all orders for the logged in merchant admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Get all orders for a merchant",
+                "summary": "Get all merchant's order",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -551,7 +584,7 @@ const docTemplate = `{
         },
         "/merchant/orders/{id}": {
             "get": {
-                "description": "Get order details by order ID. You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieve order details by it's order ID. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -593,7 +626,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Updates order status to the current logged in merchant admin. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -603,7 +636,7 @@ const docTemplate = `{
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Update Order from Merchants",
+                "summary": "Update merchant's order status",
                 "parameters": [
                     {
                         "type": "string",
@@ -652,14 +685,14 @@ const docTemplate = `{
         },
         "/merchant/restaurant": {
             "get": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieves restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Get restaurant by Admin ID",
+                "summary": "Get restaurant for restaurant admin",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -694,14 +727,14 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Updates existing restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Update Restaurant",
+                "summary": "Update restaurant for restaurant admin",
                 "parameters": [
                     {
                         "description": "Update Restaurant",
@@ -747,14 +780,14 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "You will need an 'Authorization' cookie attached with this request.",
+                "description": "Creates a new restaurant data specific to the current logged in admin. You will need an 'Authorization' cookie attached with this request.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "merchant"
                 ],
-                "summary": "Create Restaurant",
+                "summary": "Create restaurant for restaurant admin",
                 "parameters": [
                     {
                         "description": "Create Restaurant",
@@ -796,6 +829,7 @@ const docTemplate = `{
         },
         "/restaurant": {
             "get": {
+                "description": "Retrieve all restaurant datas from the database.",
                 "produces": [
                     "application/json"
                 ],
@@ -827,13 +861,14 @@ const docTemplate = `{
         },
         "/restaurant/{id}": {
             "get": {
+                "description": "Retrieve specific restaurant data using the restaurant id.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "all user"
                 ],
-                "summary": "Get restaurant By ID",
+                "summary": "Get restaurant by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -871,9 +906,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/login": {
+            "post": {
+                "description": "Log users in and embeds a JWt-Auth in cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "all user"
+                ],
+                "summary": "Log in",
+                "parameters": [
+                    {
+                        "description": "User login details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/logout": {
             "get": {
-                "description": "Logout the currently authenticated user",
+                "description": "Logout the currently authenticated user and clears the authorization cookie",
                 "consumes": [
                     "application/json"
                 ],
@@ -902,7 +989,7 @@ const docTemplate = `{
         },
         "/users/ongoing": {
             "get": {
-                "description": "Get ongoing orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.",
+                "description": "Get ongoing orders for the logged in user. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -912,7 +999,7 @@ const docTemplate = `{
                 "tags": [
                     "customer"
                 ],
-                "summary": "Get ongoing orders for a user",
+                "summary": "Get ongoing user orders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -937,7 +1024,7 @@ const docTemplate = `{
         },
         "/users/orders": {
             "get": {
-                "description": "Get all orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.",
+                "description": "Retrieves all orders for the logged-in user. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -947,7 +1034,7 @@ const docTemplate = `{
                 "tags": [
                     "customer"
                 ],
-                "summary": "Get all orders for a user",
+                "summary": "Get all user orders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -970,7 +1057,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new order for the logged-in user. You will need an 'Authorization' cookie attached with this request.",
+                "description": "Create a new order for the logged in user. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -980,7 +1067,7 @@ const docTemplate = `{
                 "tags": [
                     "customer"
                 ],
-                "summary": "Create a new order by user",
+                "summary": "Create new order",
                 "parameters": [
                     {
                         "description": "Order details",
@@ -1022,7 +1109,7 @@ const docTemplate = `{
         },
         "/users/orders/{id}": {
             "get": {
-                "description": "Get order details by order ID. You will need an 'Authorization' cookie attached with this request.",
+                "description": "Get order details by it's order ID. You will need an 'Authorization' cookie attached with this request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1220,61 +1307,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/users/login": {
-            "post": {
-                "description": "Authenticate and login a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "all user"
-                ],
-                "summary": "User login",
-                "parameters": [
-                    {
-                        "description": "User login details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserLogin"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/users/verify/{userid}/{token}": {
             "get": {
-                "description": "Verify the user registration using token sent through an email",
+                "description": "Verify the user registration using unique token sent to the registered email",
                 "consumes": [
                     "application/json"
                 ],
@@ -1284,7 +1319,7 @@ const docTemplate = `{
                 "tags": [
                     "all user"
                 ],
-                "summary": "Verify user registration",
+                "summary": "Verify user credentials",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1560,6 +1595,22 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.SwaggerResponseGetAllCategories": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/merchantpb.Category"
+                    },
+                    "x-order": "1"
+                }
+            }
+        },
         "dto.SwaggerResponseGetAllRestaurant": {
             "type": "object",
             "properties": {
@@ -1573,7 +1624,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/merchantpb.RestaurantCompactRepeated"
                         }
                     ],
-                    "x-order": "2"
+                    "x-order": "1"
                 }
             }
         },
@@ -1850,6 +1901,17 @@ const docTemplate = `{
                 "birth_date": {
                     "type": "string",
                     "x-order": "4"
+                }
+            }
+        },
+        "merchantpb.Category": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
