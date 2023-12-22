@@ -12,7 +12,9 @@ Food delivery application that integrates customer, driver, and restaurant servi
 
 ## Highlights:
 
+* Microservices Architecture
 * Google Maps Integration
+* Serverless Deployment with Google Cloud Run
 * Payment Gateway (Xendit)
 * Email notifications
 
@@ -21,6 +23,7 @@ Food delivery application that integrates customer, driver, and restaurant servi
 * Go
 * Echo
 * gRPC
+* Docker
 * PostgreSQL
 * MongoDB
 * Redis
