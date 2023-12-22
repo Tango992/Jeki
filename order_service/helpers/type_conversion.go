@@ -3,6 +3,8 @@ package helpers
 import (
 	"order-service/model"
 	pb "order-service/pb/orderpb"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func AssertOrdersToPb(ordersTmp []model.Order) []*pb.Order {
@@ -81,4 +83,71 @@ func AssertOrderToPb(orderTmp model.Order) *pb.Order {
 		Payment: paymentData,
 	}
 	return order
+}
+
+func AssertOrderResponseToPb(objectId primitive.ObjectID, restaurant model.Restaurant, orderDetail model.OrderDetail, user model.User, driver model.Driver, payment model.Payment) *pb.Order {
+	restaurantPb := &pb.Restaurant{
+		Id: uint32(restaurant.Id),
+		AdminId: uint32(restaurant.AdminId),
+		Name: restaurant.Name,
+		Address: &pb.Address{
+			Latitude: restaurant.Address.Latitude,
+			Longitude: restaurant.Address.Longitude,
+		},
+		Status: restaurant.Status,
+	}
+
+	var menus []*pb.Menu
+	for _, menuTmp := range orderDetail.Menus {
+		menu := &pb.Menu{
+			Id: uint32(menuTmp.Id),
+			Name: menuTmp.Name,
+			Quantity: uint32(menuTmp.Qty),
+			Price: menuTmp.Price,
+			Subtotal: menuTmp.Subtotal,
+		}
+		menus = append(menus, menu)
+	}
+
+	orderDetailPb := &pb.OrderDetail{
+		Menu: menus,
+		ItemsSubtotal: orderDetail.ItemsSubtotal,
+		DeliveryFee: orderDetail.DeliveryFee,
+		GrandTotal: orderDetail.GrandTotal,
+		Status: orderDetail.Status,
+		CreatedAt: orderDetail.CreatedAt.Time().Format("2006-01-02 15:04:05"),
+	}
+
+	userPb := &pb.User{
+		UserId: uint32(user.Id),
+		Name: user.Name,
+		Email: user.Email,
+		Address: &pb.Address{
+			Latitude: user.Address.Latitude,
+			Longitude: user.Address.Longitude,
+		},
+	}
+
+	driverPb := &pb.Driver{
+		Id: uint32(driver.Id),
+		Name: driver.Name,
+		Status: driver.Status,
+	}
+	
+	paymentPb := &pb.Payment{
+		InvoiceId: payment.InvoiceId,
+		InvoiceUrl: payment.InvoiceUrl,
+		Total: payment.Total,
+		Method: payment.Method,
+		Status: payment.Status,
+	}
+	
+	return &pb.Order{
+		ObjectId: objectId.Hex(),
+		Restaurant: restaurantPb,
+		OrderDetail: orderDetailPb,
+		User: userPb,
+		Driver: driverPb,
+		Payment: paymentPb,
+	}
 }
