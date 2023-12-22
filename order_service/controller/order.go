@@ -326,9 +326,6 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		return nil, err
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-
 	response := helpers.AssertOrderResponseToPb(newObjectId, restaurantData, orderDetailData, userData, driverData, paymentData)
 	return response, nil
 }
