@@ -28,7 +28,7 @@ func NewMerchantController(r repository.Merchant, cs service.CachingService) Ser
 	}
 }
 
-// Gets restaurant data from database into caching service. Returns the restaurant data if needed and an error.
+// Gets restaurant data from database and cache service. Returns the restaurant data if needed and an error.
 func (s Server) CacheRestaurantDetailed(restaurantID uint32) (*pb.RestaurantDetailed, error) {
 	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
 	menusChan := make(chan []*pb.Menu, 1)
