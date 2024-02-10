@@ -30,7 +30,7 @@ type Template struct {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host jeki-x72poumuyq-et.a.run.app
+// @host jeki-egmflbdzpa-et.a.run.app
 // @BasePath /
 func main() {
 	e := echo.New()
