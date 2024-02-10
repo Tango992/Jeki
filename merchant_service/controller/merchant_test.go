@@ -56,7 +56,7 @@ func TestCacheRestaurantDetailed(t *testing.T) {
 
 	mockCachingService.Mock.On("SetRestaurantDetailed", uint(restaurantID), mock.Anything).Return(nil)
 	
-	err := merchantController.CacheRestaurantDetailed(restaurantID)
+	_, err := merchantController.CacheRestaurantDetailed(restaurantID)
 	assert.Nil(t, err)
 }
 

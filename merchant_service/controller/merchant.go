@@ -8,7 +8,6 @@ import (
 	pb "merchant-service/pb/merchantpb"
 	"merchant-service/repository"
 	"merchant-service/service"
-	"sync"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -29,8 +28,8 @@ func NewMerchantController(r repository.Merchant, cs service.CachingService) Ser
 	}
 }
 
-func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
-	errChan := make(chan error, 2)
+// Gets restaurant data from database into caching service. Returns the restaurant data if needed and an error.
+func (s Server) CacheRestaurantDetailed(restaurantID uint32) (*pb.RestaurantDetailed, error) {
 	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
 	menusChan := make(chan []*pb.Menu, 1)
 	g, _ := errgroup.WithContext(context.Background())
@@ -54,10 +53,9 @@ func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
 	})
 
 	if err := g.Wait(); err != nil {
-		return err
+		return nil, err
 	}
 
-	close(errChan)
 	close(restaurantChan)
 	close(menusChan)
 
@@ -74,9 +72,9 @@ func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
 	}
 
 	if err := s.CachingService.SetRestaurantDetailed(uint(restaurantID), pbRestaurantData); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return pbRestaurantData, nil
 }
 
 func (s Server) FindAllRestaurants(ctx context.Context, empty *emptypb.Empty) (*pb.RestaurantCompactRepeated, error) {
@@ -112,53 +110,12 @@ func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) 
 		return result, nil
 	}
 
-	errChan := make(chan error, 2)
-	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
-	menusChan := make(chan []*pb.Menu, 1)
-	g, _ := errgroup.WithContext(ctx)
-
-	g.Go(func() error {
-		restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
-		if err != nil {
-			return err
-		}
-		restaurantChan <- restaurant
-		return nil
-	})
-
-	g.Go(func() error {
-		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
-		if err != nil {
-			return err
-		}
-		menusChan <- menus
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
+	restaurantData, err := s.CacheRestaurantDetailed(restaurantID)
+	if err != nil {
 		return nil, err
 	}
 
-	close(errChan)
-	close(restaurantChan)
-	close(menusChan)
-
-	restaurant := <-restaurantChan
-	menus := <-menusChan
-
-	pbRestaurantData := &pb.RestaurantDetailed{
-		Id:        restaurant.Id,
-		Name:      restaurant.Name,
-		Address:   restaurant.Address,
-		Latitude:  restaurant.Latitude,
-		Longitude: restaurant.Longitude,
-		Menus:     menus,
-	}
-
-	if err := s.CachingService.SetRestaurantDetailed(uint(idReq.Id), pbRestaurantData); err != nil {
-		return nil, err
-	}
-	return pbRestaurantData, nil
+	return restaurantData, nil
 }
 
 func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuId, error) {
@@ -184,7 +141,7 @@ func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuI
 		return nil, err
 	}
 
-	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
+	if _, err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &pb.MenuId{Id: uint32(menuData.ID)}, nil
@@ -200,7 +157,7 @@ func (s Server) DeleteMenu(ctx context.Context, data *pb.AdminIdMenuId) (*emptyp
 		return nil, err
 	}
 
-	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
+	if _, err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -219,7 +176,7 @@ func (s Server) CreateRestaurant(ctx context.Context, data *pb.NewRestaurantData
 		return nil, err
 	}
 
-	if err := s.CacheRestaurantDetailed(uint32(restaurantData.ID)); err != nil {
+	if _, err := s.CacheRestaurantDetailed(uint32(restaurantData.ID)); err != nil {
 		return nil, err
 	}
 	return &pb.IdRestaurant{Id: uint32(restaurantData.ID)}, nil
@@ -234,41 +191,34 @@ func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, er
 }
 
 func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	errChan := make(chan error, 2)
 	restaurantAdminIdChan := make(chan uint32, 1)
 	restaurantIdChan := make(chan uint, 1)
+	g, _ := errgroup.WithContext(ctx)
 
-	go func() {
-		defer wg.Done()
+	g.Go(func() error {
 		restaurantAdminId, err := s.Repository.FindAdminIdByMenuId(data.MenuId)
 		if err != nil {
-			errChan <- err
+			return err
 		}
 		restaurantAdminIdChan <- restaurantAdminId
-	}()
+		return nil
+	})
 
-	go func() {
-		defer wg.Done()
+	g.Go(func() error {
 		restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
 		if err != nil {
-			errChan <- err
+			return err
 		}
 		restaurantIdChan <- restaurantId
-	}()
+		return nil
+	})
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	close(restaurantAdminIdChan)
 	close(restaurantIdChan)
-	close(errChan)
-
-	for err := range errChan {
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	if <-restaurantAdminIdChan != data.AdminId {
 		return nil, status.Error(codes.PermissionDenied, "invalid admin access to edit menu data")
@@ -278,7 +228,7 @@ func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*empty
 		return nil, err
 	}
 
-	if err := s.CacheRestaurantDetailed(uint32(<-restaurantIdChan)); err != nil {
+	if _, err := s.CacheRestaurantDetailed(uint32(<-restaurantIdChan)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -294,7 +244,7 @@ func (s Server) UpdateRestaurant(ctx context.Context, data *pb.UpdateRestaurantD
 		return nil, err
 	}
 
-	if err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
+	if _, err := s.CacheRestaurantDetailed(uint32(restaurantId)); err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
@@ -311,41 +261,34 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 		menuIds = append(menuIds, int(val.Id))
 	}
 
-	var wg sync.WaitGroup
-	errChan := make(chan error, 2)
+	g, _ := errgroup.WithContext(ctx)
 	restaurantDataChan := make(chan *pb.RestaurantMetadata, 1)
 	menuDatasChan := make(chan []dto.MenuTmp, 1)
 
-	wg.Add(2)
-
-	go func(menuIds []int) {
-		defer wg.Done()
+	g.Go(func() error {
 		restaurantData, err := s.Repository.FindRestaurantMetadataByMenuIds(menuIds)
 		if err != nil {
-			errChan <- err
+			return err
 		}
 		restaurantDataChan <- restaurantData
-	}(menuIds)
+		return nil
+	})
 
-	go func(menuIds []int) {
-		defer wg.Done()
+	g.Go(func() error {
 		menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
 		if err != nil {
-			errChan <- err
+			return err
 		}
 		menuDatasChan <- menuDatas
-	}(menuIds)
+		return nil
+	})
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	close(restaurantDataChan)
 	close(menuDatasChan)
-	close(errChan)
-
-	for err := range errChan {
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	pbMenuDetails := []*pb.ResponseMenuDetail{}
 	for _, menu := range <-menuDatasChan {
