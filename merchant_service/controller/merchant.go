@@ -10,6 +10,7 @@ import (
 	"merchant-service/service"
 	"sync"
 
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -17,52 +18,48 @@ import (
 
 type Server struct {
 	pb.UnimplementedMerchantServer
-	Repository repository.Merchant
+	Repository     repository.Merchant
 	CachingService service.CachingService
 }
 
 func NewMerchantController(r repository.Merchant, cs service.CachingService) Server {
 	return Server{
-		Repository: r,
+		Repository:     r,
 		CachingService: cs,
 	}
 }
 
 func (s Server) CacheRestaurantDetailed(restaurantID uint32) error {
-	var wg sync.WaitGroup
-	wg.Add(2)
 	errChan := make(chan error, 2)
 	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
 	menusChan := make(chan []*pb.Menu, 1)
+	g, _ := errgroup.WithContext(context.Background())
 
-	go func (restaurantID uint32)  {
-		defer wg.Done()
+	g.Go(func() error {
 		restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
-		if err != nil {
-			errChan <-err
-		}
-		restaurantChan <-restaurant
-	}(restaurantID)
-	
-	go func (restaurantID uint32)  {
-		defer wg.Done()
-		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
-		if err != nil {
-			errChan <-err
-		}
-		menusChan <-menus
-	}(restaurantID)
-	
-	wg.Wait()
-	close(errChan)
-	close(restaurantChan)
-	close(menusChan)
-	
-	for err := range errChan{
 		if err != nil {
 			return err
 		}
+		restaurantChan <- restaurant
+		return nil
+	})
+
+	g.Go(func() error {
+		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
+		if err != nil {
+			return err
+		}
+		menusChan <- menus
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return err
 	}
+
+	close(errChan)
+	close(restaurantChan)
+	close(menusChan)
 
 	restaurant := <-restaurantChan
 	menus := <-menusChan
@@ -115,40 +112,36 @@ func (s Server) FindRestaurantById(ctx context.Context, idReq *pb.IdRestaurant) 
 		return result, nil
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
 	errChan := make(chan error, 2)
 	restaurantChan := make(chan dto.RestaurantDataCompact, 1)
 	menusChan := make(chan []*pb.Menu, 1)
+	g, _ := errgroup.WithContext(ctx)
 
-	go func (restaurantID uint32)  {
-		defer wg.Done()
+	g.Go(func() error {
 		restaurant, err := s.Repository.FindRestaurantByID(restaurantID)
 		if err != nil {
-			errChan <-err
+			return err
 		}
-		restaurantChan <-restaurant
-	}(restaurantID)
-	
-	go func (restaurantID uint32)  {
-		defer wg.Done()
+		restaurantChan <- restaurant
+		return nil
+	})
+
+	g.Go(func() error {
 		menus, err := s.Repository.FindMenuByRestaurantId(restaurantID)
 		if err != nil {
-			errChan <-err
+			return err
 		}
-		menusChan <-menus
-	}(restaurantID)
-	
-	wg.Wait()
+		menusChan <- menus
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	close(errChan)
 	close(restaurantChan)
 	close(menusChan)
-	
-	for err := range errChan{
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	restaurant := <-restaurantChan
 	menus := <-menusChan
@@ -186,7 +179,7 @@ func (s Server) CreateMenu(ctx context.Context, data *pb.NewMenuData) (*pb.MenuI
 		CategoryId:   uint(data.CategoryId),
 		Price:        data.Price,
 	}
-	
+
 	if err := s.Repository.CreateMenu(&menuData); err != nil {
 		return nil, err
 	}
@@ -240,7 +233,7 @@ func (s Server) FindMenuById(ctx context.Context, data *pb.MenuId) (*pb.Menu, er
 	return menu, nil
 }
 
-func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {	
+func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*emptypb.Empty, error) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -248,30 +241,30 @@ func (s Server) UpdateMenu(ctx context.Context, data *pb.UpdateMenuData) (*empty
 	restaurantAdminIdChan := make(chan uint32, 1)
 	restaurantIdChan := make(chan uint, 1)
 
-	go func ()  {
+	go func() {
 		defer wg.Done()
 		restaurantAdminId, err := s.Repository.FindAdminIdByMenuId(data.MenuId)
 		if err != nil {
-			errChan <-err
+			errChan <- err
 		}
-		restaurantAdminIdChan <-restaurantAdminId
+		restaurantAdminIdChan <- restaurantAdminId
 	}()
 
-	go func ()  {
+	go func() {
 		defer wg.Done()
 		restaurantId, err := s.Repository.FindRestaurantIdByAdminId(data.AdminId)
 		if err != nil {
-			errChan <-err
+			errChan <- err
 		}
-		restaurantIdChan <-restaurantId
+		restaurantIdChan <- restaurantId
 	}()
-	
+
 	wg.Wait()
 	close(restaurantAdminIdChan)
 	close(restaurantIdChan)
 	close(errChan)
-	
-	for err := range errChan{
+
+	for err := range errChan {
 		if err != nil {
 			return nil, err
 		}
@@ -325,22 +318,22 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 
 	wg.Add(2)
 
-	go func (menuIds []int)  {
+	go func(menuIds []int) {
 		defer wg.Done()
 		restaurantData, err := s.Repository.FindRestaurantMetadataByMenuIds(menuIds)
 		if err != nil {
-			errChan <-err
+			errChan <- err
 		}
-		restaurantDataChan <-restaurantData
+		restaurantDataChan <- restaurantData
 	}(menuIds)
 
-	go func (menuIds []int)  {
+	go func(menuIds []int) {
 		defer wg.Done()
 		menuDatas, err := s.Repository.FindMultipleMenuDetails(menuIds)
 		if err != nil {
-			errChan <-err
+			errChan <- err
 		}
-		menuDatasChan <-menuDatas
+		menuDatasChan <- menuDatas
 	}(menuIds)
 
 	wg.Wait()
@@ -370,7 +363,7 @@ func (s Server) CalculateOrder(ctx context.Context, data *pb.RequestMenuDetails)
 	}
 
 	return &pb.CalculateOrderResponse{
-		RestaurantData: <-restaurantDataChan,
+		RestaurantData:      <-restaurantDataChan,
 		ResponseMenuDetails: pbMenuDetails,
 	}, nil
 }
