@@ -38,6 +38,11 @@ func (r RedisClient) SetRestaurantDetailed(restaurantId uint, data any) error {
 	if err := result.Err(); err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
+
+	if err := r.Client.ExpireNX(ctx, key, 2 * time.Hour).Err(); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
 	return nil
 }
 
@@ -48,12 +53,11 @@ func (r RedisClient) GetRestaurantDetailed(restaurantId uint) (*merchantpb.Resta
 	defer cancel()
 
 	result := r.Client.JSONGet(ctx, key)
-	
+	resultByte := []byte(result.Val())
 	if result.Val() == "" {
-		return nil, status.Error(codes.NotFound, "requested restaurant does not exist")
+		return nil, nil
 	}
 
-	var resultByte []byte = []byte(result.Val())
 	var restaurantData *merchantpb.RestaurantDetailed
 	if err := json.Unmarshal(resultByte, &restaurantData); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
