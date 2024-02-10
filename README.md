@@ -51,3 +51,16 @@ Food delivery application that integrates customer, driver, and restaurant servi
 ### Order Service (MongoDB)
 
 ![ERD](./misc/order_erd.svg)
+
+## Deployment
+
+This app is containerized and deployed to Google Cloud Run as a microservices. This means for each service (user_service, order_service, merchant_service, and api_gateway) is a separate instance. 
+
+To deploy, go to the root folder for each service and type:
+
+```bash
+gcloud builds submit --pack image=gcr.io/[PROJECT-ID]/[SERVICE-NAME]
+```
+
+- __PROJECT-ID__ refers to the project's ID on Google Cloud Console.
+- __SERVICE-NAME__ refers to the service name that you want to deploy. Example: order-service.
