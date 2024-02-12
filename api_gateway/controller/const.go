@@ -9,10 +9,3 @@ const (
 	driverRole = "driver"
 	adminRole = "admin"
 )
-
-// Order service
-const (
-	orderStatusProcess = "process"
-	orderStatusDone = "done"
-	orderStatusCancel = "cancelled"
-)

@@ -87,11 +87,6 @@ func TestRegister(t *testing.T) {
 		Token:  dummyToken,
 	}
 
-	pbResponse := &userpb.RegisterResponse{
-		UserId: uint32(dummyUserID),
-		CreatedAt: newUser.CreatedAt,
-	}
-
 	mockRepository.Mock.On("CreateUser", &newUser).Return(error(nil)).Run(func(args mock.Arguments) {
 		userData := args.Get(0).(*models.User)
 		userData.ID = dummyUserID

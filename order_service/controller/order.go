@@ -244,7 +244,7 @@ func (o OrderController) PostOrder(ctx context.Context, data *pb.RequestOrderDat
 		RequestMenuDetails: requestMenus,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	ctxWithAuth := grpcMetadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
