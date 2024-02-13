@@ -40,17 +40,16 @@ func main() {
 	}
 	e.Static("/template", "template/")
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(middleware.Logger(), middleware.Recover(), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 
-	conn, userClient := config.InitUserServiceClient()
-	defer conn.Close()
-
-	conn, merchantClient := config.InitMerchantServiceClient()
-	defer conn.Close()
-
-	conn, orderClient := config.InitOrderServiceClient()
-	defer conn.Close()
+	userClientConn, userClient := config.InitUserServiceClient()
+	defer userClientConn.Close()
+	
+	merchantClientConn, merchantClient := config.InitMerchantServiceClient()
+	defer merchantClientConn.Close()
+	
+	orderClientConn, orderClient := config.InitOrderServiceClient()
+	defer orderClientConn.Close()
 
 	mapsService := service.NewMapsService()
 	userController := controller.NewUserController(userClient)
