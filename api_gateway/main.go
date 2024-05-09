@@ -21,7 +21,7 @@ type Template struct {
 }
 
 // @title Jeki
-// @version 1.0.1
+// @version 1.0.2
 // @description Food delivery app built with microservices that integrates customer, driver, and restaurant.
 
 // @contact.name Contact the developer
