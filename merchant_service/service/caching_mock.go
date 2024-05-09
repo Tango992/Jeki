@@ -14,7 +14,7 @@ func NewMockCachingService() MockCachingService {
 	return MockCachingService{}
 }
 
-func (m *MockCachingService) SetRestaurantDetailed(restaurantId uint, data any) error {
+func (m *MockCachingService) SetRestaurantDetailed(restaurantId uint, data *merchantpb.RestaurantDetailed) error {
 	args := m.Mock.Called(restaurantId, data)
 	return args.Error(0)
 }

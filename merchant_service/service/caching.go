@@ -13,7 +13,7 @@ import (
 )
 
 type CachingService interface {
-	SetRestaurantDetailed(restaurantId uint, data any) error
+	SetRestaurantDetailed(restaurantId uint, data *merchantpb.RestaurantDetailed) error
 	GetRestaurantDetailed(restaurantId uint) (*merchantpb.RestaurantDetailed, error)
 }
 
@@ -27,7 +27,7 @@ func NewCachingService(c *redis.Client) CachingService {
 	}
 }
 
-func (r RedisClient) SetRestaurantDetailed(restaurantId uint, data any) error {
+func (r RedisClient) SetRestaurantDetailed(restaurantId uint, data *merchantpb.RestaurantDetailed) error {
 	key := fmt.Sprintf("restaurantdetailed:%v", restaurantId)
 	path := "$"
 
