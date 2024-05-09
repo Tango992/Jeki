@@ -579,7 +579,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: jeki-egmflbdzpa-et.a.run.app
+host: jeki-x72poumuyq-et.a.run.app
 info:
   contact:
     email: daniel.rahmanto@gmail.com
@@ -590,7 +590,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Jeki
-  version: "1.0"
+  version: 1.0.1
 paths:
   /categories:
     get:
